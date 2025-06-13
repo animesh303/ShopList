@@ -7,13 +7,31 @@ struct ShoppingList: Identifiable, Codable {
     var dateCreated: Date
     var isShared: Bool
     var sharedWith: [String]?
+    var category: ListCategory
+    var isTemplate: Bool
+    var lastModified: Date
+    var budget: Double?
+    var location: Location?
     
-    init(id: UUID = UUID(), name: String, items: [Item] = [], dateCreated: Date = Date(), isShared: Bool = false) {
+    init(id: UUID = UUID(), 
+         name: String, 
+         items: [Item] = [], 
+         dateCreated: Date = Date(),
+         isShared: Bool = false,
+         category: ListCategory = .personal,
+         isTemplate: Bool = false,
+         budget: Double? = nil,
+         location: Location? = nil) {
         self.id = id
         self.name = name
         self.items = items
         self.dateCreated = dateCreated
         self.isShared = isShared
+        self.category = category
+        self.isTemplate = isTemplate
+        self.lastModified = dateCreated
+        self.budget = budget
+        self.location = location
     }
     
     var completedItems: [Item] {
@@ -28,23 +46,51 @@ struct ShoppingList: Identifiable, Codable {
         Dictionary(grouping: items) { $0.category }
     }
     
+    var totalEstimatedCost: Double {
+        items.reduce(0) { $0 + ($1.estimatedPrice ?? 0) * Double($1.quantity) }
+    }
+    
     mutating func addItem(_ item: Item) {
         items.append(item)
+        lastModified = Date()
     }
     
     mutating func removeItem(_ item: Item) {
         items.removeAll { $0.id == item.id }
+        lastModified = Date()
     }
     
     mutating func toggleItemCompletion(_ item: Item) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index].isCompleted.toggle()
+            lastModified = Date()
         }
     }
     
     mutating func updateItem(_ item: Item) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index] = item
+            lastModified = Date()
         }
     }
+    
+    mutating func reorderItems(from source: IndexSet, to destination: Int) {
+        items.move(fromOffsets: source, toOffset: destination)
+        lastModified = Date()
+    }
+}
+
+enum ListCategory: String, Codable, CaseIterable {
+    case personal = "Personal"
+    case household = "Household"
+    case groceries = "Groceries"
+    case gifts = "Gifts"
+    case other = "Other"
+}
+
+struct Location: Codable {
+    var name: String
+    var latitude: Double
+    var longitude: Double
+    var radius: Double // in meters
 } 

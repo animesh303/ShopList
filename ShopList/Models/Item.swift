@@ -8,8 +8,30 @@ struct Item: Identifiable, Codable {
     var isCompleted: Bool
     var notes: String?
     var dateAdded: Date
+    var estimatedPrice: Double?
+    var barcode: String?
+    var brand: String?
+    var unit: String?
+    var lastPurchasedPrice: Double?
+    var lastPurchasedDate: Date?
+    var imageURL: URL?
+    var priority: ItemPriority
     
-    init(id: UUID = UUID(), name: String, quantity: Int, category: ItemCategory, isCompleted: Bool = false, notes: String? = nil, dateAdded: Date = Date()) {
+    init(id: UUID = UUID(), 
+         name: String, 
+         quantity: Int, 
+         category: ItemCategory, 
+         isCompleted: Bool = false, 
+         notes: String? = nil, 
+         dateAdded: Date = Date(),
+         estimatedPrice: Double? = nil,
+         barcode: String? = nil,
+         brand: String? = nil,
+         unit: String? = nil,
+         lastPurchasedPrice: Double? = nil,
+         lastPurchasedDate: Date? = nil,
+         imageURL: URL? = nil,
+         priority: ItemPriority = .normal) {
         self.id = id
         self.name = name
         self.quantity = quantity
@@ -17,5 +39,35 @@ struct Item: Identifiable, Codable {
         self.isCompleted = isCompleted
         self.notes = notes
         self.dateAdded = dateAdded
+        self.estimatedPrice = estimatedPrice
+        self.barcode = barcode
+        self.brand = brand
+        self.unit = unit
+        self.lastPurchasedPrice = lastPurchasedPrice
+        self.lastPurchasedDate = lastPurchasedDate
+        self.imageURL = imageURL
+        self.priority = priority
+    }
+}
+
+enum ItemPriority: Int, Codable, CaseIterable {
+    case low = 0
+    case normal = 1
+    case high = 2
+    
+    var displayName: String {
+        switch self {
+        case .low: return "Low"
+        case .normal: return "Normal"
+        case .high: return "High"
+        }
+    }
+    
+    var color: String {
+        switch self {
+        case .low: return "gray"
+        case .normal: return "blue"
+        case .high: return "red"
+        }
     }
 } 
