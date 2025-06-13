@@ -1,11 +1,22 @@
 import Foundation
+import AppIntents
 
-enum ItemCategory: String, Codable, CaseIterable {
+enum ItemCategory: String, Codable, CaseIterable, AppEnum {
     case groceries = "Groceries"
     case household = "Household"
     case electronics = "Electronics"
     case clothing = "Clothing"
     case other = "Other"
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Item Category"
+    
+    static var caseDisplayRepresentations: [ItemCategory: DisplayRepresentation] = [
+        .groceries: "Groceries",
+        .household: "Household",
+        .electronics: "Electronics",
+        .clothing: "Clothing",
+        .other: "Other"
+    ]
     
     var icon: String {
         switch self {

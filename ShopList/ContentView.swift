@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = ShoppingListViewModel()
+    @StateObject private var viewModel = ShoppingListViewModel.shared
     @State private var showingAddListSheet = false
     @State private var showingAddItemSheet = false
     @State private var showingShareSheet = false

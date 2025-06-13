@@ -1,4 +1,5 @@
 import Foundation
+import AppIntents
 
 struct Item: Identifiable, Codable {
     let id: UUID
@@ -50,10 +51,18 @@ struct Item: Identifiable, Codable {
     }
 }
 
-enum ItemPriority: Int, Codable, CaseIterable {
+enum ItemPriority: Int, Codable, CaseIterable, AppEnum {
     case low = 0
     case normal = 1
     case high = 2
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Item Priority"
+    
+    static var caseDisplayRepresentations: [ItemPriority: DisplayRepresentation] = [
+        .low: "Low",
+        .normal: "Normal",
+        .high: "High"
+    ]
     
     var displayName: String {
         switch self {

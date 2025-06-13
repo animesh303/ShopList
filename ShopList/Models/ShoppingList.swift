@@ -1,4 +1,5 @@
 import Foundation
+import AppIntents
 
 struct ShoppingList: Identifiable, Codable {
     let id: UUID
@@ -80,12 +81,22 @@ struct ShoppingList: Identifiable, Codable {
     }
 }
 
-enum ListCategory: String, Codable, CaseIterable {
+enum ListCategory: String, Codable, CaseIterable, AppEnum {
     case personal = "Personal"
     case household = "Household"
     case groceries = "Groceries"
     case gifts = "Gifts"
     case other = "Other"
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "List Category"
+    
+    static var caseDisplayRepresentations: [ListCategory: DisplayRepresentation] = [
+        .personal: "Personal",
+        .household: "Household",
+        .groceries: "Groceries",
+        .gifts: "Gifts",
+        .other: "Other"
+    ]
 }
 
 struct Location: Codable {

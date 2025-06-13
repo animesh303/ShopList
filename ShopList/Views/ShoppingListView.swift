@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ShoppingListView: View {
     let list: ShoppingList
@@ -9,6 +10,9 @@ struct ShoppingListView: View {
     @State private var searchText = ""
     @State private var showingCompletedItems = false
     @State private var sortOrder: ItemSortOrder = .category
+    @State private var showingError = false
+    @State private var errorMessage = ""
+    @State private var listToShare: ShoppingList?
     
     var filteredItems: [Item] {
         var items = list.items
@@ -61,18 +65,32 @@ struct ShoppingListView: View {
             ForEach(itemsByCategory.sorted(by: { $0.key.rawValue < $1.key.rawValue }), id: \.key) { category, items in
                 Section(header: Text(category.rawValue)) {
                     ForEach(items) { item in
-                        ItemRow(item: item, list: list, viewModel: viewModel)
+                        ItemRow(item: item, list: list, viewModel: viewModel, showingError: $showingError, errorMessage: $errorMessage)
                     }
                     .onMove { source, destination in
-                        var updatedList = list
-                        updatedList.reorderItems(from: source, to: destination)
-                        viewModel.updateList(updatedList)
+                        Task {
+                            do {
+                                var updatedList = list
+                                updatedList.reorderItems(from: source, to: destination)
+                                viewModel.updateList(updatedList)
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showingError = true
+                            }
+                        }
                     }
                     .onDelete { indexSet in
-                        var updatedList = list
-                        let itemsToDelete = indexSet.map { items[$0] }
-                        itemsToDelete.forEach { updatedList.removeItem($0) }
-                        viewModel.updateList(updatedList)
+                        Task {
+                            do {
+                                var updatedList = list
+                                let itemsToDelete = indexSet.map { items[$0] }
+                                itemsToDelete.forEach { updatedList.removeItem($0) }
+                                viewModel.updateList(updatedList)
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showingError = true
+                            }
+                        }
                     }
                 }
             }
@@ -81,33 +99,32 @@ struct ShoppingListView: View {
         .navigationTitle(list.name)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { showingAddItemSheet = true }) {
+                    Image(systemName: "plus")
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    Button(action: { showingAddItemSheet = true }) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                    
                     Button(action: { showingListSettings = true }) {
                         Label("List Settings", systemImage: "gear")
                     }
-                    
                     Button(action: { showingShareSheet = true }) {
                         Label("Share List", systemImage: "square.and.arrow.up")
                     }
-                    
-                    Menu {
-                        Picker("Sort by", selection: $sortOrder) {
-                            Text("Category").tag(ItemSortOrder.category)
-                            Text("Name").tag(ItemSortOrder.name)
-                            Text("Priority").tag(ItemSortOrder.priority)
-                            Text("Date Added").tag(ItemSortOrder.dateAdded)
-                        }
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down")
-                    }
-                    
-                    Toggle("Show Completed", isOn: $showingCompletedItems)
                 } label: {
                     Image(systemName: "ellipsis.circle")
+                }
+            }
+            ToolbarItem(placement: .navigationBarLeading) {
+                Menu {
+                    Picker("Sort by", selection: $sortOrder) {
+                        Text("Category").tag(ItemSortOrder.category)
+                        Text("Name").tag(ItemSortOrder.name)
+                        Text("Priority").tag(ItemSortOrder.priority)
+                        Text("Date Added").tag(ItemSortOrder.dateAdded)
+                    }
+                } label: {
+                    Image(systemName: "arrow.up.arrow.down")
                 }
             }
         }
@@ -120,6 +137,11 @@ struct ShoppingListView: View {
         .sheet(isPresented: $showingShareSheet) {
             ShareSheet(items: [list.name])
         }
+        .alert("Error", isPresented: $showingError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
     }
 }
 
@@ -128,13 +150,22 @@ struct ItemRow: View {
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
     @State private var showingItemDetails = false
+    @Binding var showingError: Bool
+    @Binding var errorMessage: String
     
     var body: some View {
         HStack {
             Button(action: {
-                var updatedList = list
-                updatedList.toggleItemCompletion(item)
-                viewModel.updateList(updatedList)
+                Task {
+                    do {
+                        var updatedList = list
+                        updatedList.toggleItemCompletion(item)
+                        viewModel.updateList(updatedList)
+                    } catch {
+                        errorMessage = error.localizedDescription
+                        showingError = true
+                    }
+                }
             }) {
                 Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
                     .foregroundColor(item.isCompleted ? .green : .gray)
@@ -356,6 +387,8 @@ struct EditItemView: View {
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
     @State private var editedItem: Item
+    @State private var showingError = false
+    @State private var errorMessage = ""
     
     init(item: Item, list: ShoppingList, viewModel: ShoppingListViewModel) {
         self.item = item
@@ -415,12 +448,25 @@ struct EditItemView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        var updatedList = list
-                        updatedList.updateItem(editedItem)
-                        viewModel.updateList(updatedList)
-                        dismiss()
+                        Task {
+                            do {
+                                var updatedList = list
+                                updatedList.updateItem(editedItem)
+                                viewModel.updateList(updatedList)
+                                dismiss()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showingError = true
+                            }
+                        }
                     }
+                    .disabled(editedItem.name.isEmpty)
                 }
+            }
+            .alert("Error", isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
             }
         }
     }

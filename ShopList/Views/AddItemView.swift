@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import UIKit
 
 struct AddItemView: View {
     @Environment(\.dismiss) private var dismiss
@@ -18,6 +19,8 @@ struct AddItemView: View {
     @State private var showingImagePicker = false
     @State private var selectedImage: UIImage?
     @State private var barcode: String?
+    @State private var showingError = false
+    @State private var errorMessage = ""
     
     var body: some View {
         NavigationView {
@@ -84,23 +87,28 @@ struct AddItemView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        let newItem = Item(
-                            name: itemName,
-                            quantity: quantity,
-                            category: category,
-                            isCompleted: false,
-                            notes: notes.isEmpty ? nil : notes,
-                            dateAdded: Date(),
-                            estimatedPrice: estimatedPrice,
-                            barcode: barcode,
-                            brand: brand.isEmpty ? nil : brand,
-                            unit: unit.isEmpty ? nil : unit,
-                            priority: priority
-                        )
-                        var updatedList = list
-                        updatedList.addItem(newItem)
-                        viewModel.updateList(updatedList)
-                        dismiss()
+                        Task {
+                            do {
+                                let newItem = Item(
+                                    name: itemName,
+                                    quantity: quantity,
+                                    category: category,
+                                    isCompleted: false,
+                                    notes: notes.isEmpty ? nil : notes,
+                                    dateAdded: Date(),
+                                    estimatedPrice: estimatedPrice,
+                                    barcode: barcode,
+                                    brand: brand.isEmpty ? nil : brand,
+                                    unit: unit.isEmpty ? nil : unit,
+                                    priority: priority
+                                )
+                                await viewModel.addItem(newItem, to: list)
+                                dismiss()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showingError = true
+                            }
+                        }
                     }
                     .disabled(itemName.isEmpty)
                 }
@@ -110,6 +118,11 @@ struct AddItemView: View {
             }
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(image: $selectedImage)
+            }
+            .alert("Error", isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
             }
         }
     }
