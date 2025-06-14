@@ -2,152 +2,153 @@ import SwiftUI
 import AVFoundation
 import UIKit
 
+// View for displaying item suggestions
+private struct SuggestionsListView: View {
+    let suggestions: [(name: String, category: ItemCategory)]
+    let onSelect: ((name: String, category: ItemCategory)) -> Void
+    
+    var body: some View {
+        ForEach(suggestions, id: \.name) { suggestion in
+            Button(action: { onSelect(suggestion) }) {
+                HStack {
+                    Text(suggestion.name.capitalized)
+                    Spacer()
+                    Text(suggestion.category.rawValue)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(4)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+    }
+}
+
+// Define Field at the top level to avoid forward reference issues
+private enum Field {
+    case name, price, brand, unit, notes
+}
+
+// Custom toolbar content to avoid ambiguity
+private struct AddItemToolbar: ToolbarContent {
+    @Binding var itemName: String
+    @Binding var showingError: Bool
+    @Binding var errorMessage: String
+    @FocusState.Binding var focusedField: Field?
+    let onCancel: () -> Void
+    let onAdd: () -> Void
+    
+    var body: some ToolbarContent {
+        // Navigation bar items
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button("Cancel", action: onCancel)
+        }
+        
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button("Add", action: onAdd)
+                .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        
+        // Keyboard accessory view
+        ToolbarItem(placement: .keyboard) {
+            HStack {
+                Spacer()
+                Button("Done") {
+                    focusedField = nil
+                }
+            }
+        }
+    }
+}
+
 struct AddItemView: View {
     @Environment(\.dismiss) private var dismiss
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
     
     @State private var itemName = ""
-    @State private var quantity = 1
-    @State private var category: ItemCategory = .other
-    @State private var notes = ""
-    @State private var estimatedPrice: Double?
-    @State private var brand = ""
-    @State private var unit = ""
-    @State private var priority: ItemPriority = .normal
-    @State private var showingScanner = false
-    @State private var showingImagePicker = false
-    @State private var selectedImage: UIImage?
-    @State private var barcode: String?
-    @State private var showingError = false
-    @State private var errorMessage = ""
-    @FocusState private var focusedField: Field?
-    
-    enum Field {
-        case name, price, brand, unit, notes
-    }
+    @State private var showSuggestions = false
+    @FocusState private var isFocused: Bool
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Item Details")) {
                     TextField("Item Name", text: $itemName)
-                        .focused($focusedField, equals: .name)
-                    Stepper("Quantity: \(quantity)", value: $quantity, in: 1...99)
-                    Picker("Category", selection: $category) {
-                        ForEach(ItemCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
+                        .focused($isFocused)
+                        .onAppear {
+                            isFocused = true
                         }
-                    }
-                    Picker("Priority", selection: $priority) {
-                        ForEach(ItemPriority.allCases, id: \.self) { priority in
-                            Text(priority.displayName).tag(priority)
-                        }
-                    }
-                }
-                
-                Section(header: Text("Price & Brand")) {
-                    HStack {
-                        Text("$")
-                        TextField("Estimated Price", value: $estimatedPrice, format: .number)
-                            .keyboardType(.decimalPad)
-                            .focused($focusedField, equals: .price)
-                            .onChange(of: estimatedPrice) { newValue in
-                                if let value = newValue, value.isNaN || value.isInfinite {
-                                    estimatedPrice = nil
+                    
+                    // Show suggestions if available
+                    if showSuggestions {
+                        let suggestions = viewModel.getSuggestions(for: itemName)
+                        if !suggestions.isEmpty {
+                            Section(header: Text("Suggestions")) {
+                                ForEach(suggestions, id: \.name) { suggestion in
+                                    Button(action: {
+                                        itemName = suggestion.name
+                                        showSuggestions = false
+                                    }) {
+                                        HStack {
+                                            Text(suggestion.name.capitalized)
+                                            Spacer()
+                                            Text(suggestion.category.rawValue)
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                        }
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                             }
-                    }
-                    TextField("Brand", text: $brand)
-                        .focused($focusedField, equals: .brand)
-                    TextField("Unit (e.g., kg, lb)", text: $unit)
-                        .focused($focusedField, equals: .unit)
-                }
-                
-                Section(header: Text("Additional Information")) {
-                    TextField("Notes", text: $notes)
-                        .focused($focusedField, equals: .notes)
-                }
-                
-                Section {
-                    Button(action: { showingScanner = true }) {
-                        Label("Scan Barcode", systemImage: "barcode.viewfinder")
-                    }
-                    
-                    if let barcode = barcode {
-                        Text("Barcode: \(barcode)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    Button(action: { showingImagePicker = true }) {
-                        Label("Add Photo", systemImage: "photo")
-                    }
-                    
-                    if let image = selectedImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
+                        }
                     }
                 }
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Add") {
-                        Task {
-                            do {
-                                let newItem = Item(
-                                    name: itemName,
-                                    quantity: quantity,
-                                    category: category,
-                                    isCompleted: false,
-                                    notes: notes.isEmpty ? nil : notes,
-                                    dateAdded: Date(),
-                                    estimatedPrice: estimatedPrice,
-                                    barcode: barcode,
-                                    brand: brand.isEmpty ? nil : brand,
-                                    unit: unit.isEmpty ? nil : unit,
-                                    priority: priority
-                                )
-                                try await viewModel.addItem(newItem, to: list)
-                                dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showingError = true
-                            }
+                        // Simple add item logic
+                        let newItem = Item(
+                            name: itemName,
+                            quantity: 1,
+                            category: .other,
+                            isCompleted: false,
+                            notes: nil,
+                            dateAdded: Date(),
+                            estimatedPrice: nil,
+                            barcode: nil,
+                            brand: nil,
+                            unit: nil,
+                            priority: .normal
+                        )
+                        
+                        do {
+                            try viewModel.addItem(newItem, to: list)
+                            viewModel.addOrUpdateSuggestion(itemName, category: .other)
+                            dismiss()
+                        } catch {
+                            print("Error adding item: \(error)")
                         }
                     }
-                    .disabled(itemName.isEmpty)
-                }
-                ToolbarItem(placement: .keyboard) {
-                    HStack {
-                        Spacer()
-                        Button("Done") {
-                            focusedField = nil
-                        }
-                    }
+                    .disabled(itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
-            .sheet(isPresented: $showingScanner) {
-                BarcodeScannerView(barcode: $barcode)
+            .onChange(of: itemName) { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                showSuggestions = !trimmed.isEmpty
             }
-            .sheet(isPresented: $showingImagePicker) {
-                ImagePicker(image: $selectedImage)
-            }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
-            }
-            .keyboardAdaptive()
         }
     }
 }

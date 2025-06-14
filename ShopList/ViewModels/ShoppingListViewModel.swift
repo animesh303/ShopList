@@ -20,29 +20,190 @@ class ShoppingListViewModel: ObservableObject {
     // Error handling properties
     @Published var currentError: AppError?
     @Published var showingError = false
+    @Published var itemSuggestions: [String: (category: ItemCategory, count: Int)] = [:] // item name: (category, usage count)
     
     private let userDefaults = UserDefaults.standard
     private let listsKey = "shoppingLists"
+    private let suggestionsKey = "itemSuggestions"
     
     init() {
         do {
             try loadShoppingLists()
+            
+            // If no lists exist, create a sample list with some items
+            if shoppingLists.isEmpty {
+                addSampleItems()
+            }
         } catch {
             handleError(error)
         }
     }
     
-    private func loadShoppingLists() throws {
-        guard let data = userDefaults.data(forKey: listsKey) else {
-            return // No data yet, not an error
+    private func addSampleItems() {
+        print("Adding sample items for testing...")
+        let sampleItems = [
+            ("Milk", ItemCategory.dairy, 1),
+            ("Eggs", ItemCategory.dairy, 2),
+            ("Bread", ItemCategory.bakery, 1),
+            ("Apples", ItemCategory.produce, 6),
+            ("Chicken", ItemCategory.meat, 1)
+        ]
+        
+        var sampleList = ShoppingList(
+            name: "Grocery List",
+            items: [],
+            dateCreated: Date(),
+            isShared: false,
+            category: .groceries
+        )
+        
+        // Create items and add them to the sample list
+        var items = [Item]()
+        for (name, category, quantity) in sampleItems {
+            let item = Item(
+                name: name,
+                quantity: quantity,
+                category: category,
+                isCompleted: false,
+                notes: nil,
+                dateAdded: Date(),
+                estimatedPrice: nil,
+                barcode: nil,
+                brand: nil,
+                unit: nil,
+                lastPurchasedPrice: nil,
+                lastPurchasedDate: nil,
+                imageURL: nil,
+                priority: .normal
+            )
+            items.append(item)
+            addOrUpdateSuggestion(name, category: category)
         }
         
+        // Update the sample list with the items
+        sampleList.items = items
+        
         do {
-            let decodedLists = try JSONDecoder().decode([ShoppingList].self, from: data)
-            self.shoppingLists = decodedLists
+            try addShoppingList(sampleList)
+            print("Successfully added sample list with \(sampleList.items.count) items")
         } catch {
-            throw AppError.dataDecodingError("Failed to load shopping lists: \(error.localizedDescription)")
+            print("Failed to add sample list: \(error.localizedDescription)")
         }
+    }
+    
+    private func loadShoppingLists() throws {
+        print("Loading shopping lists from UserDefaults...")
+        // Load shopping lists
+        if let data = userDefaults.data(forKey: listsKey) {
+            do {
+                let decodedLists = try JSONDecoder().decode([ShoppingList].self, from: data)
+                print("Successfully loaded \(decodedLists.count) shopping lists")
+                self.shoppingLists = decodedLists
+                
+                // Update suggestions based on existing items
+                updateSuggestionsFromLists(decodedLists)
+            } catch {
+                print("Error decoding shopping lists: \(error.localizedDescription)")
+                throw AppError.dataDecodingError("Failed to load shopping lists: \(error.localizedDescription)")
+            }
+        } else {
+            print("No shopping lists found in UserDefaults")
+        }
+        
+        // Load saved suggestions
+        if let data = userDefaults.data(forKey: suggestionsKey) {
+            if let savedSuggestions = try? JSONDecoder().decode([String: [String: String]].self, from: data) {
+                var newSuggestions: [String: (ItemCategory, Int)] = [:] 
+                for (item, value) in savedSuggestions {
+                    if let categoryRaw = value["category"], 
+                       let countStr = value["count"],
+                       let count = Int(countStr),
+                       let category = ItemCategory(rawValue: categoryRaw) {
+                        newSuggestions[item] = (category, count)
+                    }
+                }
+                self.itemSuggestions = newSuggestions
+            }
+        }
+    }
+    
+    private func saveSuggestions() {
+        var dictToSave: [String: [String: String]] = [:]  // Changed to use String values
+        for (item, data) in itemSuggestions {
+            dictToSave[item] = [
+                "category": data.category.rawValue,
+                "count": String(data.count)  // Convert Int to String
+            ]
+        }
+        
+        if let data = try? JSONEncoder().encode(dictToSave) {
+            userDefaults.set(data, forKey: suggestionsKey)
+        }
+    }
+    
+    private func updateSuggestionsFromLists(_ lists: [ShoppingList]) {
+        print("Updating suggestions from \(lists.count) lists")
+        var itemCounts: [String: (ItemCategory, Int)] = [:]
+        
+        for list in lists {
+            for item in list.items {
+                let name = item.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                if name.isEmpty { continue }
+                
+                if let existing = itemCounts[name] {
+                    itemCounts[name] = (existing.0, existing.1 + 1)
+                } else {
+                    itemCounts[name] = (item.category, 1)
+                }
+            }
+        }
+        
+        // Merge with existing suggestions, preserving higher counts
+        var updatedCount = 0
+        for (item, data) in itemCounts {
+            if let existing = itemSuggestions[item] {
+                itemSuggestions[item] = (data.0, max(existing.1, data.1))
+                updatedCount += 1
+            } else {
+                itemSuggestions[item] = data
+                updatedCount += 1
+            }
+        }
+        print("Updated \(updatedCount) suggestions. Total suggestions now: \(itemSuggestions.count)")
+        
+        saveSuggestions()
+    }
+    
+    func getSuggestions(for query: String) -> [(name: String, category: ItemCategory)] {
+        guard !query.isEmpty else {
+            print("Query is empty, returning no suggestions")
+            return []
+        }
+        
+        let query = query.lowercased()
+        print("Getting suggestions for query: \(query)")
+        print("Current itemSuggestions: \(itemSuggestions.keys)")
+        
+        let suggestions = itemSuggestions
+            .filter { $0.key.lowercased().contains(query) }
+            .sorted { $0.value.count > $1.value.count }
+            .prefix(5)
+            .map { ($0.key, $0.value.category) }
+        
+        print("Found \(suggestions.count) suggestions: \(suggestions)")
+        return suggestions
+    }
+    
+    func addOrUpdateSuggestion(_ name: String, category: ItemCategory) {
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !name.isEmpty else { return }
+        
+        if let existing = itemSuggestions[name] {
+            itemSuggestions[name] = (category, existing.count + 1)
+        } else {
+            itemSuggestions[name] = (category, 1)
+        }
+        saveSuggestions()
     }
     
     // MARK: - Siri Intent Methods
