@@ -31,7 +31,12 @@ struct ShoppingList: Identifiable, Codable {
         self.category = category
         self.isTemplate = isTemplate
         self.lastModified = dateCreated
-        self.budget = budget
+        self.budget = budget.flatMap { amount in
+            if amount.isNaN || amount.isInfinite {
+                return nil
+            }
+            return amount
+        }
         self.location = location
     }
     

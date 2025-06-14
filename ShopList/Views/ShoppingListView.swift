@@ -72,7 +72,7 @@ struct ShoppingListView: View {
                             do {
                                 var updatedList = list
                                 updatedList.reorderItems(from: source, to: destination)
-                                viewModel.updateList(updatedList)
+                                try viewModel.updateList(updatedList)
                             } catch {
                                 errorMessage = error.localizedDescription
                                 showingError = true
@@ -85,7 +85,7 @@ struct ShoppingListView: View {
                                 var updatedList = list
                                 let itemsToDelete = indexSet.map { items[$0] }
                                 itemsToDelete.forEach { updatedList.removeItem($0) }
-                                viewModel.updateList(updatedList)
+                                try viewModel.updateList(updatedList)
                             } catch {
                                 errorMessage = error.localizedDescription
                                 showingError = true
@@ -160,7 +160,7 @@ struct ItemRow: View {
                     do {
                         var updatedList = list
                         updatedList.toggleItemCompletion(item)
-                        viewModel.updateList(updatedList)
+                        try viewModel.updateList(updatedList)
                     } catch {
                         errorMessage = error.localizedDescription
                         showingError = true
@@ -255,6 +255,8 @@ struct ListSettingsView: View {
     @State private var category: ListCategory
     @State private var budget: Double?
     @State private var isTemplate: Bool
+    @State private var showingError = false
+    @State private var errorMessage = ""
     
     init(list: ShoppingList, viewModel: ShoppingListViewModel) {
         self.list = list
@@ -282,6 +284,11 @@ struct ListSettingsView: View {
                         Text("$")
                         TextField("Budget Amount", value: $budget, format: .number)
                             .keyboardType(.decimalPad)
+                            .onChange(of: budget) { newValue in
+                                if let value = newValue, value.isNaN || value.isInfinite {
+                                    budget = nil
+                                }
+                            }
                     }
                 }
                 
@@ -299,15 +306,28 @@ struct ListSettingsView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        var updatedList = list
-                        updatedList.name = listName
-                        updatedList.category = category
-                        updatedList.budget = budget
-                        updatedList.isTemplate = isTemplate
-                        viewModel.updateList(updatedList)
-                        dismiss()
+                        Task {
+                            do {
+                                var updatedList = list
+                                updatedList.name = listName
+                                updatedList.category = category
+                                updatedList.budget = budget
+                                updatedList.isTemplate = isTemplate
+                                try viewModel.updateList(updatedList)
+                                dismiss()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showingError = true
+                            }
+                        }
                     }
+                    .disabled(listName.isEmpty)
                 }
+            }
+            .alert("Error", isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
             }
         }
     }
@@ -389,6 +409,11 @@ struct EditItemView: View {
     @State private var editedItem: Item
     @State private var showingError = false
     @State private var errorMessage = ""
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case name, price, brand, unit, notes
+    }
     
     init(item: Item, list: ShoppingList, viewModel: ShoppingListViewModel) {
         self.item = item
@@ -402,6 +427,7 @@ struct EditItemView: View {
             Form {
                 Section(header: Text("Item Details")) {
                     TextField("Name", text: $editedItem.name)
+                        .focused($focusedField, equals: .name)
                     Stepper("Quantity: \(editedItem.quantity)", value: $editedItem.quantity, in: 1...99)
                     Picker("Category", selection: $editedItem.category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
@@ -420,15 +446,23 @@ struct EditItemView: View {
                         Text("$")
                         TextField("Estimated Price", value: $editedItem.estimatedPrice, format: .number)
                             .keyboardType(.decimalPad)
+                            .focused($focusedField, equals: .price)
+                            .onChange(of: editedItem.estimatedPrice) { newValue in
+                                if let value = newValue, value.isNaN || value.isInfinite {
+                                    editedItem.estimatedPrice = nil
+                                }
+                            }
                     }
                     TextField("Brand", text: Binding(
                         get: { editedItem.brand ?? "" },
                         set: { editedItem.brand = $0.isEmpty ? nil : $0 }
                     ))
+                    .focused($focusedField, equals: .brand)
                     TextField("Unit", text: Binding(
                         get: { editedItem.unit ?? "" },
                         set: { editedItem.unit = $0.isEmpty ? nil : $0 }
                     ))
+                    .focused($focusedField, equals: .unit)
                 }
                 
                 Section(header: Text("Notes")) {
@@ -436,6 +470,7 @@ struct EditItemView: View {
                         get: { editedItem.notes ?? "" },
                         set: { editedItem.notes = $0.isEmpty ? nil : $0 }
                     ))
+                    .focused($focusedField, equals: .notes)
                 }
             }
             .navigationTitle("Edit Item")
@@ -452,7 +487,7 @@ struct EditItemView: View {
                             do {
                                 var updatedList = list
                                 updatedList.updateItem(editedItem)
-                                viewModel.updateList(updatedList)
+                                try viewModel.updateList(updatedList)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -462,12 +497,21 @@ struct EditItemView: View {
                     }
                     .disabled(editedItem.name.isEmpty)
                 }
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button("Done") {
+                            focusedField = nil
+                        }
+                    }
+                }
             }
             .alert("Error", isPresented: $showingError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(errorMessage)
             }
+            .keyboardAdaptive()
         }
     }
 }

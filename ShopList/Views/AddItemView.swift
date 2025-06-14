@@ -21,12 +21,18 @@ struct AddItemView: View {
     @State private var barcode: String?
     @State private var showingError = false
     @State private var errorMessage = ""
+    @FocusState private var focusedField: Field?
+    
+    enum Field {
+        case name, price, brand, unit, notes
+    }
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Item Details")) {
                     TextField("Item Name", text: $itemName)
+                        .focused($focusedField, equals: .name)
                     Stepper("Quantity: \(quantity)", value: $quantity, in: 1...99)
                     Picker("Category", selection: $category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
@@ -45,13 +51,22 @@ struct AddItemView: View {
                         Text("$")
                         TextField("Estimated Price", value: $estimatedPrice, format: .number)
                             .keyboardType(.decimalPad)
+                            .focused($focusedField, equals: .price)
+                            .onChange(of: estimatedPrice) { newValue in
+                                if let value = newValue, value.isNaN || value.isInfinite {
+                                    estimatedPrice = nil
+                                }
+                            }
                     }
                     TextField("Brand", text: $brand)
+                        .focused($focusedField, equals: .brand)
                     TextField("Unit (e.g., kg, lb)", text: $unit)
+                        .focused($focusedField, equals: .unit)
                 }
                 
                 Section(header: Text("Additional Information")) {
                     TextField("Notes", text: $notes)
+                        .focused($focusedField, equals: .notes)
                 }
                 
                 Section {
@@ -102,7 +117,7 @@ struct AddItemView: View {
                                     unit: unit.isEmpty ? nil : unit,
                                     priority: priority
                                 )
-                                await viewModel.addItem(newItem, to: list)
+                                try await viewModel.addItem(newItem, to: list)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -111,6 +126,14 @@ struct AddItemView: View {
                         }
                     }
                     .disabled(itemName.isEmpty)
+                }
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button("Done") {
+                            focusedField = nil
+                        }
+                    }
                 }
             }
             .sheet(isPresented: $showingScanner) {
@@ -124,6 +147,7 @@ struct AddItemView: View {
             } message: {
                 Text(errorMessage)
             }
+            .keyboardAdaptive()
         }
     }
 }

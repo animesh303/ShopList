@@ -16,20 +16,32 @@ class ShoppingListViewModel: ObservableObject {
     @Published var showingAddItemSheet = false
     @Published var showingShareSheet = false
     @Published var listToShare: ShoppingList?
-    @Published var errorMessage: String?
+    
+    // Error handling properties
+    @Published var currentError: AppError?
     @Published var showingError = false
     
     private let userDefaults = UserDefaults.standard
     private let listsKey = "shoppingLists"
     
     init() {
-        loadShoppingLists()
+        do {
+            try loadShoppingLists()
+        } catch {
+            handleError(error)
+        }
     }
     
-    private func loadShoppingLists() {
-        if let data = userDefaults.data(forKey: listsKey),
-           let decodedLists = try? JSONDecoder().decode([ShoppingList].self, from: data) {
+    private func loadShoppingLists() throws {
+        guard let data = userDefaults.data(forKey: listsKey) else {
+            return // No data yet, not an error
+        }
+        
+        do {
+            let decodedLists = try JSONDecoder().decode([ShoppingList].self, from: data)
             self.shoppingLists = decodedLists
+        } catch {
+            throw AppError.dataDecodingError("Failed to load shopping lists: \(error.localizedDescription)")
         }
     }
     
@@ -45,12 +57,16 @@ class ShoppingListViewModel: ObservableObject {
     ) async throws {
         let viewModel = shared
         
+        guard !itemName.isEmpty else {
+            throw AppError.invalidInput("Item name cannot be empty")
+        }
+        
         guard let list = viewModel.findList(byName: listName) else {
-            throw IntentError.listNotFound
+            throw AppError.listNotFound
         }
         
         guard quantity > 0 else {
-            throw IntentError.invalidQuantity
+            throw AppError.invalidQuantity
         }
         
         let item = Item(
@@ -63,18 +79,18 @@ class ShoppingListViewModel: ObservableObject {
             priority: priority
         )
         
-        viewModel.addItem(item, to: list)
+        try viewModel.addItem(item, to: list)
     }
     
     static func createShoppingList(name: String, category: ListCategory) async throws {
         let viewModel = shared
         
         guard !name.isEmpty else {
-            throw IntentError.invalidListName
+            throw AppError.invalidListName
         }
         
         guard viewModel.findList(byName: name) == nil else {
-            throw IntentError.listAlreadyExists
+            throw AppError.listAlreadyExists
         }
         
         let newList = ShoppingList(
@@ -85,42 +101,62 @@ class ShoppingListViewModel: ObservableObject {
             category: category
         )
         
-        viewModel.addShoppingList(newList)
+        try viewModel.addShoppingList(newList)
     }
     
     // MARK: - List Management
     
-    func addShoppingList(_ list: ShoppingList) {
+    func addShoppingList(_ list: ShoppingList) throws {
         shoppingLists.append(list)
-        saveShoppingLists()
+        try saveShoppingLists()
     }
     
     func deleteList(at indexSet: IndexSet) {
-        shoppingLists.remove(atOffsets: indexSet)
-        saveShoppingLists()
-    }
-    
-    func updateList(_ list: ShoppingList) {
-        if let index = shoppingLists.firstIndex(where: { $0.id == list.id }) {
-            shoppingLists[index] = list
-            saveShoppingLists()
+        do {
+            shoppingLists.remove(atOffsets: indexSet)
+            try saveShoppingLists()
+        } catch {
+            handleError(error)
         }
     }
     
-    func addItem(_ item: Item, to list: ShoppingList) {
+    func updateList(_ list: ShoppingList) throws {
+        guard let index = shoppingLists.firstIndex(where: { $0.id == list.id }) else {
+            throw AppError.dataNotFound("List not found for update")
+        }
+        
+        shoppingLists[index] = list
+        try saveShoppingLists()
+    }
+    
+    func addItem(_ item: Item, to list: ShoppingList) throws {
         var updatedList = list
         updatedList.addItem(item)
-        updateList(updatedList)
+        try updateList(updatedList)
     }
     
     func findList(byName name: String) -> ShoppingList? {
         shoppingLists.first { $0.name.lowercased() == name.lowercased() }
     }
     
-    private func saveShoppingLists() {
-        if let encoded = try? JSONEncoder().encode(shoppingLists) {
+    private func saveShoppingLists() throws {
+        do {
+            let encoded = try JSONEncoder().encode(shoppingLists)
             userDefaults.set(encoded, forKey: listsKey)
+        } catch {
+            throw AppError.dataSaveError("Failed to save shopping lists: \(error.localizedDescription)")
         }
+    }
+    
+    // MARK: - Error Handling
+    
+    func handleError(_ error: Error) {
+        if let appError = error as? AppError {
+            currentError = appError
+        } else {
+            currentError = AppError.uiError(error.localizedDescription)
+        }
+        showingError = true
     }
 }
 

@@ -8,13 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = ShoppingListViewModel.shared
+    @EnvironmentObject var viewModel: ShoppingListViewModel
     @State private var showingAddListSheet = false
     @State private var showingAddItemSheet = false
     @State private var showingShareSheet = false
     @State private var listToShare: ShoppingList?
-    @State private var errorMessage: String?
-    @State private var showingError = false
     @State private var searchText = ""
     @State private var sortOrder: SortOrder = .dateCreated
     @State private var selectedCategory: ListCategory?
@@ -126,12 +124,8 @@ struct ContentView: View {
             .sheet(isPresented: $showingFilters) {
                 FilterView(selectedCategory: $selectedCategory)
             }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage ?? "An unknown error occurred")
-            }
         }
+        .errorAlert(error: $viewModel.currentError, isPresented: $viewModel.showingError)
     }
 }
 

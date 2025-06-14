@@ -40,7 +40,12 @@ struct Item: Identifiable, Codable {
         self.isCompleted = isCompleted
         self.notes = notes
         self.dateAdded = dateAdded
-        self.estimatedPrice = estimatedPrice
+        self.estimatedPrice = estimatedPrice.flatMap { price in
+            if price.isNaN || price.isInfinite {
+                return nil
+            }
+            return price
+        }
         self.barcode = barcode
         self.brand = brand
         self.unit = unit
