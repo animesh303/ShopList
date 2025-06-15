@@ -6,14 +6,37 @@ import UIKit
 extension ItemCategory {
     var color: Color {
         switch self {
+        // Food & Beverages
         case .groceries: return .blue
         case .dairy: return .blue.opacity(0.7)
         case .bakery: return .brown
         case .produce: return .green
         case .meat: return .red
+        case .frozenFoods: return .blue.opacity(0.5)
+        case .beverages: return .blue.opacity(0.9)
+        case .snacks: return .orange.opacity(0.8)
+        case .spices: return .orange.opacity(0.6)
+            
+        // Household
         case .household: return .orange
+        case .cleaning: return .blue.opacity(0.3)
+        case .laundry: return .blue.opacity(0.4)
+        case .kitchen: return .orange.opacity(0.7)
+        case .bathroom: return .blue.opacity(0.2)
+        case .office: return .gray.opacity(0.5)
+            
+        // Personal Care
+        case .personalCare: return .purple.opacity(0.7)
+        case .beauty: return .pink.opacity(0.8)
+        case .health: return .red.opacity(0.8)
+        case .babyCare: return .pink.opacity(0.6)
+        case .petCare: return .brown.opacity(0.6)
+            
+        // Other
         case .electronics: return .purple
         case .clothing: return .pink
+        case .automotive: return .gray.opacity(0.7)
+        case .garden: return .green.opacity(0.7)
         case .other: return .gray
         }
     }
