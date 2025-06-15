@@ -413,7 +413,17 @@ struct EditItemView: View {
     let item: Item
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
-    @State private var editedItem: Item
+    
+    // Separate state variables for each editable property
+    @State private var name: String
+    @State private var quantityString: String
+    @State private var category: ItemCategory
+    @State private var priority: ItemPriority
+    @State private var estimatedPriceString: String
+    @State private var brand: String
+    @State private var unit: String
+    @State private var notes: String
+    
     @State private var showingError = false
     @State private var errorMessage = ""
     @FocusState private var focusedField: Field?
@@ -426,22 +436,70 @@ struct EditItemView: View {
         self.item = item
         self.list = list
         self.viewModel = viewModel
-        _editedItem = State(initialValue: item)
+        
+        // Initialize state variables from the item
+        _name = State(initialValue: item.name)
+        _quantityString = State(initialValue: item.quantity.formatted())
+        _category = State(initialValue: item.category)
+        _priority = State(initialValue: item.priority)
+        _estimatedPriceString = State(initialValue: item.estimatedPrice?.formatted() ?? "")
+        _brand = State(initialValue: item.brand ?? "")
+        _unit = State(initialValue: item.unit ?? "")
+        _notes = State(initialValue: item.notes ?? "")
+    }
+    
+    private var quantity: Decimal {
+        return Decimal(string: quantityString) ?? 1
+    }
+    
+    private var estimatedPrice: Decimal? {
+        guard !estimatedPriceString.isEmpty else { return nil }
+        return Decimal(string: estimatedPriceString)
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Item Details")) {
-                    TextField("Name", text: $editedItem.name)
+                    TextField("Name", text: $name)
                         .focused($focusedField, equals: .name)
-                    Stepper("Quantity: \(editedItem.quantity)", value: $editedItem.quantity, in: 1...99)
-                    Picker("Category", selection: $editedItem.category) {
+                        .onAppear {
+                            focusedField = .name
+                        }
+                    
+                    HStack {
+                        Text("Quantity")
+                        Spacer()
+                        TextField("1", text: $quantityString)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 100)
+                            .onChange(of: quantityString) { newValue in
+                                // Allow only numbers and one decimal point
+                                let filtered = newValue.filter { "0123456789.".contains($0) }
+                                let components = filtered.components(separatedBy: ".")
+                                if components.count > 2 {
+                                    quantityString = String(filtered.dropLast())
+                                } else if let first = components.first, first.count > 5 {
+                                    quantityString = String(first.prefix(5))
+                                } else if components.count == 2, let last = components.last, last.count > 2 {
+                                    quantityString = "\(components[0]).\(last.prefix(2))"
+                                } else {
+                                    quantityString = filtered
+                                }
+                            }
+                        if !unit.isEmpty {
+                            Text(unit)
+                        }
+                    }
+                    
+                    Picker("Category", selection: $category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
                             Text(category.rawValue).tag(category)
                         }
                     }
-                    Picker("Priority", selection: $editedItem.priority) {
+                    
+                    Picker("Priority", selection: $priority) {
                         ForEach(ItemPriority.allCases, id: \.self) { priority in
                             Text(priority.displayName).tag(priority)
                         }
@@ -451,35 +509,51 @@ struct EditItemView: View {
                 Section(header: Text("Price & Brand")) {
                     HStack {
                         Text("$")
-                        TextField("Estimated Price", value: $editedItem.estimatedPrice, format: .number)
+                        TextField("Estimated Price", text: $estimatedPriceString)
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .price)
-                            .onChange(of: editedItem.estimatedPrice) { newValue in
-                                if let value = newValue, value.isNaN || value.isInfinite {
-                                    editedItem.estimatedPrice = nil
+                            .onChange(of: estimatedPriceString) { newValue in
+                                // Allow only numbers and one decimal point
+                                let filtered = newValue.filter { "0123456789.".contains($0) }
+                                let components = filtered.components(separatedBy: ".")
+                                if components.count > 2 {
+                                    estimatedPriceString = String(filtered.dropLast())
+                                } else if let first = components.first, first.count > 5 {
+                                    estimatedPriceString = String(first.prefix(5))
+                                } else if components.count == 2, let last = components.last, last.count > 2 {
+                                    estimatedPriceString = "\(components[0]).\(last.prefix(2))"
+                                } else {
+                                    estimatedPriceString = filtered
                                 }
                             }
                     }
-                    TextField("Brand", text: Binding(
-                        get: { editedItem.brand ?? "" },
-                        set: { editedItem.brand = $0.isEmpty ? nil : $0 }
-                    ))
-                    .focused($focusedField, equals: .brand)
-                    TextField("Unit", text: Binding(
-                        get: { editedItem.unit ?? "" },
-                        set: { editedItem.unit = $0.isEmpty ? nil : $0 }
-                    ))
-                    .focused($focusedField, equals: .unit)
+                    
+                    TextField("Brand", text: $brand)
+                        .focused($focusedField, equals: .brand)
+                    
+                    HStack {
+                        TextField("Unit (e.g., kg, g, lb)", text: $unit)
+                            .focused($focusedField, equals: .unit)
+                        
+                        if !unit.isEmpty {
+                            Button(action: {
+                                unit = ""
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
                 }
                 
                 Section(header: Text("Notes")) {
-                    TextField("Notes", text: Binding(
-                        get: { editedItem.notes ?? "" },
-                        set: { editedItem.notes = $0.isEmpty ? nil : $0 }
-                    ))
-                    .focused($focusedField, equals: .notes)
+                    TextEditor(text: $notes)
+                        .frame(minHeight: 100)
+                        .focused($focusedField, equals: .notes)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Edit Item")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -492,8 +566,18 @@ struct EditItemView: View {
                     Button("Save") {
                         Task {
                             do {
+                                var updatedItem = item
+                                updatedItem.name = name
+                                updatedItem.quantity = quantity
+                                updatedItem.category = category
+                                updatedItem.priority = priority
+                                updatedItem.estimatedPrice = estimatedPrice
+                                updatedItem.brand = brand.isEmpty ? nil : brand
+                                updatedItem.unit = unit.isEmpty ? nil : unit
+                                updatedItem.notes = notes.isEmpty ? nil : notes
+                                
                                 var updatedList = list
-                                updatedList.updateItem(editedItem)
+                                updatedList.updateItem(updatedItem)
                                 try viewModel.updateList(updatedList)
                                 dismiss()
                             } catch {
@@ -502,14 +586,14 @@ struct EditItemView: View {
                             }
                         }
                     }
-                    .disabled(editedItem.name.isEmpty)
+                    .disabled(name.isEmpty)
                 }
-                ToolbarItem(placement: .keyboard) {
-                    HStack {
-                        Spacer()
-                        Button("Done") {
-                            focusedField = nil
-                        }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") {
+                        focusedField = nil
                     }
                 }
             }
@@ -518,7 +602,10 @@ struct EditItemView: View {
             } message: {
                 Text(errorMessage)
             }
-            .keyboardAdaptive()
+            .onAppear {
+                // Set initial focus
+                focusedField = .name
+            }
         }
     }
 }
