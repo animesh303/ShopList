@@ -20,7 +20,7 @@ class ShoppingListViewModel: ObservableObject {
     // Error handling properties
     @Published var currentError: AppError?
     @Published var showingError = false
-    @Published var itemSuggestions: [String: (category: ItemCategory, count: Int)] = [:] // item name: (category, usage count)
+    @Published var itemSuggestions: [String: (item: Item, count: Int)] = [:] // item name: (full item, usage count)
     
     private let userDefaults = UserDefaults.standard
     private let listsKey = "shoppingLists"
@@ -77,7 +77,7 @@ class ShoppingListViewModel: ObservableObject {
                 priority: .normal
             )
             items.append(item)
-            addOrUpdateSuggestion(name, category: category)
+            addOrUpdateSuggestion(item)
         }
         
         // Update the sample list with the items
@@ -112,14 +112,18 @@ class ShoppingListViewModel: ObservableObject {
         
         // Load saved suggestions
         if let data = userDefaults.data(forKey: suggestionsKey) {
-            if let savedSuggestions = try? JSONDecoder().decode([String: [String: String]].self, from: data) {
-                var newSuggestions: [String: (ItemCategory, Int)] = [:] 
-                for (item, value) in savedSuggestions {
-                    if let categoryRaw = value["category"], 
-                       let countStr = value["count"],
-                       let count = Int(countStr),
-                       let category = ItemCategory(rawValue: categoryRaw) {
-                        newSuggestions[item] = (category, count)
+            if let savedSuggestions = try? JSONDecoder().decode([String: [String: Data]].self, from: data) {
+                var newSuggestions: [String: (Item, Int)] = [:] 
+                for (itemName, value) in savedSuggestions {
+                    if let itemData = value["item"],
+                       let countData = value["count"],
+                       let count = Int(String(data: countData, encoding: .utf8) ?? "1") {
+                        do {
+                            let item = try JSONDecoder().decode(Item.self, from: itemData)
+                            newSuggestions[itemName] = (item, count)
+                        } catch {
+                            print("Failed to decode item \(itemName): \(error)")
+                        }
                     }
                 }
                 self.itemSuggestions = newSuggestions
@@ -128,12 +132,20 @@ class ShoppingListViewModel: ObservableObject {
     }
     
     private func saveSuggestions() {
-        var dictToSave: [String: [String: String]] = [:]  // Changed to use String values
-        for (item, data) in itemSuggestions {
-            dictToSave[item] = [
-                "category": data.category.rawValue,
-                "count": String(data.count)  // Convert Int to String
-            ]
+        var dictToSave: [String: [String: Data]] = [:]  // Store encoded item data
+        
+        for (itemName, data) in itemSuggestions {
+            do {
+                // Encode the item
+                let itemData = try JSONEncoder().encode(data.item)
+                // Store both the item data and count
+                dictToSave[itemName] = [
+                    "item": itemData,
+                    "count": String(data.count).data(using: .utf8)!
+                ]
+            } catch {
+                print("Failed to encode item \(itemName): \(error)")
+            }
         }
         
         if let data = try? JSONEncoder().encode(dictToSave) {
@@ -143,7 +155,7 @@ class ShoppingListViewModel: ObservableObject {
     
     private func updateSuggestionsFromLists(_ lists: [ShoppingList]) {
         print("Updating suggestions from \(lists.count) lists")
-        var itemCounts: [String: (ItemCategory, Int)] = [:]
+        var itemCounts: [String: (Item, Int)] = [:]
         
         for list in lists {
             for item in list.items {
@@ -153,7 +165,7 @@ class ShoppingListViewModel: ObservableObject {
                 if let existing = itemCounts[name] {
                     itemCounts[name] = (existing.0, existing.1 + 1)
                 } else {
-                    itemCounts[name] = (item.category, 1)
+                    itemCounts[name] = (item, 1)
                 }
             }
         }
@@ -162,7 +174,8 @@ class ShoppingListViewModel: ObservableObject {
         var updatedCount = 0
         for (item, data) in itemCounts {
             if let existing = itemSuggestions[item] {
-                itemSuggestions[item] = (data.0, max(existing.1, data.1))
+                // Keep the existing item but update the count
+                itemSuggestions[item] = (existing.item, max(existing.count, data.1))
                 updatedCount += 1
             } else {
                 itemSuggestions[item] = data
@@ -174,7 +187,7 @@ class ShoppingListViewModel: ObservableObject {
         saveSuggestions()
     }
     
-    func getSuggestions(for query: String) -> [(name: String, category: ItemCategory)] {
+    func getSuggestions(for query: String) -> [Item] {
         guard !query.isEmpty else {
             print("Query is empty, returning no suggestions")
             return []
@@ -184,24 +197,27 @@ class ShoppingListViewModel: ObservableObject {
         print("Getting suggestions for query: \(query)")
         print("Current itemSuggestions: \(itemSuggestions.keys)")
         
+        // Get matching items, sorted by usage count
         let suggestions = itemSuggestions
             .filter { $0.key.lowercased().contains(query) }
             .sorted { $0.value.count > $1.value.count }
             .prefix(5)
-            .map { ($0.key, $0.value.category) }
+            .map { $0.value.item }
         
-        print("Found \(suggestions.count) suggestions: \(suggestions)")
+        print("Found \(suggestions.count) suggestions")
         return suggestions
     }
     
-    func addOrUpdateSuggestion(_ name: String, category: ItemCategory) {
-        let name = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    func addOrUpdateSuggestion(_ item: Item) {
+        let name = item.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !name.isEmpty else { return }
         
         if let existing = itemSuggestions[name] {
-            itemSuggestions[name] = (category, existing.count + 1)
+            // Update the count but keep the existing item data
+            itemSuggestions[name] = (existing.item, existing.count + 1)
         } else {
-            itemSuggestions[name] = (category, 1)
+            // Create a new suggestion with the item and initial count of 1
+            itemSuggestions[name] = (item, 1)
         }
         saveSuggestions()
     }

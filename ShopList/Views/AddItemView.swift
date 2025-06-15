@@ -94,6 +94,7 @@ struct AddItemView: View {
     @State private var unit: String = ""
     @State private var notes: String = ""
     @State private var showSuggestions = false
+    @State private var selectedSuggestion: Item? = nil
     @State private var showingError = false
     @State private var errorMessage = ""
     
@@ -117,10 +118,20 @@ struct AddItemView: View {
                     if showSuggestions {
                         let suggestions = viewModel.getSuggestions(for: itemName)
                         if !suggestions.isEmpty {
-                            SuggestionsListView(suggestions: suggestions) { selected in
-                                itemName = selected.name
-                                category = selected.category
-                                showSuggestions = false
+                            SuggestionsListView(suggestions: suggestions.map { ($0.name, $0.category) }) { suggestion in
+                                // Find the full item from the suggestions
+                                if let selectedItem = suggestions.first(where: { $0.name == suggestion.name }) {
+                                    // Update all fields from the selected suggestion
+                                    itemName = selectedItem.name
+                                    quantity = selectedItem.quantity
+                                    category = selectedItem.category
+                                    priority = selectedItem.priority
+                                    estimatedPrice = selectedItem.estimatedPrice
+                                    brand = selectedItem.brand ?? ""
+                                    unit = selectedItem.unit ?? ""
+                                    notes = selectedItem.notes ?? ""
+                                    showSuggestions = false
+                                }
                             }
                             .transition(.opacity.combined(with: .move(edge: .top)))
                         }
@@ -228,7 +239,8 @@ struct AddItemView: View {
         Task {
             do {
                 try viewModel.addItem(newItem, to: list)
-                viewModel.addOrUpdateSuggestion(itemName, category: category)
+                // Update suggestions with the full item
+                viewModel.addOrUpdateSuggestion(newItem)
                 dismiss()
             } catch {
                 await MainActor.run {
