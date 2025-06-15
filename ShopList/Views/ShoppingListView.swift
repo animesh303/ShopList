@@ -1,6 +1,13 @@
 import SwiftUI
 import UIKit
 
+enum ItemSortOrder: String, CaseIterable {
+    case category = "Category"
+    case name = "Name"
+    case priority = "Priority"
+    case dateAdded = "Date Added"
+}
+
 struct ShoppingListView: View {
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
@@ -193,40 +200,41 @@ struct ItemRow: View {
                 }
                 
                 HStack {
-                    if let brand = item.brand {
+                    if let brand = item.brand, !brand.isEmpty {
                         Text(brand)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     
                     if let unit = item.unit, !unit.isEmpty {
-                        Text("\(item.quantity.formatted(.number.precision(.fractionLength(0...2)))) \(unit)")
+                        Text("\(item.quantity.formatted()) \(unit)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text("Qty: \(item.quantity.formatted(.number.precision(.fractionLength(0...2))))")
+                        Text("Qty: \(item.quantity.formatted())")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     
                     if let price = item.estimatedPrice {
-                        Text(price, format: .currency(code: "USD").precision(.fractionLength(0...2)))
+                        Text(price, format: .currency(code: "USD"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
                 
-                if let notes = item.notes {
+                if let notes = item.notes, !notes.isEmpty {
                     Text(notes)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(2)
                 }
             }
             
             Spacer()
             
-            if let image = item.imageURL {
-                AsyncImage(url: image) { image in
+            if let imageURL = item.imageURL {
+                AsyncImage(url: imageURL) { image in
                     image
                         .resizable()
                         .scaledToFill()
@@ -247,373 +255,13 @@ struct ItemRow: View {
     }
 }
 
-enum ItemSortOrder {
-    case category
-    case name
-    case priority
-    case dateAdded
-}
-
-struct ListSettingsView: View {
-    @Environment(\.dismiss) private var dismiss
-    let list: ShoppingList
-    @ObservedObject var viewModel: ShoppingListViewModel
-    @State private var listName: String
-    @State private var category: ListCategory
-    @State private var budget: Decimal?
-    @State private var isTemplate: Bool
-    @State private var showingError = false
-    @State private var errorMessage = ""
-    
-    init(list: ShoppingList, viewModel: ShoppingListViewModel) {
-        self.list = list
-        self.viewModel = viewModel
-        _listName = State(initialValue: list.name)
-        _category = State(initialValue: list.category)
-        _budget = State(initialValue: list.budget)
-        _isTemplate = State(initialValue: list.isTemplate)
-    }
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("List Details")) {
-                    TextField("List Name", text: $listName)
-                    Picker("Category", selection: $category) {
-                        ForEach(ListCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
-                        }
-                    }
-                }
-                
-                Section(header: Text("Budget")) {
-                    HStack {
-                        Text("$")
-                        TextField("Budget Amount", value: $budget, format: .number)
-                            .keyboardType(.decimalPad)
-                            .onChange(of: budget) { newValue in
-                                if let value = newValue, value.isNaN || value.isInfinite {
-                                    budget = nil
-                                }
-                            }
-                    }
-                }
-                
-                Section {
-                    Toggle("Save as Template", isOn: $isTemplate)
-                }
-            }
-            .navigationTitle("List Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        Task {
-                            do {
-                                var updatedList = list
-                                updatedList.name = listName
-                                updatedList.category = category
-                                updatedList.budget = budget
-                                updatedList.isTemplate = isTemplate
-                                try viewModel.updateList(updatedList)
-                                dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showingError = true
-                            }
-                        }
-                    }
-                    .disabled(listName.isEmpty)
-                }
-            }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
-            }
-        }
-    }
-}
-
-struct ItemDetailView: View {
-    @Environment(\.dismiss) private var dismiss
-    let item: Item
-    let list: ShoppingList
-    @ObservedObject var viewModel: ShoppingListViewModel
-    @State private var showingEditSheet = false
-    
-    var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("Item Details")) {
-                    LabeledContent("Name", value: item.name)
-                    if let unit = item.unit, !unit.isEmpty {
-                        LabeledContent("Quantity", value: "\(item.quantity) \(unit)")
-                    } else {
-                        LabeledContent("Quantity", value: "\(item.quantity)")
-                    }
-                    LabeledContent("Category", value: item.category.rawValue)
-                    LabeledContent("Priority", value: item.priority.displayName)
-                }
-                
-                if let brand = item.brand {
-                    Section(header: Text("Brand")) {
-                        Text(brand)
-                    }
-                }
-                
-                if let price = item.estimatedPrice {
-                    Section(header: Text("Price")) {
-                        Text(price, format: .currency(code: "USD").precision(.fractionLength(0...2)))
-                    }
-                }
-                
-                if let notes = item.notes {
-                    Section(header: Text("Notes")) {
-                        Text(notes)
-                    }
-                }
-                
-                if let imageURL = item.imageURL {
-                    Section {
-                        AsyncImage(url: imageURL) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                        } placeholder: {
-                            ProgressView()
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Item Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Edit") {
-                        showingEditSheet = true
-                    }
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-            .sheet(isPresented: $showingEditSheet) {
-                EditItemView(item: item, list: list, viewModel: viewModel)
-            }
-        }
-    }
-}
-
-struct EditItemView: View {
-    @Environment(\.dismiss) private var dismiss
-    let item: Item
-    let list: ShoppingList
-    @ObservedObject var viewModel: ShoppingListViewModel
-    
-    // Separate state variables for each editable property
-    @State private var name: String
-    @State private var quantityString: String
-    @State private var category: ItemCategory
-    @State private var priority: ItemPriority
-    @State private var estimatedPriceString: String
-    @State private var brand: String
-    @State private var unit: String
-    @State private var notes: String
-    
-    @State private var showingError = false
-    @State private var errorMessage = ""
-    @FocusState private var focusedField: Field?
-    
-    enum Field {
-        case name, price, brand, unit, notes
-    }
-    
-    init(item: Item, list: ShoppingList, viewModel: ShoppingListViewModel) {
-        self.item = item
-        self.list = list
-        self.viewModel = viewModel
-        
-        // Initialize state variables from the item
-        _name = State(initialValue: item.name)
-        _quantityString = State(initialValue: item.quantity.formatted())
-        _category = State(initialValue: item.category)
-        _priority = State(initialValue: item.priority)
-        _estimatedPriceString = State(initialValue: item.estimatedPrice?.formatted() ?? "")
-        _brand = State(initialValue: item.brand ?? "")
-        // Initialize unit with the item's unit or empty string if nil
-        let unitValue = item.unit ?? ""
-        _unit = State(initialValue: unitValue)
-        _notes = State(initialValue: item.notes ?? "")
-    }
-    
-    private var quantity: Decimal {
-        return Decimal(string: quantityString) ?? 1
-    }
-    
-    private var estimatedPrice: Decimal? {
-        guard !estimatedPriceString.isEmpty else { return nil }
-        return Decimal(string: estimatedPriceString)
-    }
-    
-    var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("Item Details")) {
-                    TextField("Name", text: $name)
-                        .focused($focusedField, equals: .name)
-                        .onAppear {
-                            focusedField = .name
-                        }
-                    
-                    HStack {
-                        Text("Quantity")
-                        Spacer()
-                        TextField("1", text: $quantityString)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
-                            .onChange(of: quantityString) { newValue in
-                                // Allow only numbers and one decimal point
-                                let filtered = newValue.filter { "0123456789.".contains($0) }
-                                let components = filtered.components(separatedBy: ".")
-                                if components.count > 2 {
-                                    quantityString = String(filtered.dropLast())
-                                } else if let first = components.first, first.count > 5 {
-                                    quantityString = String(first.prefix(5))
-                                } else if components.count == 2, let last = components.last, last.count > 2 {
-                                    quantityString = "\(components[0]).\(last.prefix(2))"
-                                } else {
-                                    quantityString = filtered
-                                }
-                            }
-                        if !unit.isEmpty {
-                            Text(unit)
-                        }
-                    }
-                    
-                    Picker("Category", selection: $category) {
-                        ForEach(ItemCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
-                        }
-                    }
-                    
-                    Picker("Priority", selection: $priority) {
-                        ForEach(ItemPriority.allCases, id: \.self) { priority in
-                            Text(priority.displayName).tag(priority)
-                        }
-                    }
-                }
-                
-                Section(header: Text("Price & Brand")) {
-                    HStack {
-                        Text("$")
-                        TextField("Estimated Price", text: $estimatedPriceString)
-                            .keyboardType(.decimalPad)
-                            .focused($focusedField, equals: .price)
-                            .onChange(of: estimatedPriceString) { newValue in
-                                // Allow only numbers and one decimal point
-                                let filtered = newValue.filter { "0123456789.".contains($0) }
-                                let components = filtered.components(separatedBy: ".")
-                                if components.count > 2 {
-                                    estimatedPriceString = String(filtered.dropLast())
-                                } else if let first = components.first, first.count > 5 {
-                                    estimatedPriceString = String(first.prefix(5))
-                                } else if components.count == 2, let last = components.last, last.count > 2 {
-                                    estimatedPriceString = "\(components[0]).\(last.prefix(2))"
-                                } else {
-                                    estimatedPriceString = filtered
-                                }
-                            }
-                    }
-                    
-                    TextField("Brand", text: $brand)
-                        .focused($focusedField, equals: .brand)
-                    
-                    Picker("Unit", selection: $unit) {
-                        ForEach(ShoppingList.commonUnits, id: \.self) { unit in
-                            Text(unit.isEmpty ? "None" : unit).tag(unit)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                }
-                
-                Section(header: Text("Notes")) {
-                    TextEditor(text: $notes)
-                        .frame(minHeight: 100)
-                        .focused($focusedField, equals: .notes)
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("Edit Item")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        Task {
-                            do {
-                                var updatedItem = item
-                                updatedItem.name = name
-                                updatedItem.quantity = quantity
-                                updatedItem.category = category
-                                updatedItem.priority = priority
-                                updatedItem.estimatedPrice = estimatedPrice
-                                updatedItem.brand = brand.isEmpty ? nil : brand
-                                updatedItem.unit = unit.isEmpty ? nil : unit
-                                updatedItem.notes = notes.isEmpty ? nil : notes
-                                
-                                var updatedList = list
-                                updatedList.updateItem(updatedItem)
-                                try viewModel.updateList(updatedList)
-                                dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showingError = true
-                            }
-                        }
-                    }
-                    .disabled(name.isEmpty)
-                }
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") {
-                        focusedField = nil
-                    }
-                }
-            }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
-            }
-            .onAppear {
-                // Set initial focus
-                focusedField = .name
-            }
-        }
-    }
-}
-
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+        let controller = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        return controller
     }
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-} 
+}
