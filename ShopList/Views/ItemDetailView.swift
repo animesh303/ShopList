@@ -36,20 +36,28 @@ struct ItemDetailView: View {
                 Section(header: Text("Item Details")) {
                     TextField("Name", text: $item.name)
                     
-                    HStack {
+                    HStack(alignment: .center, spacing: 8) {
                         Text("Quantity")
-                        Spacer()
-                        TextField("1", value: $item.quantity, format: .number)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
                         
-                        Picker("Unit", selection: $item.unit) {
-                            ForEach(ShoppingList.commonUnits, id: \.self) { unit in
-                                Text(unit.isEmpty ? "None" : unit).tag(unit)
+                        Spacer()
+                        
+                        HStack(spacing: 8) {
+                            TextField("1", value: $item.quantity, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 60)
+                            
+                            Picker("", selection: $item.unit) {
+                                ForEach(ShoppingList.commonUnits, id: \.self) { unit in
+                                    Text(unit.isEmpty ? "None" : unit)
+                                        .tag(unit)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
+                                }
                             }
+                            .pickerStyle(.menu)
+                            .fixedSize(horizontal: true, vertical: false)
                         }
-                        .pickerStyle(.menu)
                     }
                     
                     Picker("Category", selection: $item.category) {

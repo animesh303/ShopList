@@ -135,34 +135,44 @@ struct AddItemView: View {
                         }
                     }
                     
-                    HStack {
+                    HStack(alignment: .center, spacing: 8) {
                         Text("Quantity")
+                        
                         Spacer()
-                        TextField("1", text: $quantityString)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
-                            .onChange(of: quantityString) { newValue in
-                                // Allow only numbers and one decimal point
-                                let filtered = newValue.filter { "0123456789.".contains($0) }
-                                let components = filtered.components(separatedBy: ".")
-                                if components.count > 2 {
-                                    // If more than one decimal point, remove the last one
-                                    quantityString = String(filtered.dropLast())
-                                } else if let first = components.first, first.count > 5 {
-                                    // Limit to 5 digits before decimal
-                                    quantityString = String(first.prefix(5))
-                                } else if components.count == 2, let last = components.last, last.count > 2 {
-                                    // Limit to 2 decimal places
-                                    quantityString = "\(components[0]).\(last.prefix(2))"
-                                } else {
-                                    quantityString = filtered
+                        
+                        HStack(spacing: 8) {
+                            TextField("1", text: $quantityString)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 60)
+                                .onChange(of: quantityString) { newValue in
+                                    // Allow only numbers and one decimal point
+                                    let filtered = newValue.filter { "0123456789.".contains($0) }
+                                    let components = filtered.components(separatedBy: ".")
+                                    if components.count > 2 {
+                                        // If more than one decimal point, remove the last one
+                                        quantityString = String(filtered.dropLast())
+                                    } else if let first = components.first, first.count > 5 {
+                                        // Limit to 5 digits before decimal
+                                        quantityString = String(first.prefix(5))
+                                    } else if components.count == 2, let last = components.last, last.count > 2 {
+                                        // Limit to 2 decimal places
+                                        quantityString = "\(components[0]).\(last.prefix(2))"
+                                    } else {
+                                        quantityString = filtered
+                                    }
+                                }
+                            
+                            Picker("", selection: $unit) {
+                                ForEach(ShoppingList.commonUnits, id: \.self) { unit in
+                                    Text(unit.isEmpty ? "None" : unit)
+                                        .tag(unit)
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.7)
                                 }
                             }
-                        if !unit.isEmpty {
-                            Text(unit)
-                        } else {
-                            Text("None").foregroundColor(.secondary)
+                            .pickerStyle(.menu)
+                            .fixedSize(horizontal: true, vertical: false)
                         }
                     }
                     
@@ -206,13 +216,6 @@ struct AddItemView: View {
                     
                     TextField("Brand", text: $brand)
                         .focused($focusedField, equals: .brand)
-                    
-                    Picker("Unit", selection: $unit) {
-                        ForEach(ShoppingList.commonUnits, id: \.self) { unit in
-                            Text(unit.isEmpty ? "None" : unit).tag(unit)
-                        }
-                    }
-                    .pickerStyle(.menu)
                 }
                 
                 Section(header: Text("Notes")) {

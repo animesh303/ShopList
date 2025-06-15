@@ -206,12 +206,12 @@ struct ItemRow: View {
                             .foregroundColor(.secondary)
                     }
                     
+                    Text(item.quantity.formatted())
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
                     if let unit = item.unit, !unit.isEmpty {
-                        Text("\(item.quantity.formatted()) \(unit)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("Qty: \(item.quantity.formatted())")
+                        Text(unit)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
