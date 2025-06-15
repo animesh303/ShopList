@@ -352,7 +352,11 @@ struct ItemDetailView: View {
             List {
                 Section(header: Text("Item Details")) {
                     LabeledContent("Name", value: item.name)
-                    LabeledContent("Quantity", value: "\(item.quantity)")
+                    if let unit = item.unit, !unit.isEmpty {
+                        LabeledContent("Quantity", value: "\(item.quantity) \(unit)")
+                    } else {
+                        LabeledContent("Quantity", value: "\(item.quantity)")
+                    }
                     LabeledContent("Category", value: item.category.rawValue)
                     LabeledContent("Priority", value: item.priority.displayName)
                 }
@@ -444,7 +448,9 @@ struct EditItemView: View {
         _priority = State(initialValue: item.priority)
         _estimatedPriceString = State(initialValue: item.estimatedPrice?.formatted() ?? "")
         _brand = State(initialValue: item.brand ?? "")
-        _unit = State(initialValue: item.unit ?? "")
+        // Initialize unit with the item's unit or empty string if nil
+        let unitValue = item.unit ?? ""
+        _unit = State(initialValue: unitValue)
         _notes = State(initialValue: item.notes ?? "")
     }
     
@@ -531,20 +537,12 @@ struct EditItemView: View {
                     TextField("Brand", text: $brand)
                         .focused($focusedField, equals: .brand)
                     
-                    HStack {
-                        TextField("Unit (e.g., kg, g, lb)", text: $unit)
-                            .focused($focusedField, equals: .unit)
-                        
-                        if !unit.isEmpty {
-                            Button(action: {
-                                unit = ""
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                    Picker("Unit", selection: $unit) {
+                        ForEach(ShoppingList.commonUnits, id: \.self) { unit in
+                            Text(unit.isEmpty ? "None" : unit).tag(unit)
                         }
                     }
+                    .pickerStyle(.menu)
                 }
                 
                 Section(header: Text("Notes")) {

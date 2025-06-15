@@ -161,6 +161,8 @@ struct AddItemView: View {
                             }
                         if !unit.isEmpty {
                             Text(unit)
+                        } else {
+                            Text("None").foregroundColor(.secondary)
                         }
                     }
                     
@@ -205,20 +207,12 @@ struct AddItemView: View {
                     TextField("Brand", text: $brand)
                         .focused($focusedField, equals: .brand)
                     
-                    HStack {
-                        TextField("Unit (e.g., kg, g, lb)", text: $unit)
-                            .focused($focusedField, equals: .unit)
-                        
-                        if !unit.isEmpty {
-                            Button(action: {
-                                unit = ""
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                    Picker("Unit", selection: $unit) {
+                        ForEach(ShoppingList.commonUnits, id: \.self) { unit in
+                            Text(unit.isEmpty ? "None" : unit).tag(unit)
                         }
                     }
+                    .pickerStyle(.menu)
                 }
                 
                 Section(header: Text("Notes")) {

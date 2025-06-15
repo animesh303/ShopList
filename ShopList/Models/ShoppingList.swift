@@ -2,6 +2,12 @@ import Foundation
 import AppIntents
 
 struct ShoppingList: Identifiable, Codable {
+    static let commonUnits = [
+        "", // Empty for none
+        "g", "kg", "ml", "L", "oz", "lb",
+        "tsp", "tbsp", "cup", "pint",
+        "piece", "pieces", "box", "pack", "bunch"
+    ]
     let id: UUID
     var name: String
     var items: [Item]
