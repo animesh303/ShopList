@@ -42,10 +42,10 @@ struct ItemDetailView: View {
                         Spacer()
                         
                         HStack(spacing: 8) {
-                            TextField("1", value: $item.quantity, format: .number)
+                            TextField("1.0", value: $item.quantity, format: .number.precision(.fractionLength(1)))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
-                                .frame(width: 60)
+                                .frame(width: 80)
                             
                             Picker("", selection: $item.unit) {
                                 ForEach(ShoppingList.commonUnits, id: \.self) { unit in

@@ -86,7 +86,7 @@ struct AddItemView: View {
     @ObservedObject var viewModel: ShoppingListViewModel
     
     @State private var itemName = ""
-    @State private var quantityString = "1"
+    @State private var quantityString = "1.0"
     @State private var category: ItemCategory = .other
     @State private var priority: ItemPriority = .normal
     @State private var estimatedPriceString = ""
@@ -95,7 +95,11 @@ struct AddItemView: View {
     @State private var notes: String = ""
     
     private var quantity: Decimal {
-        return Decimal(string: quantityString) ?? 1
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 1
+        formatter.decimalSeparator = "."
+        return (formatter.number(from: quantityString)?.decimalValue ?? 1.0) as Decimal
     }
     
     private var estimatedPrice: Decimal? {
@@ -141,26 +145,49 @@ struct AddItemView: View {
                         Spacer()
                         
                         HStack(spacing: 8) {
-                            TextField("1", text: $quantityString)
+                            TextField("1.0", text: $quantityString)
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
-                                .frame(width: 60)
+                                .frame(width: 80)
                                 .onChange(of: quantityString) { newValue in
                                     // Allow only numbers and one decimal point
                                     let filtered = newValue.filter { "0123456789.".contains($0) }
-                                    let components = filtered.components(separatedBy: ".")
-                                    if components.count > 2 {
-                                        // If more than one decimal point, remove the last one
-                                        quantityString = String(filtered.dropLast())
-                                    } else if let first = components.first, first.count > 5 {
-                                        // Limit to 5 digits before decimal
-                                        quantityString = String(first.prefix(5))
-                                    } else if components.count == 2, let last = components.last, last.count > 2 {
-                                        // Limit to 2 decimal places
-                                        quantityString = "\(components[0]).\(last.prefix(2))"
-                                    } else {
-                                        quantityString = filtered
+                                    
+                                    // Handle empty input
+                                    if filtered.isEmpty {
+                                        quantityString = ""
+                                        return
                                     }
+                                    
+                                    // Handle leading decimal point
+                                    if filtered == "." {
+                                        quantityString = "0."
+                                        return
+                                    }
+                                    
+                                    let components = filtered.components(separatedBy: ".")
+                                    
+                                    // If more than one decimal point, keep only the first one
+                                    if components.count > 2 {
+                                        let firstPart = components[0]
+                                        let decimalPart = components[1...].joined()
+                                        quantityString = "\(firstPart).\(decimalPart)"
+                                        return
+                                    }
+                                    
+                                    // Limit to 5 digits before decimal
+                                    if let first = components.first, first.count > 5 {
+                                        quantityString = String(first.prefix(5)) + (components.count > 1 ? ".\(components[1])" : "")
+                                        return
+                                    }
+                                    
+                                    // Limit to 1 decimal place
+                                    if components.count == 2, let last = components.last, last.count > 1 {
+                                        quantityString = "\(components[0]).\(last.prefix(1))"
+                                        return
+                                    }
+                                    
+                                    quantityString = filtered
                                 }
                             
                             Picker("", selection: $unit) {

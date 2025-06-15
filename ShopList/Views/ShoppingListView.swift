@@ -206,7 +206,7 @@ struct ItemRow: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    Text(item.quantity.formatted())
+                    Text(item.quantity.formatted(.number.precision(.fractionLength(1))))
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
