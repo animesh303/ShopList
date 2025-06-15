@@ -4,9 +4,9 @@ import AppIntents
 struct ShoppingList: Identifiable, Codable {
     static let commonUnits = [
         "", // Empty for none
-        "gram", "kilogram", "milliliter", "liter", "ounce", "pound",
-        "teaspoon", "tablespoon", "cup", "pint",
-        "piece", "pieces", "box", "pack", "bunch"
+        "Gram", "Kilogram", "Milliliter", "Liter", "Ounce", "Pound",
+        "Teaspoon", "Tablespoon", "Cup", "Pint",
+        "Piece", "Pieces", "Box", "Pack", "Bunch"
     ]
     let id: UUID
     var name: String
