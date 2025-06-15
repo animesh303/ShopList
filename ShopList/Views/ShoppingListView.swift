@@ -40,25 +40,13 @@ struct ShoppingListView: View {
     var itemsByCategory: [ItemCategory: [Item]] {
         Dictionary(grouping: filteredItems) { $0.category }
     }
-    
+        
     var body: some View {
         List {
             if let budget = list.budget {
+                let totalCost = list.totalEstimatedCost
                 Section {
-                    HStack {
-                        Text("Budget")
-                        Spacer()
-                        Text("$\(budget, specifier: "%.2f")")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    let totalCost = list.totalEstimatedCost
-                    HStack {
-                        Text("Estimated Total")
-                        Spacer()
-                        Text("$\(totalCost, specifier: "%.2f")")
-                            .foregroundColor(totalCost > budget ? .red : .secondary)
-                    }
+                    budgetRow(budget: budget, totalCost: totalCost)
                 }
             }
             
@@ -143,6 +131,25 @@ struct ShoppingListView: View {
             Text(errorMessage)
         }
     }
+    
+    @ViewBuilder
+    private func budgetRow(budget: Decimal, totalCost: Decimal) -> some View {
+        Group {
+            HStack {
+                Text("Budget")
+                Spacer()
+                Text(budget, format: .currency(code: "USD").precision(.fractionLength(0...2)))
+                    .foregroundColor(.secondary)
+            }
+            
+            HStack {
+                Text("Estimated Total")
+                Spacer()
+                Text(totalCost, format: .currency(code: "USD").precision(.fractionLength(0...2)))
+                    .foregroundColor(totalCost > budget ? .red : .secondary)
+            }
+        }
+    }
 }
 
 struct ItemRow: View {
@@ -192,18 +199,18 @@ struct ItemRow: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    if let unit = item.unit {
-                        Text("\(item.quantity) \(unit)")
+                    if let unit = item.unit, !unit.isEmpty {
+                        Text("\(item.quantity.formatted(.number.precision(.fractionLength(0...2)))) \(unit)")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     } else {
-                        Text("Qty: \(item.quantity)")
+                        Text("Qty: \(item.quantity.formatted(.number.precision(.fractionLength(0...2))))")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                     
                     if let price = item.estimatedPrice {
-                        Text("$\(price, specifier: "%.2f")")
+                        Text(price, format: .currency(code: "USD").precision(.fractionLength(0...2)))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -253,7 +260,7 @@ struct ListSettingsView: View {
     @ObservedObject var viewModel: ShoppingListViewModel
     @State private var listName: String
     @State private var category: ListCategory
-    @State private var budget: Double?
+    @State private var budget: Decimal?
     @State private var isTemplate: Bool
     @State private var showingError = false
     @State private var errorMessage = ""
@@ -358,7 +365,7 @@ struct ItemDetailView: View {
                 
                 if let price = item.estimatedPrice {
                     Section(header: Text("Price")) {
-                        Text("$\(price, specifier: "%.2f")")
+                        Text(price, format: .currency(code: "USD").precision(.fractionLength(0...2)))
                     }
                 }
                 

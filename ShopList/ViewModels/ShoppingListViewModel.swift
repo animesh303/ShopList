@@ -62,7 +62,7 @@ class ShoppingListViewModel: ObservableObject {
         for (name, category, quantity) in sampleItems {
             let item = Item(
                 name: name,
-                quantity: quantity,
+                quantity: Decimal(quantity),
                 category: category,
                 isCompleted: false,
                 notes: nil,
@@ -248,7 +248,7 @@ class ShoppingListViewModel: ObservableObject {
         
         let item = Item(
             name: itemName,
-            quantity: quantity,
+            quantity: Decimal(quantity),
             category: category,
             isCompleted: false,
             notes: notes,

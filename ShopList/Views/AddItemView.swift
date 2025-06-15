@@ -86,13 +86,22 @@ struct AddItemView: View {
     @ObservedObject var viewModel: ShoppingListViewModel
     
     @State private var itemName = ""
-    @State private var quantity = 1
+    @State private var quantityString = "1"
     @State private var category: ItemCategory = .other
     @State private var priority: ItemPriority = .normal
-    @State private var estimatedPrice: Double?
+    @State private var estimatedPriceString = ""
     @State private var brand: String = ""
     @State private var unit: String = ""
     @State private var notes: String = ""
+    
+    private var quantity: Decimal {
+        return Decimal(string: quantityString) ?? 1
+    }
+    
+    private var estimatedPrice: Decimal? {
+        guard !estimatedPriceString.isEmpty else { return nil }
+        return Decimal(string: estimatedPriceString)
+    }
     @State private var showSuggestions = false
     @State private var selectedSuggestion: Item? = nil
     @State private var showingError = false
@@ -118,26 +127,42 @@ struct AddItemView: View {
                     if showSuggestions {
                         let suggestions = viewModel.getSuggestions(for: itemName)
                         if !suggestions.isEmpty {
-                            SuggestionsListView(suggestions: suggestions.map { ($0.name, $0.category) }) { suggestion in
-                                // Find the full item from the suggestions
-                                if let selectedItem = suggestions.first(where: { $0.name == suggestion.name }) {
-                                    // Update all fields from the selected suggestion
-                                    itemName = selectedItem.name
-                                    quantity = selectedItem.quantity
-                                    category = selectedItem.category
-                                    priority = selectedItem.priority
-                                    estimatedPrice = selectedItem.estimatedPrice
-                                    brand = selectedItem.brand ?? ""
-                                    unit = selectedItem.unit ?? ""
-                                    notes = selectedItem.notes ?? ""
-                                    showSuggestions = false
-                                }
+                            let suggestionItems = suggestions.map { ($0.name, $0.category) }
+                            SuggestionsListView(suggestions: suggestionItems) { selectedSuggestion in
+                                handleSuggestionSelection(selectedSuggestion, from: suggestions)
                             }
                             .transition(.opacity.combined(with: .move(edge: .top)))
                         }
                     }
                     
-                    Stepper("Quantity: \(quantity)", value: $quantity, in: 1...99)
+                    HStack {
+                        Text("Quantity")
+                        Spacer()
+                        TextField("1", text: $quantityString)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 100)
+                            .onChange(of: quantityString) { newValue in
+                                // Allow only numbers and one decimal point
+                                let filtered = newValue.filter { "0123456789.".contains($0) }
+                                let components = filtered.components(separatedBy: ".")
+                                if components.count > 2 {
+                                    // If more than one decimal point, remove the last one
+                                    quantityString = String(filtered.dropLast())
+                                } else if let first = components.first, first.count > 5 {
+                                    // Limit to 5 digits before decimal
+                                    quantityString = String(first.prefix(5))
+                                } else if components.count == 2, let last = components.last, last.count > 2 {
+                                    // Limit to 2 decimal places
+                                    quantityString = "\(components[0]).\(last.prefix(2))"
+                                } else {
+                                    quantityString = filtered
+                                }
+                            }
+                        if !unit.isEmpty {
+                            Text(unit)
+                        }
+                    }
                     
                     Picker("Category", selection: $category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
@@ -155,19 +180,45 @@ struct AddItemView: View {
                 Section(header: Text("Price & Brand")) {
                     HStack {
                         Text("$")
-                        TextField("Estimated Price", value: $estimatedPrice, format: .number)
+                        TextField("Estimated Price", text: $estimatedPriceString)
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .price)
-                            .onChange(of: estimatedPrice) { newValue in
-                                if let value = newValue, value.isNaN || value.isInfinite {
-                                    estimatedPrice = nil
+                            .onChange(of: estimatedPriceString) { newValue in
+                                // Allow only numbers and one decimal point
+                                let filtered = newValue.filter { "0123456789.".contains($0) }
+                                let components = filtered.components(separatedBy: ".")
+                                if components.count > 2 {
+                                    // If more than one decimal point, remove the last one
+                                    estimatedPriceString = String(filtered.dropLast())
+                                } else if let first = components.first, first.count > 5 {
+                                    // Limit to 5 digits before decimal
+                                    estimatedPriceString = String(first.prefix(5))
+                                } else if components.count == 2, let last = components.last, last.count > 2 {
+                                    // Limit to 2 decimal places
+                                    estimatedPriceString = "\(components[0]).\(last.prefix(2))"
+                                } else {
+                                    estimatedPriceString = filtered
                                 }
                             }
                     }
+                    
                     TextField("Brand", text: $brand)
                         .focused($focusedField, equals: .brand)
-                    TextField("Unit (e.g., kg, g, lb)", text: $unit)
-                        .focused($focusedField, equals: .unit)
+                    
+                    HStack {
+                        TextField("Unit (e.g., kg, g, lb)", text: $unit)
+                            .focused($focusedField, equals: .unit)
+                        
+                        if !unit.isEmpty {
+                            Button(action: {
+                                unit = ""
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
                 }
                 
                 Section(header: Text("Notes")) {
@@ -211,6 +262,28 @@ struct AddItemView: View {
         }
     }
     
+    private func handleSuggestionSelection(_ suggestion: (name: String, category: ItemCategory), from suggestions: [Item]) {
+        // Find the full item from the suggestions
+        if let selectedItem = suggestions.first(where: { $0.name == suggestion.name }) {
+            // Update all fields from the selected suggestion
+            itemName = selectedItem.name
+            // Update quantityString instead of the computed quantity property
+            quantityString = selectedItem.quantity.formatted()
+            category = selectedItem.category
+            priority = selectedItem.priority
+            // Update estimatedPriceString instead of the computed estimatedPrice property
+            if let price = selectedItem.estimatedPrice {
+                estimatedPriceString = price.formatted()
+            } else {
+                estimatedPriceString = ""
+            }
+            brand = selectedItem.brand ?? ""
+            unit = selectedItem.unit ?? ""
+            notes = selectedItem.notes ?? ""
+            showSuggestions = false
+        }
+    }
+    
     private func addNewItem() {
         // Capture the current values to avoid reference issues
         let itemName = self.itemName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -219,9 +292,12 @@ struct AddItemView: View {
         let brand = self.brand.isEmpty ? nil : self.brand
         let unit = self.unit.isEmpty ? nil : self.unit
         
+        // Ensure quantity is at least 0.01
+        let validQuantity = max(0.01, quantity)
+        
         let newItem = Item(
             name: itemName,
-            quantity: self.quantity,
+            quantity: validQuantity,
             category: category,
             isCompleted: false,
             notes: notes,
@@ -230,8 +306,8 @@ struct AddItemView: View {
             barcode: nil,
             brand: brand,
             unit: unit,
-            lastPurchasedPrice: nil,
-            lastPurchasedDate: nil,
+            lastPurchasedPrice: self.estimatedPrice, // Save current price as last purchased
+            lastPurchasedDate: Date(),
             imageURL: nil,
             priority: self.priority
         )

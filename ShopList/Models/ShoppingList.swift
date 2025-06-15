@@ -11,7 +11,7 @@ struct ShoppingList: Identifiable, Codable {
     var category: ListCategory
     var isTemplate: Bool
     var lastModified: Date
-    var budget: Double?
+    var budget: Decimal?
     var location: Location?
     
     init(id: UUID = UUID(), 
@@ -31,11 +31,11 @@ struct ShoppingList: Identifiable, Codable {
         self.category = category
         self.isTemplate = isTemplate
         self.lastModified = dateCreated
-        self.budget = budget.flatMap { amount in
-            if amount.isNaN || amount.isInfinite {
-                return nil
-            }
-            return amount
+        // Convert Double budget to Decimal if it's valid
+        if let budget = budget, !budget.isNaN && !budget.isInfinite {
+            self.budget = Decimal(budget)
+        } else {
+            self.budget = nil
         }
         self.location = location
     }
@@ -52,8 +52,8 @@ struct ShoppingList: Identifiable, Codable {
         Dictionary(grouping: items) { $0.category }
     }
     
-    var totalEstimatedCost: Double {
-        items.reduce(0) { $0 + ($1.estimatedPrice ?? 0) * Double($1.quantity) }
+    var totalEstimatedCost: Decimal {
+        items.reduce(0) { $0 + (($1.estimatedPrice ?? 0) as Decimal) * $1.quantity }
     }
     
     mutating func addItem(_ item: Item) {
