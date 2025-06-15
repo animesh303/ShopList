@@ -29,9 +29,9 @@ enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable {
     case snacks = "Snacks"
     case spices = "Spices & Herbs"
     
-    // Make the enum Comparable
-    static func < (lhs: ItemCategory, rhs: ItemCategory) -> Bool {
-        return lhs.rawValue < rhs.rawValue
+    // Make the enum Comparable for sorting
+    public static func < (lhs: ItemCategory, rhs: ItemCategory) -> Bool {
+        return lhs.rawValue.localizedStandardCompare(rhs.rawValue) == .orderedAscending
     }
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "Item Category"

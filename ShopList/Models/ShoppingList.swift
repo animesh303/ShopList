@@ -92,22 +92,68 @@ struct ShoppingList: Identifiable, Codable {
     }
 }
 
-enum ListCategory: String, Codable, CaseIterable, AppEnum {
-    case personal = "Personal"
-    case household = "Household"
+enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
+    // Shopping Categories
     case groceries = "Groceries"
+    case household = "Household"
+    case personalCare = "Personal Care"
+    case health = "Health & Pharmacy"
+    case electronics = "Electronics"
+    case clothing = "Clothing"
+    case office = "Office Supplies"
+    case pet = "Pet Supplies"
+    case baby = "Baby & Kids"
+    case automotive = "Automotive"
+    case homeImprovement = "Home Improvement"
+    case garden = "Garden & Outdoors"
+    
+    // Special Occasions
     case gifts = "Gifts"
+    case party = "Party Supplies"
+    case holiday = "Holiday Shopping"
+    
+    // Travel
+    case travel = "Travel"
+    case vacation = "Vacation"
+    
+    // Work & Business
+    case work = "Work"
+    case business = "Business"
+    
+    // Other
+    case personal = "Personal"
     case other = "Other"
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "List Category"
     
-    static var caseDisplayRepresentations: [ListCategory: DisplayRepresentation] = [
-        .personal: "Personal",
-        .household: "Household",
-        .groceries: "Groceries",
-        .gifts: "Gifts",
-        .other: "Other"
+    static let caseDisplayRepresentations: [ListCategory: DisplayRepresentation] = [
+        .automotive: DisplayRepresentation(stringLiteral: "Automotive"),
+        .baby: DisplayRepresentation(stringLiteral: "Baby & Kids"),
+        .business: DisplayRepresentation(stringLiteral: "Business"),
+        .clothing: DisplayRepresentation(stringLiteral: "Clothing"),
+        .electronics: DisplayRepresentation(stringLiteral: "Electronics"),
+        .garden: DisplayRepresentation(stringLiteral: "Garden & Outdoors"),
+        .gifts: DisplayRepresentation(stringLiteral: "Gifts"),
+        .groceries: DisplayRepresentation(stringLiteral: "Groceries"),
+        .health: DisplayRepresentation(stringLiteral: "Health & Pharmacy"),
+        .holiday: DisplayRepresentation(stringLiteral: "Holiday Shopping"),
+        .homeImprovement: DisplayRepresentation(stringLiteral: "Home Improvement"),
+        .household: DisplayRepresentation(stringLiteral: "Household"),
+        .office: DisplayRepresentation(stringLiteral: "Office Supplies"),
+        .party: DisplayRepresentation(stringLiteral: "Party Supplies"),
+        .personal: DisplayRepresentation(stringLiteral: "Personal"),
+        .personalCare: DisplayRepresentation(stringLiteral: "Personal Care"),
+        .pet: DisplayRepresentation(stringLiteral: "Pet Supplies"),
+        .travel: DisplayRepresentation(stringLiteral: "Travel"),
+        .vacation: DisplayRepresentation(stringLiteral: "Vacation"),
+        .work: DisplayRepresentation(stringLiteral: "Work"),
+        .other: DisplayRepresentation(stringLiteral: "Other")
     ]
+    
+    // Make the enum Comparable for sorting
+    static func < (lhs: ListCategory, rhs: ListCategory) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+    }
 }
 
 struct Location: Codable {

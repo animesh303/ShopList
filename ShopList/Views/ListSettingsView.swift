@@ -27,7 +27,7 @@ struct ListSettingsView: View {
                 Section(header: Text("List Details")) {
                     TextField("List Name", text: $listName)
                     Picker("Category", selection: $category) {
-                        ForEach(ListCategory.allCases, id: \.self) { category in
+                        ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
                             Text(category.rawValue).tag(category)
                         }
                     }

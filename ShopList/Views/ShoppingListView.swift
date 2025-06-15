@@ -44,8 +44,9 @@ struct ShoppingListView: View {
         return items
     }
     
-    var itemsByCategory: [ItemCategory: [Item]] {
-        Dictionary(grouping: filteredItems) { $0.category }
+    var itemsByCategory: [(key: ItemCategory, value: [Item])] {
+        let grouped = Dictionary(grouping: filteredItems) { $0.category }
+        return grouped.sorted { $0.key.rawValue.localizedCaseInsensitiveCompare($1.key.rawValue) == .orderedAscending }
     }
         
     var body: some View {
@@ -57,7 +58,7 @@ struct ShoppingListView: View {
                 }
             }
             
-            ForEach(itemsByCategory.sorted(by: { $0.key.rawValue < $1.key.rawValue }), id: \.key) { category, items in
+            ForEach(itemsByCategory, id: \.key) { category, items in
                 Section(header: Text(category.rawValue)) {
                     ForEach(items) { item in
                         ItemRow(item: item, list: list, viewModel: viewModel, showingError: $showingError, errorMessage: $errorMessage)
