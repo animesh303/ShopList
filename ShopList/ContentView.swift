@@ -8,161 +8,212 @@
 import SwiftUI
 import SwiftData
 
+struct ListRowView: View {
+    let list: ShoppingList
+    let onDelete: () -> Void
+    let onShare: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text(list.name)
+                        .font(.headline)
+                    Text(list.category.rawValue)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Text(list.budget ?? 0, format: .currency(code: "USD").precision(.fractionLength(2)))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            if !list.items.isEmpty {
+                Text("\(list.items.count) items")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            if let budget = list.budget {
+                HStack {
+                    Text("Budget:")
+                        .foregroundStyle(.secondary)
+                    Text(budget, format: .currency(code: "USD").precision(.fractionLength(2)))
+                }
+            }
+            
+            HStack {
+                Text("Estimated Total:")
+                    .foregroundStyle(.secondary)
+                Text(list.estimatedTotal, format: .currency(code: "USD").precision(.fractionLength(2)))
+            }
+        }
+        .padding(.vertical, 4)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                onDelete()
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: false) {
+            Button {
+                onShare()
+            } label: {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            .tint(.blue)
+        }
+    }
+}
+
+struct SortFilterMenu: View {
+    @Binding var sortOrder: SortOrder
+    @Binding var selectedCategory: ListCategory?
+    
+    var body: some View {
+        Menu {
+            Picker("Sort By", selection: $sortOrder) {
+                Text("Name (A-Z)").tag(SortOrder.nameAsc)
+                Text("Name (Z-A)").tag(SortOrder.nameDesc)
+                Text("Date (Oldest)").tag(SortOrder.dateAsc)
+                Text("Date (Newest)").tag(SortOrder.dateDesc)
+                Text("Category (A-Z)").tag(SortOrder.categoryAsc)
+                Text("Category (Z-A)").tag(SortOrder.categoryDesc)
+            }
+            
+            Divider()
+            
+            Menu("Filter by Category") {
+                Button("All Categories") {
+                    selectedCategory = nil
+                }
+                
+                ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
+                    Button(category.rawValue) {
+                        selectedCategory = category
+                    }
+                }
+            }
+        } label: {
+            Label("Sort & Filter", systemImage: "arrow.up.arrow.down")
+        }
+    }
+}
+
+struct ListsSection: View {
+    let lists: [ShoppingList]
+    let viewModel: ShoppingListViewModel
+    @Binding var showingError: Bool
+    @Binding var errorMessage: String
+    
+    var body: some View {
+        ForEach(lists) { list in
+            NavigationLink(destination: ShoppingListView(list: list, viewModel: viewModel)) {
+                ListRowView(
+                    list: list,
+                    onDelete: {
+                        Task {
+                            do {
+                                try await viewModel.deleteShoppingList(list)
+                            } catch {
+                                errorMessage = error.localizedDescription
+                                showingError = true
+                            }
+                        }
+                    },
+                    onShare: {
+                        // Share functionality will be implemented later
+                    }
+                )
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     @EnvironmentObject private var viewModel: ShoppingListViewModel
-    @State private var showingAddListSheet = false
-    @State private var showingAddItemSheet = false
-    @State private var showingShareSheet = false
-    @State private var listToShare: ShoppingList?
+    @State private var showingAddList = false
+    @State private var showingError = false
+    @State private var errorMessage = ""
     @State private var searchText = ""
-    @State private var sortOrder: SortOrder = .dateCreated
     @State private var selectedCategory: ListCategory?
-    @State private var showingFilters = false
-    
-    private func applySearchFilter(_ lists: [ShoppingList]) -> [ShoppingList] {
-        guard !searchText.isEmpty else { return lists }
-        return lists.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    private func applyCategoryFilter(_ lists: [ShoppingList]) -> [ShoppingList] {
-        guard let category = selectedCategory else { return lists }
-        return lists.filter { $0.category == category }
-    }
-    
-    private func applySorting(_ lists: [ShoppingList]) -> [ShoppingList] {
-        var sortedLists = lists
-        switch sortOrder {
-        case .dateCreated:
-            sortedLists.sort { $0.dateCreated > $1.dateCreated }
-        case .name:
-            sortedLists.sort { $0.name < $1.name }
-        case .itemCount:
-            sortedLists.sort { $0.items.count > $1.items.count }
-        case .lastModified:
-            sortedLists.sort { $0.lastModified > $1.lastModified }
-        }
-        return sortedLists
-    }
+    @State private var sortOrder: SortOrder = .nameAsc
     
     private var filteredLists: [ShoppingList] {
-        let lists = viewModel.shoppingLists
-        let searchFiltered = applySearchFilter(lists)
-        let categoryFiltered = applyCategoryFilter(searchFiltered)
-        return applySorting(categoryFiltered)
+        var lists = viewModel.shoppingLists
+        
+        // Apply search filter
+        if !searchText.isEmpty {
+            lists = lists.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+        
+        // Apply category filter
+        if let category = selectedCategory {
+            lists = lists.filter { $0.category == category }
+        }
+        
+        // Apply sorting
+        switch sortOrder {
+        case .nameAsc:
+            lists.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .nameDesc:
+            lists.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedDescending }
+        case .dateAsc:
+            lists.sort { $0.dateCreated < $1.dateCreated }
+        case .dateDesc:
+            lists.sort { $0.dateCreated > $1.dateCreated }
+        case .categoryAsc:
+            lists.sort { $0.category.rawValue.localizedCaseInsensitiveCompare($1.category.rawValue) == .orderedAscending }
+        case .categoryDesc:
+            lists.sort { $0.category.rawValue.localizedCaseInsensitiveCompare($1.category.rawValue) == .orderedDescending }
+        }
+        
+        return lists
     }
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(filteredLists) { list in
-                    NavigationLink(destination: ShoppingListView(list: list, viewModel: viewModel)) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(list.name)
-                                    .font(.headline)
-                                if list.isTemplate {
-                                    Image(systemName: "doc.on.doc")
-                                        .foregroundColor(.blue)
-                                }
-                                Spacer()
-                                Text(list.budget ?? 0, format: .currency(code: "USD").precision(.fractionLength(2)))
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            HStack {
-                                Text("\(list.items.count) items")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                if list.isShared {
-                                    Image(systemName: "person.2")
-                                        .foregroundColor(.blue)
-                                }
-                                Spacer()
-                                Text(list.category.rawValue)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-                .onDelete { indexSet in
-                    let listsToDelete = indexSet.map { filteredLists[$0] }
-                    for list in listsToDelete {
-                        Task {
-                            try? await viewModel.deleteShoppingList(list)
-                        }
-                    }
-                }
+                ListsSection(
+                    lists: filteredLists,
+                    viewModel: viewModel,
+                    showingError: $showingError,
+                    errorMessage: $errorMessage
+                )
             }
             .navigationTitle("Shopping Lists")
+            .searchable(text: $searchText, prompt: "Search lists")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddListSheet = true }) {
-                        Image(systemName: "plus")
-                    }
-                }
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showingFilters = true }) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingAddListSheet) {
-                AddListView(viewModel: viewModel)
-            }
-            .sheet(isPresented: $showingFilters) {
-                FilterView(sortOrder: $sortOrder, selectedCategory: $selectedCategory)
-            }
-        }
-        .errorAlert(error: $viewModel.currentError, isPresented: $viewModel.showingError)
-    }
-}
-
-enum SortOrder: String, CaseIterable {
-    case dateCreated = "Date Created"
-    case name = "Name"
-    case itemCount = "Item Count"
-    case lastModified = "Last Modified"
-}
-
-struct FilterView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var sortOrder: SortOrder
-    @Binding var selectedCategory: ListCategory?
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("Sort By")) {
-                    Picker("Sort Order", selection: $sortOrder) {
-                        ForEach(SortOrder.allCases, id: \.self) { order in
-                            Text(order.rawValue).tag(order)
-                        }
-                    }
+                    SortFilterMenu(sortOrder: $sortOrder, selectedCategory: $selectedCategory)
                 }
                 
-                Section(header: Text("Category")) {
-                    Picker("Category", selection: $selectedCategory) {
-                        Text("All").tag(nil as ListCategory?)
-                        ForEach(ListCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category as ListCategory?)
-                        }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddList = true
+                    } label: {
+                        Label("Add List", systemImage: "plus")
                     }
                 }
             }
-            .navigationTitle("Filters")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
+            .sheet(isPresented: $showingAddList) {
+                AddListView(viewModel: viewModel)
+            }
+            .alert("Error", isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
             }
         }
     }
+}
+
+enum SortOrder {
+    case nameAsc, nameDesc
+    case dateAsc, dateDesc
+    case categoryAsc, categoryDesc
 }
 
 #Preview {

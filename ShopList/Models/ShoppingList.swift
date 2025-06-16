@@ -13,7 +13,7 @@ final class ShoppingList {
     var category: ListCategory
     var isTemplate: Bool
     var lastModified: Date
-    var budget: Decimal?
+    var budget: Double?
     var location: Location?
     
     static let commonUnits = [
@@ -57,11 +57,7 @@ final class ShoppingList {
         self.category = category
         self.isTemplate = isTemplate
         self.lastModified = dateCreated
-        if let budget = budget, !budget.isNaN && !budget.isInfinite {
-            self.budget = Decimal(budget)
-        } else {
-            self.budget = nil
-        }
+        self.budget = budget
         self.location = location
     }
     
@@ -77,8 +73,22 @@ final class ShoppingList {
         Dictionary(grouping: items) { $0.category }
     }
     
-    var totalEstimatedCost: Decimal {
-        items.reduce(0) { $0 + (($1.estimatedPrice ?? 0) as Decimal) * $1.quantity }
+    private func calculateItemTotal(_ item: Item) -> Double {
+        let price = item.estimatedPrice ?? 0
+        let quantity = item.quantity
+        return Double(truncating: (price * quantity) as NSDecimalNumber)
+    }
+    
+    var estimatedTotal: Double {
+        items.reduce(0) { total, item in
+            total + calculateItemTotal(item)
+        }
+    }
+    
+    var totalEstimatedCost: Double {
+        items.reduce(0) { total, item in
+            total + calculateItemTotal(item)
+        }
     }
     
     func addItem(_ item: Item) {

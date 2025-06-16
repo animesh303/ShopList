@@ -7,7 +7,7 @@ struct ListSettingsView: View {
     
     @State private var listName: String
     @State private var category: ListCategory
-    @State private var budget: Decimal?
+    @State private var budget: Double?
     @State private var isTemplate: Bool
     @State private var showingError = false
     @State private var errorMessage = ""

@@ -139,19 +139,19 @@ struct ShoppingListView: View {
     }
     
     @ViewBuilder
-    private func budgetRow(budget: Decimal, totalCost: Decimal) -> some View {
+    private func budgetRow(budget: Double, totalCost: Double) -> some View {
         Group {
             HStack {
                 Text("Budget")
                 Spacer()
-                Text(budget, format: .currency(code: "USD").precision(.fractionLength(0...2)))
+                Text(budget, format: .currency(code: "USD").precision(.fractionLength(2)))
                     .foregroundColor(.secondary)
             }
             
             HStack {
                 Text("Estimated Total")
                 Spacer()
-                Text(totalCost, format: .currency(code: "USD").precision(.fractionLength(0...2)))
+                Text(totalCost, format: .currency(code: "USD").precision(.fractionLength(2)))
                     .foregroundColor(totalCost > budget ? .red : .secondary)
             }
         }
