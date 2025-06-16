@@ -5,10 +5,15 @@ struct AddListView: View {
     @ObservedObject var viewModel: ShoppingListViewModel
     @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var listName = ""
-    @State private var category: ListCategory = .personal
+    @State private var category: ListCategory
     @State private var budgetString = "0.00"
     @State private var showingError = false
     @State private var errorMessage = ""
+    
+    init(viewModel: ShoppingListViewModel) {
+        self.viewModel = viewModel
+        _category = State(initialValue: UserSettingsManager.shared.defaultListCategory)
+    }
     
     private var budget: Decimal? {
         guard !budgetString.isEmpty else { return nil }

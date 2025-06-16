@@ -113,10 +113,10 @@ struct AddItemView: View {
     @State private var itemName = ""
     @State private var quantityString = "1.0"
     @State private var category: ItemCategory = .other
-    @State private var priority: ItemPriority = .normal
+    @State private var priority: ItemPriority
     @State private var estimatedPriceString = "0.00"
     @State private var brand: String = ""
-    @State private var unit: String = ""
+    @State private var unit: String
     @State private var notes: String = ""
     @State private var showingError = false
     @State private var errorMessage = ""
@@ -128,6 +128,13 @@ struct AddItemView: View {
     @State private var imageData: Data?
     
     @FocusState private var focusedField: Field?
+    
+    init(list: ShoppingList, viewModel: ShoppingListViewModel) {
+        self.list = list
+        self.viewModel = viewModel
+        _priority = State(initialValue: UserSettingsManager.shared.defaultItemPriority)
+        _unit = State(initialValue: UserSettingsManager.shared.defaultUnit)
+    }
     
     private var quantity: Decimal {
         let formatter = NumberFormatter()

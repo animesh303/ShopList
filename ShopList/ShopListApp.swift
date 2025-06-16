@@ -14,6 +14,7 @@ import WidgetKit
 struct ShopListApp: App {
     let container: ModelContainer
     @StateObject private var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     
     init() {
         do {
@@ -34,6 +35,7 @@ struct ShopListApp: App {
             ContentView()
                 .modifier(iOSVersionCheck())
                 .environmentObject(viewModel)
+                .preferredColorScheme(settingsManager.appearance.colorScheme)
                 .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
                     if hasChanges {
                         updateWidgetData()
