@@ -11,11 +11,7 @@ struct AddListView: View {
     
     private var budget: Decimal? {
         guard !budgetString.isEmpty else { return nil }
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 2
-        formatter.minimumFractionDigits = 2
-        return formatter.number(from: budgetString)?.decimalValue
+        return Decimal(string: budgetString)
     }
     
     private func validateBudgetString(_ newValue: String) -> String {

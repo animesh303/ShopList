@@ -66,7 +66,7 @@ struct ContentView: View {
                                 }
                                 Spacer()
                                 if let budget = list.budget {
-                                    Text(budget, format: .currency(code: "USD").precision(.fractionLength(0...2)))
+                                    Text(budget, format: .currency(code: "USD").precision(.fractionLength(2)))
                                         .font(.subheadline)
                                         .foregroundColor(.secondary)
                                 }
