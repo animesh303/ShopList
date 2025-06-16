@@ -5,8 +5,65 @@ struct AddListView: View {
     @ObservedObject var viewModel: ShoppingListViewModel
     @State private var listName = ""
     @State private var category: ListCategory = .personal
+    @State private var budgetString = ""
     @State private var showingError = false
     @State private var errorMessage = ""
+    
+    private var budget: Decimal? {
+        guard !budgetString.isEmpty else { return nil }
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 2
+        return formatter.number(from: budgetString)?.decimalValue
+    }
+    
+    private func validateBudgetString(_ newValue: String) -> String {
+        // Allow only numbers and one decimal point
+        let filtered = newValue.filter { "0123456789.".contains($0) }
+        
+        // Handle empty input
+        if filtered.isEmpty {
+            return ""
+        }
+        
+        // Handle leading decimal point
+        if filtered == "." {
+            return "0."
+        }
+        
+        let components = filtered.components(separatedBy: ".")
+        
+        // If more than one decimal point, keep only the first one
+        if components.count > 2 {
+            let firstPart = components[0]
+            let decimalPart = components[1...].joined()
+            return "\(firstPart).\(decimalPart)"
+        }
+        
+        // Limit to 7 digits before decimal
+        if let first = components.first, first.count > 7 {
+            return String(first.prefix(7)) + (components.count > 1 ? ".\(components[1])" : "")
+        }
+        
+        // Limit to 2 decimal places
+        if components.count == 2, let last = components.last, last.count > 2 {
+            return "\(components[0]).\(last.prefix(2))"
+        }
+        
+        return filtered
+    }
+    
+    private var budgetRow: some View {
+        HStack {
+            Text("$")
+            TextField("Budget", text: $budgetString)
+                .keyboardType(.decimalPad)
+                .onChange(of: budgetString) { newValue in
+                    budgetString = validateBudgetString(newValue)
+                }
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -18,6 +75,7 @@ struct AddListView: View {
                             Text(category.rawValue).tag(category)
                         }
                     }
+                    budgetRow
                 }
             }
             .navigationTitle("New List")
@@ -45,7 +103,8 @@ struct AddListView: View {
                                     items: [],
                                     dateCreated: Date(),
                                     isShared: false,
-                                    category: category
+                                    category: category,
+                                    budget: budget != nil ? Double(truncating: budget! as NSNumber) : nil
                                 )
                                 
                                 try await viewModel.addShoppingList(newList)
