@@ -140,139 +140,187 @@ struct AddItemView: View {
         !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    private func validateQuantityString(_ newValue: String) -> String {
+        // Allow only numbers and one decimal point
+        let filtered = newValue.filter { "0123456789.".contains($0) }
+        
+        // Handle empty input
+        if filtered.isEmpty {
+            return ""
+        }
+        
+        // Handle leading decimal point
+        if filtered == "." {
+            return "0."
+        }
+        
+        let components = filtered.components(separatedBy: ".")
+        
+        // If more than one decimal point, keep only the first one
+        if components.count > 2 {
+            let firstPart = components[0]
+            let decimalPart = components[1...].joined()
+            return "\(firstPart).\(decimalPart)"
+        }
+        
+        // Limit to 5 digits before decimal
+        if let first = components.first, first.count > 5 {
+            return String(first.prefix(5)) + (components.count > 1 ? ".\(components[1])" : "")
+        }
+        
+        // Limit to 1 decimal place
+        if components.count == 2, let last = components.last, last.count > 1 {
+            return "\(components[0]).\(last.prefix(1))"
+        }
+        
+        return filtered
+    }
+    
+    private func validatePriceString(_ newValue: String) -> String {
+        // Allow only numbers and one decimal point
+        let filtered = newValue.filter { "0123456789.".contains($0) }
+        
+        // Handle empty input
+        if filtered.isEmpty {
+            return ""
+        }
+        
+        // Handle leading decimal point
+        if filtered == "." {
+            return "0."
+        }
+        
+        let components = filtered.components(separatedBy: ".")
+        
+        // If more than one decimal point, keep only the first one
+        if components.count > 2 {
+            let firstPart = components[0]
+            let decimalPart = components[1...].joined()
+            return "\(firstPart).\(decimalPart)"
+        }
+        
+        // Limit to 7 digits before decimal
+        if let first = components.first, first.count > 7 {
+            return String(first.prefix(7)) + (components.count > 1 ? ".\(components[1])" : "")
+        }
+        
+        // Limit to 2 decimal places
+        if components.count == 2, let last = components.last, last.count > 2 {
+            return "\(components[0]).\(last.prefix(2))"
+        }
+        
+        return filtered
+    }
+    
+    private var itemDetailsSection: some View {
+        Section(header: Text("Item Details")) {
+            TextField("Name", text: $itemName)
+                .focused($focusedField, equals: .name)
+                .onAppear {
+                    focusedField = .name
+                }
+            
+            // Show suggestions if available
+            if showSuggestions {
+                let suggestions = viewModel.getSuggestions(for: itemName)
+                if !suggestions.isEmpty {
+                    let suggestionItems = suggestions.map { ($0.name, $0.category) }
+                    SuggestionsListView(suggestions: suggestionItems) { selectedSuggestion in
+                        handleSuggestionSelection(selectedSuggestion, from: suggestions)
+                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+            
+            quantityRow
+            categoryPicker
+            priorityPicker
+        }
+    }
+    
+    private var quantityRow: some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text("Quantity")
+            
+            Spacer()
+            
+            HStack(spacing: 8) {
+                TextField("1.0", text: $quantityString)
+                    .keyboardType(.decimalPad)
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 80)
+                    .onChange(of: quantityString) { newValue in
+                        quantityString = validateQuantityString(newValue)
+                    }
+                
+                Picker("", selection: $unit) {
+                    ForEach(ShoppingList.commonUnits, id: \.self) { unit in
+                        Text(unit.isEmpty ? "None" : unit)
+                            .tag(unit)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                }
+                .pickerStyle(.menu)
+                .fixedSize(horizontal: true, vertical: false)
+            }
+        }
+    }
+    
+    private var categoryPicker: some View {
+        Picker("Category", selection: $category) {
+            ForEach(ItemCategory.allCases, id: \.self) { category in
+                Text(category.rawValue).tag(category)
+            }
+        }
+    }
+    
+    private var priorityPicker: some View {
+        Picker("Priority", selection: $priority) {
+            ForEach(ItemPriority.allCases, id: \.self) { priority in
+                Text(priority.displayName).tag(priority)
+            }
+        }
+    }
+    
+    private var priceAndBrandSection: some View {
+        Section(header: Text("Price & Brand")) {
+            priceRow
+            brandRow
+        }
+    }
+    
+    private var priceRow: some View {
+        HStack {
+            Text("$")
+            TextField("Estimated Price", text: $estimatedPriceString)
+                .keyboardType(.decimalPad)
+                .focused($focusedField, equals: .price)
+                .onChange(of: estimatedPriceString) { newValue in
+                    estimatedPriceString = validatePriceString(newValue)
+                }
+        }
+    }
+    
+    private var brandRow: some View {
+        TextField("Brand", text: $brand)
+            .focused($focusedField, equals: .brand)
+    }
+    
+    private var notesSection: some View {
+        Section(header: Text("Notes")) {
+            TextEditor(text: $notes)
+                .frame(minHeight: 100)
+                .focused($focusedField, equals: .notes)
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Item Details")) {
-                    TextField("Name", text: $itemName)
-                        .focused($focusedField, equals: .name)
-                        .onAppear {
-                            focusedField = .name
-                        }
-                    
-                    // Show suggestions if available
-                    if showSuggestions {
-                        let suggestions = viewModel.getSuggestions(for: itemName)
-                        if !suggestions.isEmpty {
-                            let suggestionItems = suggestions.map { ($0.name, $0.category) }
-                            SuggestionsListView(suggestions: suggestionItems) { selectedSuggestion in
-                                handleSuggestionSelection(selectedSuggestion, from: suggestions)
-                            }
-                            .transition(.opacity.combined(with: .move(edge: .top)))
-                        }
-                    }
-                    
-                    HStack(alignment: .center, spacing: 8) {
-                        Text("Quantity")
-                        
-                        Spacer()
-                        
-                        HStack(spacing: 8) {
-                            TextField("1.0", text: $quantityString)
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                                .frame(width: 80)
-                                .onChange(of: quantityString) { newValue in
-                                    // Allow only numbers and one decimal point
-                                    let filtered = newValue.filter { "0123456789.".contains($0) }
-                                    
-                                    // Handle empty input
-                                    if filtered.isEmpty {
-                                        quantityString = ""
-                                        return
-                                    }
-                                    
-                                    // Handle leading decimal point
-                                    if filtered == "." {
-                                        quantityString = "0."
-                                        return
-                                    }
-                                    
-                                    let components = filtered.components(separatedBy: ".")
-                                    
-                                    // If more than one decimal point, keep only the first one
-                                    if components.count > 2 {
-                                        let firstPart = components[0]
-                                        let decimalPart = components[1...].joined()
-                                        quantityString = "\(firstPart).\(decimalPart)"
-                                        return
-                                    }
-                                    
-                                    // Limit to 5 digits before decimal
-                                    if let first = components.first, first.count > 5 {
-                                        quantityString = String(first.prefix(5)) + (components.count > 1 ? ".\(components[1])" : "")
-                                        return
-                                    }
-                                    
-                                    // Limit to 1 decimal place
-                                    if components.count == 2, let last = components.last, last.count > 1 {
-                                        quantityString = "\(components[0]).\(last.prefix(1))"
-                                        return
-                                    }
-                                    
-                                    quantityString = filtered
-                                }
-                            
-                            Picker("", selection: $unit) {
-                                ForEach(ShoppingList.commonUnits, id: \.self) { unit in
-                                    Text(unit.isEmpty ? "None" : unit)
-                                        .tag(unit)
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.7)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .fixedSize(horizontal: true, vertical: false)
-                        }
-                    }
-                    
-                    Picker("Category", selection: $category) {
-                        ForEach(ItemCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
-                        }
-                    }
-                    
-                    Picker("Priority", selection: $priority) {
-                        ForEach(ItemPriority.allCases, id: \.self) { priority in
-                            Text(priority.displayName).tag(priority)
-                        }
-                    }
-                }
-                
-                Section(header: Text("Price & Brand")) {
-                    HStack {
-                        Text("$")
-                        TextField("Estimated Price", text: $estimatedPriceString)
-                            .keyboardType(.decimalPad)
-                            .focused($focusedField, equals: .price)
-                            .onChange(of: estimatedPriceString) { newValue in
-                                // Allow only numbers and one decimal point
-                                let filtered = newValue.filter { "0123456789.".contains($0) }
-                                let components = filtered.components(separatedBy: ".")
-                                if components.count > 2 {
-                                    // If more than one decimal point, remove the last one
-                                    estimatedPriceString = String(filtered.dropLast())
-                                } else if let first = components.first, first.count > 5 {
-                                    // Limit to 5 digits before decimal
-                                    estimatedPriceString = String(first.prefix(5))
-                                } else if components.count == 2, let last = components.last, last.count > 2 {
-                                    // Limit to 2 decimal places
-                                    estimatedPriceString = "\(components[0]).\(last.prefix(2))"
-                                } else {
-                                    estimatedPriceString = filtered
-                                }
-                            }
-                    }
-                    
-                    TextField("Brand", text: $brand)
-                        .focused($focusedField, equals: .brand)
-                }
-                
-                Section(header: Text("Notes")) {
-                    TextEditor(text: $notes)
-                        .frame(minHeight: 100)
-                        .focused($focusedField, equals: .notes)
-                }
+                itemDetailsSection
+                priceAndBrandSection
+                notesSection
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
@@ -361,7 +409,7 @@ struct AddItemView: View {
         
         Task {
             do {
-                try viewModel.addItem(newItem, to: list)
+                try await viewModel.addItem(newItem, to: list)
                 // Update suggestions with the full item
                 viewModel.addOrUpdateSuggestion(newItem)
                 dismiss()

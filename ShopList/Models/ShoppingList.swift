@@ -1,16 +1,12 @@
 import Foundation
+import SwiftData
 import AppIntents
 
-struct ShoppingList: Identifiable, Codable {
-    static let commonUnits = [
-        "", // Empty for none
-        "Gram", "Kilogram", "Milliliter", "Liter", "Ounce", "Pound",
-        "Teaspoon", "Tablespoon", "Cup", "Pint",
-        "Piece", "Pieces", "Box", "Pack", "Bunch"
-    ]
-    let id: UUID
+@Model
+final class ShoppingList {
+    @Attribute(.unique) var id: UUID
     var name: String
-    var items: [Item]
+    @Relationship(deleteRule: .cascade) var items: [Item]
     var dateCreated: Date
     var isShared: Bool
     var sharedWith: [String]?
@@ -19,6 +15,30 @@ struct ShoppingList: Identifiable, Codable {
     var lastModified: Date
     var budget: Decimal?
     var location: Location?
+    
+    static let commonUnits = [
+        "", // None
+        "kg",
+        "g",
+        "lb",
+        "oz",
+        "l",
+        "ml",
+        "gal",
+        "qt",
+        "pt",
+        "cup",
+        "tbsp",
+        "tsp",
+        "piece",
+        "dozen",
+        "box",
+        "pack",
+        "bottle",
+        "can",
+        "jar",
+        "bag"
+    ]
     
     init(id: UUID = UUID(), 
          name: String, 
@@ -37,7 +57,6 @@ struct ShoppingList: Identifiable, Codable {
         self.category = category
         self.isTemplate = isTemplate
         self.lastModified = dateCreated
-        // Convert Double budget to Decimal if it's valid
         if let budget = budget, !budget.isNaN && !budget.isInfinite {
             self.budget = Decimal(budget)
         } else {
@@ -62,31 +81,31 @@ struct ShoppingList: Identifiable, Codable {
         items.reduce(0) { $0 + (($1.estimatedPrice ?? 0) as Decimal) * $1.quantity }
     }
     
-    mutating func addItem(_ item: Item) {
+    func addItem(_ item: Item) {
         items.append(item)
         lastModified = Date()
     }
     
-    mutating func removeItem(_ item: Item) {
+    func removeItem(_ item: Item) {
         items.removeAll { $0.id == item.id }
         lastModified = Date()
     }
     
-    mutating func toggleItemCompletion(_ item: Item) {
+    func toggleItemCompletion(_ item: Item) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index].isCompleted.toggle()
             lastModified = Date()
         }
     }
     
-    mutating func updateItem(_ item: Item) {
+    func updateItem(_ item: Item) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index] = item
             lastModified = Date()
         }
     }
     
-    mutating func reorderItems(from source: IndexSet, to destination: Int) {
+    func reorderItems(from source: IndexSet, to destination: Int) {
         items.move(fromOffsets: source, toOffset: destination)
         lastModified = Date()
     }
@@ -156,9 +175,17 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
     }
 }
 
-struct Location: Codable {
+@Model
+final class Location {
     var name: String
     var latitude: Double
     var longitude: Double
     var radius: Double // in meters
+    
+    init(name: String, latitude: Double, longitude: Double, radius: Double) {
+        self.name = name
+        self.latitude = latitude
+        self.longitude = longitude
+        self.radius = radius
+    }
 } 

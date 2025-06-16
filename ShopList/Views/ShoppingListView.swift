@@ -21,7 +21,7 @@ struct ShoppingListView: View {
     @State private var errorMessage = ""
     @State private var listToShare: ShoppingList?
     
-    var filteredItems: [Item] {
+    private var filteredItems: [Item] {
         var items = list.items
         
         // Apply search filter
@@ -44,7 +44,7 @@ struct ShoppingListView: View {
         return items
     }
     
-    var itemsByCategory: [(key: ItemCategory, value: [Item])] {
+    private var itemsByCategory: [(key: ItemCategory, value: [Item])] {
         let grouped = Dictionary(grouping: filteredItems) { $0.category }
         return grouped.sorted { $0.key.rawValue.localizedCaseInsensitiveCompare($1.key.rawValue) == .orderedAscending }
     }
@@ -66,9 +66,8 @@ struct ShoppingListView: View {
                     .onMove { source, destination in
                         Task {
                             do {
-                                var updatedList = list
-                                updatedList.reorderItems(from: source, to: destination)
-                                try viewModel.updateList(updatedList)
+                                list.reorderItems(from: source, to: destination)
+                                try await viewModel.updateShoppingList(list)
                             } catch {
                                 errorMessage = error.localizedDescription
                                 showingError = true
@@ -78,10 +77,9 @@ struct ShoppingListView: View {
                     .onDelete { indexSet in
                         Task {
                             do {
-                                var updatedList = list
                                 let itemsToDelete = indexSet.map { items[$0] }
-                                itemsToDelete.forEach { updatedList.removeItem($0) }
-                                try viewModel.updateList(updatedList)
+                                itemsToDelete.forEach { list.removeItem($0) }
+                                try await viewModel.updateShoppingList(list)
                             } catch {
                                 errorMessage = error.localizedDescription
                                 showingError = true
@@ -173,9 +171,8 @@ struct ItemRow: View {
             Button(action: {
                 Task {
                     do {
-                        var updatedList = list
-                        updatedList.toggleItemCompletion(item)
-                        try viewModel.updateList(updatedList)
+                        list.toggleItemCompletion(item)
+                        try await viewModel.updateShoppingList(list)
                     } catch {
                         errorMessage = error.localizedDescription
                         showingError = true

@@ -32,10 +32,23 @@ struct AddListView: View {
                     Button("Add") {
                         Task {
                             do {
-                                try await ShoppingListViewModel.createShoppingList(
+                                guard !listName.isEmpty else {
+                                    throw AppError.invalidListName
+                                }
+                                
+                                guard await viewModel.findList(byName: listName) == nil else {
+                                    throw AppError.listAlreadyExists
+                                }
+                                
+                                let newList = ShoppingList(
                                     name: listName,
+                                    items: [],
+                                    dateCreated: Date(),
+                                    isShared: false,
                                     category: category
                                 )
+                                
+                                try await viewModel.addShoppingList(newList)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

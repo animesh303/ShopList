@@ -1,8 +1,10 @@
 import Foundation
+import SwiftData
 import AppIntents
 
-struct Item: Identifiable, Codable {
-    let id: UUID
+@Model
+final class Item {
+    @Attribute(.unique) var id: UUID
     var name: String
     var quantity: Decimal
     var category: ItemCategory

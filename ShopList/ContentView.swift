@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-    @EnvironmentObject var viewModel: ShoppingListViewModel
+    @EnvironmentObject private var viewModel: ShoppingListViewModel
     @State private var showingAddListSheet = false
     @State private var showingAddItemSheet = false
     @State private var showingShareSheet = false
@@ -18,32 +19,36 @@ struct ContentView: View {
     @State private var selectedCategory: ListCategory?
     @State private var showingFilters = false
     
-    var filteredLists: [ShoppingList] {
-        var lists = viewModel.shoppingLists
-        
-        // Apply search filter
-        if !searchText.isEmpty {
-            lists = lists.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        
-        // Apply category filter
-        if let category = selectedCategory {
-            lists = lists.filter { $0.category == category }
-        }
-        
-        // Apply sorting
+    private func applySearchFilter(_ lists: [ShoppingList]) -> [ShoppingList] {
+        guard !searchText.isEmpty else { return lists }
+        return lists.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+    
+    private func applyCategoryFilter(_ lists: [ShoppingList]) -> [ShoppingList] {
+        guard let category = selectedCategory else { return lists }
+        return lists.filter { $0.category == category }
+    }
+    
+    private func applySorting(_ lists: [ShoppingList]) -> [ShoppingList] {
+        var sortedLists = lists
         switch sortOrder {
         case .dateCreated:
-            lists.sort { $0.dateCreated > $1.dateCreated }
+            sortedLists.sort { $0.dateCreated > $1.dateCreated }
         case .name:
-            lists.sort { $0.name < $1.name }
+            sortedLists.sort { $0.name < $1.name }
         case .itemCount:
-            lists.sort { $0.items.count > $1.items.count }
+            sortedLists.sort { $0.items.count > $1.items.count }
         case .lastModified:
-            lists.sort { $0.lastModified > $1.lastModified }
+            sortedLists.sort { $0.lastModified > $1.lastModified }
         }
-        
-        return lists
+        return sortedLists
+    }
+    
+    private var filteredLists: [ShoppingList] {
+        let lists = viewModel.shoppingLists
+        let searchFiltered = applySearchFilter(lists)
+        let categoryFiltered = applyCategoryFilter(searchFiltered)
+        return applySorting(categoryFiltered)
     }
     
     var body: some View {
@@ -85,36 +90,24 @@ struct ContentView: View {
                     }
                 }
                 .onDelete { indexSet in
-                    viewModel.deleteList(at: indexSet)
+                    let listsToDelete = indexSet.map { filteredLists[$0] }
+                    for list in listsToDelete {
+                        Task {
+                            try? await viewModel.deleteShoppingList(list)
+                        }
+                    }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search lists")
             .navigationTitle("Shopping Lists")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Button(action: { showingAddListSheet = true }) {
-                            Label("New List", systemImage: "plus")
-                        }
-                        
-                        Button(action: { showingFilters.toggle() }) {
-                            Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
+                    Button(action: { showingAddListSheet = true }) {
+                        Image(systemName: "plus")
                     }
                 }
-                
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Menu {
-                        Picker("Sort by", selection: $sortOrder) {
-                            Text("Date Created").tag(SortOrder.dateCreated)
-                            Text("Name").tag(SortOrder.name)
-                            Text("Item Count").tag(SortOrder.itemCount)
-                            Text("Last Modified").tag(SortOrder.lastModified)
-                        }
-                    } label: {
-                        Image(systemName: "arrow.up.arrow.down")
+                    Button(action: { showingFilters = true }) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
                     }
                 }
             }
@@ -122,46 +115,50 @@ struct ContentView: View {
                 AddListView(viewModel: viewModel)
             }
             .sheet(isPresented: $showingFilters) {
-                FilterView(selectedCategory: $selectedCategory)
+                FilterView(sortOrder: $sortOrder, selectedCategory: $selectedCategory)
             }
         }
         .errorAlert(error: $viewModel.currentError, isPresented: $viewModel.showingError)
     }
 }
 
-enum SortOrder {
-    case dateCreated
-    case name
-    case itemCount
-    case lastModified
+enum SortOrder: String, CaseIterable {
+    case dateCreated = "Date Created"
+    case name = "Name"
+    case itemCount = "Item Count"
+    case lastModified = "Last Modified"
 }
 
 struct FilterView: View {
     @Environment(\.dismiss) private var dismiss
+    @Binding var sortOrder: SortOrder
     @Binding var selectedCategory: ListCategory?
     
     var body: some View {
         NavigationView {
-            List {
-                Section(header: Text("Category")) {
-                    Button("All Categories") {
-                        selectedCategory = nil
-                        dismiss()
+            Form {
+                Section(header: Text("Sort By")) {
+                    Picker("Sort Order", selection: $sortOrder) {
+                        ForEach(SortOrder.allCases, id: \.self) { order in
+                            Text(order.rawValue).tag(order)
+                        }
                     }
-                    
-                    ForEach(ListCategory.allCases, id: \.self) { category in
-                        Button(category.rawValue) {
-                            selectedCategory = category
-                            dismiss()
+                }
+                
+                Section(header: Text("Category")) {
+                    Picker("Category", selection: $selectedCategory) {
+                        Text("All").tag(nil as ListCategory?)
+                        ForEach(ListCategory.allCases, id: \.self) { category in
+                            Text(category.rawValue).tag(category as ListCategory?)
                         }
                     }
                 }
             }
-            .navigationTitle("Filter Lists")
+            .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
                         dismiss()
                     }
                 }

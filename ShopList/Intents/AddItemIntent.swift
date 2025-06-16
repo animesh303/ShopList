@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import SwiftData
 
 struct AddItemIntent: AppIntent {
     static var title: LocalizedStringResource = "Add Item to Shopping List"
@@ -22,14 +23,38 @@ struct AddItemIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult {
-        try await ShoppingListViewModel.addItemToShoppingList(
-            itemName: itemName,
-            listName: listName,
-            quantity: quantity,
+        let viewModel = await ShoppingListViewModel.shared
+        
+        guard !itemName.isEmpty else {
+            throw AppError.invalidInput("Item name cannot be empty")
+        }
+        
+        guard let list = await viewModel.findList(byName: listName) else {
+            throw AppError.listNotFound
+        }
+        
+        guard quantity > 0 else {
+            throw AppError.invalidQuantity
+        }
+        
+        let item = Item(
+            name: itemName,
+            quantity: Decimal(quantity),
             category: category,
-            priority: .normal,
-            notes: nil
+            isCompleted: false,
+            notes: nil,
+            dateAdded: Date(),
+            estimatedPrice: nil,
+            barcode: nil,
+            brand: nil,
+            unit: nil,
+            lastPurchasedPrice: nil,
+            lastPurchasedDate: nil,
+            imageURL: nil,
+            priority: .normal
         )
+        
+        try await viewModel.addItem(item, to: list)
         return .result()
     }
 }
@@ -49,10 +74,25 @@ struct CreateListIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult {
-        try await ShoppingListViewModel.createShoppingList(
+        let viewModel = await ShoppingListViewModel.shared
+        
+        guard !listName.isEmpty else {
+            throw AppError.invalidListName
+        }
+        
+        guard await viewModel.findList(byName: listName) == nil else {
+            throw AppError.listAlreadyExists
+        }
+        
+        let newList = ShoppingList(
             name: listName,
+            items: [],
+            dateCreated: Date(),
+            isShared: false,
             category: category
         )
+        
+        try await viewModel.addShoppingList(newList)
         return .result()
     }
 } 

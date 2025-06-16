@@ -25,6 +25,9 @@ enum AppError: LocalizedError {
     // Permission Errors
     case permissionDenied(String)
     
+    // Unknown Errors
+    case unknown(String)
+    
     var errorDescription: String? {
         switch self {
         case .dataEncodingError(let message):
@@ -53,6 +56,8 @@ enum AppError: LocalizedError {
             return "Server Error: \(message)"
         case .permissionDenied(let message):
             return "Permission Denied: \(message)"
+        case .unknown(let message):
+            return "An unexpected error occurred: \(message)"
         }
     }
     
@@ -80,6 +85,8 @@ enum AppError: LocalizedError {
             return "The server is currently unavailable. Please try again later."
         case .permissionDenied:
             return "Please grant the necessary permissions in Settings."
+        case .unknown:
+            return "Please try again. If the problem persists, contact support."
         }
     }
 }

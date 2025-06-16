@@ -62,12 +62,24 @@ struct ListSettingsView: View {
                     Button("Save") {
                         Task {
                             do {
-                                var updatedList = list
-                                updatedList.name = listName
-                                updatedList.category = category
-                                updatedList.budget = budget
-                                updatedList.isTemplate = isTemplate
-                                try viewModel.updateList(updatedList)
+                                guard !listName.isEmpty else {
+                                    throw AppError.invalidListName
+                                }
+                                
+                                // Check if the new name conflicts with another list
+                                if listName != list.name {
+                                    if await viewModel.findList(byName: listName) != nil {
+                                        throw AppError.listAlreadyExists
+                                    }
+                                }
+                                
+                                // Update the list properties
+                                list.name = listName
+                                list.category = category
+                                list.budget = budget
+                                list.isTemplate = isTemplate
+                                
+                                try await viewModel.updateShoppingList(list)
                                 dismiss()
                             } catch {
                                 errorMessage = error.localizedDescription

@@ -7,16 +7,58 @@
 
 import SwiftUI
 import AppIntents
+import SwiftData
+import WidgetKit
 
 @main
 struct ShopListApp: App {
-    @StateObject private var viewModel = ShoppingListViewModel.shared
+    let container: ModelContainer
+    @StateObject private var viewModel: ShoppingListViewModel
+    
+    init() {
+        do {
+            let container = try ModelContainer(
+                for: ShoppingList.self, Item.self, Location.self,
+                configurations: ModelConfiguration(isStoredInMemoryOnly: false)
+            )
+            self.container = container
+            let viewModel = ShoppingListViewModel(modelContext: container.mainContext)
+            _viewModel = StateObject(wrappedValue: viewModel)
+        } catch {
+            fatalError("Failed to initialize ModelContainer: \(error)")
+        }
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .modifier(iOSVersionCheck())
                 .environmentObject(viewModel)
+                .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
+                    if hasChanges {
+                        updateWidgetData()
+                    }
+                }
+        }
+        .modelContainer(container)
+    }
+    
+    private func updateWidgetData() {
+        Task {
+            let context = container.mainContext
+            let descriptor = FetchDescriptor<ShoppingList>()
+            
+            do {
+                let lists = try context.fetch(descriptor)
+                let widgetLists = lists.map { WidgetShoppingList(from: $0) }
+                
+                if let encodedData = try? JSONEncoder().encode(widgetLists) {
+                    UserDefaults.standard.set(encodedData, forKey: "shoppingLists")
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+            } catch {
+                print("Failed to update widget data: \(error)")
+            }
         }
     }
 }

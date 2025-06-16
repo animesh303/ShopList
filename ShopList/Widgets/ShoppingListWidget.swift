@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ShoppingListWidgetEntry: TimelineEntry {
     let date: Date
-    let lists: [ShoppingList]
+    let lists: [WidgetShoppingList]
 }
 
 struct ShoppingListWidgetProvider: TimelineProvider {
@@ -22,9 +22,9 @@ struct ShoppingListWidgetProvider: TimelineProvider {
         completion(timeline)
     }
     
-    private func loadLists() -> [ShoppingList] {
+    private func loadLists() -> [WidgetShoppingList] {
         if let data = UserDefaults.standard.data(forKey: "shoppingLists"),
-           let lists = try? JSONDecoder().decode([ShoppingList].self, from: data) {
+           let lists = try? JSONDecoder().decode([WidgetShoppingList].self, from: data) {
             return lists
         }
         return []
@@ -40,7 +40,7 @@ struct ShoppingListWidgetEntryView: View {
                 VStack(alignment: .leading) {
                     Text(list.name)
                         .font(.headline)
-                    Text("\(list.pendingItems.count) items")
+                    Text("\(list.pendingItemsCount) items")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
