@@ -9,11 +9,11 @@ struct ItemDetailView: View {
     @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var name: String
     @State private var brand: String
-    @State private var quantity: Decimal
+    @State private var quantity: Double
     @State private var unit: Unit
     @State private var category: ItemCategory
     @State private var priority: ItemPriority
-    @State private var estimatedPrice: Decimal
+    @State private var estimatedPrice: Double?
     @State private var notes: String
     @State private var selectedImage: PhotosPickerItem?
     @State private var showingImagePicker = false
@@ -24,11 +24,11 @@ struct ItemDetailView: View {
         self.item = item
         _name = State(initialValue: item.name)
         _brand = State(initialValue: item.brand ?? "")
-        _quantity = State(initialValue: item.quantity)
+        _quantity = State(initialValue: Double(truncating: item.quantity as NSDecimalNumber))
         _unit = State(initialValue: Unit(rawValue: item.unit ?? "") ?? .none)
         _category = State(initialValue: item.category)
         _priority = State(initialValue: item.priority)
-        _estimatedPrice = State(initialValue: item.estimatedPrice ?? Decimal(0))
+        _estimatedPrice = State(initialValue: item.estimatedPrice.map { Double(truncating: $0 as NSDecimalNumber) })
         _notes = State(initialValue: item.notes ?? "")
     }
     
@@ -36,25 +36,60 @@ struct ItemDetailView: View {
         NavigationView {
             Form {
                 Section {
-                    itemDetailsSection
+                    TextField("Name", text: $name)
+                    TextField("Brand", text: $brand)
+                    HStack {
+                        TextField("Quantity", value: $quantity, format: .number)
+                            .keyboardType(.decimalPad)
+                        Picker("Unit", selection: $unit) {
+                            ForEach(Unit.allUnits, id: \.self) { unit in
+                                Text(unit.displayName).tag(unit)
+                            }
+                        }
+                    }
+                    Picker("Category", selection: $category) {
+                        ForEach(ItemCategory.allCases, id: \.self) { category in
+                            Text(category.rawValue).tag(category)
+                        }
+                    }
+                    Picker("Priority", selection: $priority) {
+                        ForEach(ItemPriority.allCases, id: \.self) { priority in
+                            Text(priority.displayName).tag(priority)
+                        }
+                    }
                 } header: {
                     Text("Item Details")
                 }
                 
                 Section {
-                    priceSection
+                    TextField("Estimated Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                        .keyboardType(.decimalPad)
                 } header: {
                     Text("Price")
                 }
                 
                 Section {
-                    notesSection
+                    TextEditor(text: $notes)
+                        .frame(minHeight: 100)
                 } header: {
                     Text("Notes")
                 }
                 
                 Section {
-                    imageSection
+                    if let imageURL = item.imageURL {
+                        AsyncImage(url: imageURL) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(height: 200)
+                    }
+                    
+                    PhotosPicker(selection: $selectedImage, matching: .images) {
+                        Label("Select Image", systemImage: "photo")
+                    }
                 } header: {
                     Text("Image")
                 }
@@ -81,74 +116,15 @@ struct ItemDetailView: View {
         }
     }
     
-    private var itemDetailsSection: some View {
-        VStack(alignment: .leading) {
-            TextField("Name", text: $name)
-            TextField("Brand", text: $brand)
-            HStack {
-                TextField("Quantity", value: $quantity, format: .number)
-                    .keyboardType(.decimalPad)
-                Picker("Unit", selection: $unit) {
-                    ForEach(Unit.allUnits, id: \.self) { unit in
-                        Text(unit.displayName).tag(unit)
-                    }
-                }
-            }
-            Picker("Category", selection: $category) {
-                ForEach(ItemCategory.allCases, id: \.self) { category in
-                    Text(category.rawValue).tag(category)
-                }
-            }
-            Picker("Priority", selection: $priority) {
-                ForEach(ItemPriority.allCases, id: \.self) { priority in
-                    Text(priority.displayName).tag(priority)
-                }
-            }
-        }
-    }
-    
-    private var priceSection: some View {
-        VStack(alignment: .leading) {
-            TextField("Estimated Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
-                .keyboardType(.decimalPad)
-        }
-    }
-    
-    private var notesSection: some View {
-        VStack(alignment: .leading) {
-            TextEditor(text: $notes)
-                .frame(minHeight: 100)
-        }
-    }
-    
-    private var imageSection: some View {
-        VStack(alignment: .leading) {
-            if let imageURL = item.imageURL {
-                AsyncImage(url: imageURL) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                } placeholder: {
-                    ProgressView()
-                }
-                .frame(height: 200)
-            }
-            
-            PhotosPicker(selection: $selectedImage, matching: .images) {
-                Label("Select Image", systemImage: "photo")
-            }
-        }
-    }
-    
     private func saveChanges() {
         do {
             item.name = name
             item.brand = brand.isEmpty ? nil : brand
-            item.quantity = quantity
+            item.quantity = Decimal(quantity)
             item.unit = unit == .none ? nil : unit.rawValue
             item.category = category
             item.priority = priority
-            item.estimatedPrice = estimatedPrice
+            item.estimatedPrice = estimatedPrice.map { Decimal($0) }
             item.notes = notes.isEmpty ? nil : notes
             
             if let selectedImage = selectedImage {
