@@ -65,11 +65,9 @@ struct ContentView: View {
                                         .foregroundColor(.blue)
                                 }
                                 Spacer()
-                                if let budget = list.budget {
-                                    Text(budget, format: .currency(code: "USD").precision(.fractionLength(2)))
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
+                                Text(list.budget ?? 0, format: .currency(code: "USD").precision(.fractionLength(2)))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                             }
                             
                             HStack {

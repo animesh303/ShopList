@@ -5,7 +5,7 @@ struct AddListView: View {
     @ObservedObject var viewModel: ShoppingListViewModel
     @State private var listName = ""
     @State private var category: ListCategory = .personal
-    @State private var budgetString = ""
+    @State private var budgetString = "0.00"
     @State private var showingError = false
     @State private var errorMessage = ""
     
@@ -20,7 +20,7 @@ struct AddListView: View {
         
         // Handle empty input
         if filtered.isEmpty {
-            return ""
+            return "0.00"
         }
         
         // Handle leading decimal point
@@ -53,11 +53,17 @@ struct AddListView: View {
     private var budgetRow: some View {
         HStack {
             Text("$")
-            TextField("Budget", text: $budgetString)
-                .keyboardType(.decimalPad)
-                .onChange(of: budgetString) { newValue in
-                    budgetString = validateBudgetString(newValue)
+            TextField("Budget", text: Binding(
+                get: { budgetString },
+                set: { newValue in
+                    if budgetString == "0.00" && newValue == "0.00" {
+                        budgetString = ""
+                    } else {
+                        budgetString = validateBudgetString(newValue)
+                    }
                 }
+            ))
+            .keyboardType(.decimalPad)
         }
     }
     
@@ -100,7 +106,7 @@ struct AddListView: View {
                                     dateCreated: Date(),
                                     isShared: false,
                                     category: category,
-                                    budget: budget != nil ? Double(truncating: budget! as NSNumber) : nil
+                                    budget: budget != nil ? Double(truncating: budget! as NSNumber) : 0
                                 )
                                 
                                 try await viewModel.addShoppingList(newList)

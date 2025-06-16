@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import UIKit
+import PhotosUI
 
 // Extension to provide colors for categories
 extension ItemCategory {
@@ -112,10 +113,20 @@ struct AddItemView: View {
     @State private var quantityString = "1.0"
     @State private var category: ItemCategory = .other
     @State private var priority: ItemPriority = .normal
-    @State private var estimatedPriceString = ""
+    @State private var estimatedPriceString = "0.00"
     @State private var brand: String = ""
     @State private var unit: String = ""
     @State private var notes: String = ""
+    @State private var showingError = false
+    @State private var errorMessage = ""
+    @State private var showingSuggestions = false
+    @State private var selectedSuggestions: Set<String> = []
+    @State private var showingImagePicker = false
+    @State private var selectedImage: PhotosPickerItem?
+    @State private var itemImage: Image?
+    @State private var imageData: Data?
+    
+    @FocusState private var focusedField: Field?
     
     private var quantity: Decimal {
         let formatter = NumberFormatter()
@@ -129,12 +140,6 @@ struct AddItemView: View {
         guard !estimatedPriceString.isEmpty else { return nil }
         return Decimal(string: estimatedPriceString)
     }
-    @State private var showSuggestions = false
-    @State private var selectedSuggestion: Item? = nil
-    @State private var showingError = false
-    @State private var errorMessage = ""
-    
-    @FocusState private var focusedField: Field?
     
     private var isFormValid: Bool {
         !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -182,7 +187,7 @@ struct AddItemView: View {
         
         // Handle empty input
         if filtered.isEmpty {
-            return ""
+            return "0.00"
         }
         
         // Handle leading decimal point
@@ -221,7 +226,7 @@ struct AddItemView: View {
                 }
             
             // Show suggestions if available
-            if showSuggestions {
+            if showingSuggestions {
                 let suggestions = viewModel.getSuggestions(for: itemName)
                 if !suggestions.isEmpty {
                     let suggestionItems = suggestions.map { ($0.name, $0.category) }
@@ -293,12 +298,17 @@ struct AddItemView: View {
     private var priceRow: some View {
         HStack {
             Text("$")
-            TextField("Estimated Price", text: $estimatedPriceString)
-                .keyboardType(.decimalPad)
-                .focused($focusedField, equals: .price)
-                .onChange(of: estimatedPriceString) { newValue in
-                    estimatedPriceString = validatePriceString(newValue)
+            TextField("Estimated Price", text: Binding(
+                get: { estimatedPriceString },
+                set: { newValue in
+                    if estimatedPriceString == "0.00" && newValue == "0.00" {
+                        estimatedPriceString = ""
+                    } else {
+                        estimatedPriceString = validatePriceString(newValue)
+                    }
                 }
+            ))
+            .keyboardType(.decimalPad)
         }
     }
     
@@ -352,7 +362,7 @@ struct AddItemView: View {
             }
             .onChange(of: itemName) { newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                showSuggestions = !trimmed.isEmpty
+                showingSuggestions = !trimmed.isEmpty
             }
         }
     }
@@ -370,12 +380,12 @@ struct AddItemView: View {
             if let price = selectedItem.estimatedPrice {
                 estimatedPriceString = price.formatted()
             } else {
-                estimatedPriceString = ""
+                estimatedPriceString = "0.00"
             }
             brand = selectedItem.brand ?? ""
             unit = selectedItem.unit ?? ""
             notes = selectedItem.notes ?? ""
-            showSuggestions = false
+            showingSuggestions = false
         }
     }
     
