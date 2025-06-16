@@ -1,8 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct AddListView: View {
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var viewModel: ShoppingListViewModel
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var listName = ""
     @State private var category: ListCategory
@@ -10,8 +11,7 @@ struct AddListView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     
-    init(viewModel: ShoppingListViewModel) {
-        self.viewModel = viewModel
+    init() {
         _category = State(initialValue: UserSettingsManager.shared.defaultListCategory)
     }
     
@@ -96,31 +96,34 @@ struct AddListView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        Task {
-                            do {
-                                guard !listName.isEmpty else {
-                                    throw AppError.invalidListName
-                                }
-                                
-                                guard await viewModel.findList(byName: listName) == nil else {
-                                    throw AppError.listAlreadyExists
-                                }
-                                
-                                let newList = ShoppingList(
-                                    name: listName,
-                                    items: [],
-                                    dateCreated: Date(),
-                                    isShared: false,
-                                    category: category,
-                                    budget: budget != nil ? Double(truncating: budget! as NSNumber) : 0
-                                )
-                                
-                                try await viewModel.addShoppingList(newList)
-                                dismiss()
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showingError = true
+                        do {
+                            guard !listName.isEmpty else {
+                                throw AppError.invalidListName
                             }
+                            
+                            // Check if list with same name exists
+                            let descriptor = FetchDescriptor<ShoppingList>(
+                                predicate: #Predicate { $0.name == listName }
+                            )
+                            if try modelContext.fetch(descriptor).first != nil {
+                                throw AppError.listAlreadyExists
+                            }
+                            
+                            let newList = ShoppingList(
+                                name: listName,
+                                items: [],
+                                dateCreated: Date(),
+                                isShared: false,
+                                category: category,
+                                budget: budget != nil ? Double(truncating: budget! as NSNumber) : 0
+                            )
+                            
+                            modelContext.insert(newList)
+                            try modelContext.save()
+                            dismiss()
+                        } catch {
+                            errorMessage = error.localizedDescription
+                            showingError = true
                         }
                     }
                     .disabled(listName.isEmpty)

@@ -1,16 +1,16 @@
 import SwiftUI
 import PhotosUI
+import SwiftData
 
 struct ItemDetailView: View {
-    let item: Item
-    let list: ShoppingList
-    @ObservedObject var viewModel: ShoppingListViewModel
-    @StateObject private var settingsManager = UserSettingsManager.shared
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Bindable var item: Item
+    @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var name: String
     @State private var brand: String
     @State private var quantity: Decimal
-    @State private var unit: String
+    @State private var unit: Unit
     @State private var category: ItemCategory
     @State private var priority: ItemPriority
     @State private var estimatedPrice: Decimal
@@ -20,14 +20,12 @@ struct ItemDetailView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     
-    init(item: Item, list: ShoppingList, viewModel: ShoppingListViewModel) {
+    init(item: Item) {
         self.item = item
-        self.list = list
-        self.viewModel = viewModel
         _name = State(initialValue: item.name)
         _brand = State(initialValue: item.brand ?? "")
         _quantity = State(initialValue: item.quantity)
-        _unit = State(initialValue: item.unit ?? "")
+        _unit = State(initialValue: Unit(rawValue: item.unit ?? "") ?? .none)
         _category = State(initialValue: item.category)
         _priority = State(initialValue: item.priority)
         _estimatedPrice = State(initialValue: item.estimatedPrice ?? Decimal(0))
@@ -90,16 +88,20 @@ struct ItemDetailView: View {
             HStack {
                 TextField("Quantity", value: $quantity, format: .number)
                     .keyboardType(.decimalPad)
-                TextField("Unit", text: $unit)
+                Picker("Unit", selection: $unit) {
+                    ForEach(Unit.allUnits, id: \.self) { unit in
+                        Text(unit.displayName).tag(unit)
+                    }
+                }
             }
             Picker("Category", selection: $category) {
                 ForEach(ItemCategory.allCases, id: \.self) { category in
-                    Text("\(category.rawValue)").tag(category)
+                    Text(category.rawValue).tag(category)
                 }
             }
             Picker("Priority", selection: $priority) {
                 ForEach(ItemPriority.allCases, id: \.self) { priority in
-                    Text("\(priority.rawValue)").tag(priority)
+                    Text(priority.displayName).tag(priority)
                 }
             }
         }
@@ -139,37 +141,35 @@ struct ItemDetailView: View {
     }
     
     private func saveChanges() {
-        Task {
-            do {
-                item.name = name
-                item.brand = brand.isEmpty ? nil : brand
-                item.quantity = quantity
-                item.unit = unit.isEmpty ? nil : unit
-                item.category = category
-                item.priority = priority
-                item.estimatedPrice = estimatedPrice
-                item.notes = notes.isEmpty ? nil : notes
-                
-                if let selectedImage = selectedImage {
-                    if let imageURL = try await viewModel.saveImage(from: selectedImage) {
-                        item.imageURL = imageURL
-                    }
-                }
-                
-                try await viewModel.updateShoppingList(list)
-                dismiss()
-            } catch {
-                errorMessage = error.localizedDescription
-                showingError = true
+        do {
+            item.name = name
+            item.brand = brand.isEmpty ? nil : brand
+            item.quantity = quantity
+            item.unit = unit == .none ? nil : unit.rawValue
+            item.category = category
+            item.priority = priority
+            item.estimatedPrice = estimatedPrice
+            item.notes = notes.isEmpty ? nil : notes
+            
+            if let selectedImage = selectedImage {
+                // TODO: Implement image saving with SwiftData
+                // For now, we'll just dismiss
             }
+            
+            try modelContext.save()
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
+            showingError = true
         }
     }
 }
 
 #Preview {
-    ItemDetailView(
-        item: Item(name: "Sample Item", quantity: 1, category: .groceries, priority: .normal),
-        list: ShoppingList(name: "Test List"),
-        viewModel: ShoppingListViewModel()
-    )
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: Item.self, configurations: config)
+    let item = Item(name: "Sample Item", quantity: 1, category: .groceries, priority: .normal)
+    
+    return ItemDetailView(item: item)
+        .modelContainer(container)
 }

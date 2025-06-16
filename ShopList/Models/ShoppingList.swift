@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import AppIntents
+import SwiftUI
 
 @Model
 final class ShoppingList {
@@ -152,6 +153,53 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
     // Other
     case personal = "Personal"
     case other = "Other"
+    
+    var color: Color {
+        switch self {
+        case .groceries:
+            return .green
+        case .household:
+            return .blue
+        case .personalCare:
+            return .pink
+        case .health:
+            return .red
+        case .electronics:
+            return .purple
+        case .clothing:
+            return .orange
+        case .office:
+            return .gray
+        case .pet:
+            return .brown
+        case .baby:
+            return .mint
+        case .automotive:
+            return .indigo
+        case .homeImprovement:
+            return .teal
+        case .garden:
+            return .green
+        case .gifts:
+            return .pink
+        case .party:
+            return .purple
+        case .holiday:
+            return .red
+        case .travel:
+            return .blue
+        case .vacation:
+            return .cyan
+        case .work:
+            return .gray
+        case .business:
+            return .indigo
+        case .personal:
+            return .mint
+        case .other:
+            return .gray
+        }
+    }
     
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "List Category"
     

@@ -13,6 +13,15 @@ struct SettingsView: View {
                                 .tag(appearance)
                         }
                     }
+                    
+                    Picker("List View Style", selection: $settingsManager.defaultListViewStyle) {
+                        ForEach(ListViewStyle.allCases) { style in
+                            Text(style.rawValue)
+                                .tag(style)
+                        }
+                    }
+                    
+                    Toggle("Show Completed Items", isOn: $settingsManager.showCompletedItemsByDefault)
                 }
                 
                 Section(header: Text("Currency")) {
@@ -29,6 +38,17 @@ struct SettingsView: View {
                         ForEach(NumberFormat.allCases) { format in
                             Text(format.rawValue)
                                 .tag(format)
+                        }
+                    }
+                }
+                
+                Section(header: Text("Item Display")) {
+                    Toggle("Show Item Images", isOn: $settingsManager.showItemImagesByDefault)
+                    Toggle("Show Item Notes", isOn: $settingsManager.showItemNotesByDefault)
+                    Picker("Item View Style", selection: $settingsManager.defaultItemViewStyle) {
+                        ForEach(ItemViewStyle.allCases) { style in
+                            Text(style.rawValue)
+                                .tag(style)
                         }
                     }
                 }
@@ -52,6 +72,32 @@ struct SettingsView: View {
                         ForEach(Unit.allUnits) { unit in
                             Text(unit.displayName)
                                 .tag(unit.rawValue)
+                        }
+                    }
+                    
+                    Picker("Default Sort Order", selection: $settingsManager.defaultListSortOrder) {
+                        Text("Name (A-Z)").tag(SortOrder.nameAsc)
+                        Text("Name (Z-A)").tag(SortOrder.nameDesc)
+                        Text("Date (Oldest)").tag(SortOrder.dateAsc)
+                        Text("Date (Newest)").tag(SortOrder.dateDesc)
+                        Text("Category (A-Z)").tag(SortOrder.categoryAsc)
+                        Text("Category (Z-A)").tag(SortOrder.categoryDesc)
+                    }
+                }
+                
+                Section(header: Text("Notifications")) {
+                    Toggle("Enable Notifications", isOn: $settingsManager.notificationsEnabled)
+                    
+                    if settingsManager.notificationsEnabled {
+                        DatePicker("Default Reminder Time",
+                                 selection: $settingsManager.defaultReminderTime,
+                                 displayedComponents: .hourAndMinute)
+                        
+                        Picker("Notification Sound", selection: $settingsManager.notificationSound) {
+                            ForEach(NotificationSound.allCases) { sound in
+                                Text(sound.rawValue)
+                                    .tag(sound)
+                            }
                         }
                     }
                 }

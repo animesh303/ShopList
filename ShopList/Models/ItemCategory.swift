@@ -1,7 +1,7 @@
 import Foundation
 import AppIntents
 
-enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable {
+enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable, Identifiable {
     // Sorted alphabetically for better organization
     case automotive = "Automotive"
     case babyCare = "Baby Care"
@@ -100,4 +100,6 @@ enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable {
         case .other: return "questionmark.circle.fill"
         }
     }
+    
+    var id: String { rawValue }
 } 

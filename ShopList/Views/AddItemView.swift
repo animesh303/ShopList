@@ -2,6 +2,7 @@ import SwiftUI
 import AVFoundation
 import UIKit
 import PhotosUI
+import SwiftData
 
 // Extension to provide colors for categories
 extension ItemCategory {
@@ -105,19 +106,19 @@ private enum Field: Hashable {
 }
 
 struct AddItemView: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    let list: ShoppingList
-    @ObservedObject var viewModel: ShoppingListViewModel
+    @Bindable var list: ShoppingList
     @StateObject private var settingsManager = UserSettingsManager.shared
     
-    @State private var itemName = ""
-    @State private var quantityString = "1.0"
+    @State private var name = ""
+    @State private var quantity = 1.0
+    @State private var unit = ""
+    @State private var brand = ""
+    @State private var estimatedPrice: Double?
     @State private var category: ItemCategory = .other
-    @State private var priority: ItemPriority
-    @State private var estimatedPriceString = "0.00"
-    @State private var brand: String = ""
-    @State private var unit: String
-    @State private var notes: String = ""
+    @State private var notes = ""
+    @State private var priority: ItemPriority = .normal
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var showingSuggestions = false
@@ -129,153 +130,32 @@ struct AddItemView: View {
     
     @FocusState private var focusedField: Field?
     
-    init(list: ShoppingList, viewModel: ShoppingListViewModel) {
-        self.list = list
-        self.viewModel = viewModel
-        _priority = State(initialValue: UserSettingsManager.shared.defaultItemPriority)
-        _unit = State(initialValue: UserSettingsManager.shared.defaultUnit)
-    }
-    
-    private var quantity: Decimal {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 1
-        formatter.decimalSeparator = "."
-        return (formatter.number(from: quantityString)?.decimalValue ?? 1.0) as Decimal
-    }
-    
-    private var estimatedPrice: Decimal? {
-        guard !estimatedPriceString.isEmpty else { return nil }
-        return Decimal(string: estimatedPriceString)
-    }
-    
-    private var isFormValid: Bool {
-        !itemName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-    
-    private func validateQuantityString(_ newValue: String) -> String {
-        // Allow only numbers and one decimal point
-        let filtered = newValue.filter { "0123456789.".contains($0) }
-        
-        // Handle empty input
-        if filtered.isEmpty {
-            return ""
-        }
-        
-        // Handle leading decimal point
-        if filtered == "." {
-            return "0."
-        }
-        
-        let components = filtered.components(separatedBy: ".")
-        
-        // If more than one decimal point, keep only the first one
-        if components.count > 2 {
-            let firstPart = components[0]
-            let decimalPart = components[1...].joined()
-            return "\(firstPart).\(decimalPart)"
-        }
-        
-        // Limit to 5 digits before decimal
-        if let first = components.first, first.count > 5 {
-            return String(first.prefix(5)) + (components.count > 1 ? ".\(components[1])" : "")
-        }
-        
-        // Limit to 1 decimal place
-        if components.count == 2, let last = components.last, last.count > 1 {
-            return "\(components[0]).\(last.prefix(1))"
-        }
-        
-        return filtered
-    }
-    
-    private func validatePriceString(_ newValue: String) -> String {
-        // Allow only numbers and one decimal point
-        let filtered = newValue.filter { "0123456789.".contains($0) }
-        
-        // Handle empty input
-        if filtered.isEmpty {
-            return "0.00"
-        }
-        
-        // Handle leading decimal point
-        if filtered == "." {
-            return "0."
-        }
-        
-        let components = filtered.components(separatedBy: ".")
-        
-        // If more than one decimal point, keep only the first one
-        if components.count > 2 {
-            let firstPart = components[0]
-            let decimalPart = components[1...].joined()
-            return "\(firstPart).\(decimalPart)"
-        }
-        
-        // Limit to 7 digits before decimal
-        if let first = components.first, first.count > 7 {
-            return String(first.prefix(7)) + (components.count > 1 ? ".\(components[1])" : "")
-        }
-        
-        // Limit to 2 decimal places
-        if components.count == 2, let last = components.last, last.count > 2 {
-            return "\(components[0]).\(last.prefix(2))"
-        }
-        
-        return filtered
-    }
-    
-    private var itemDetailsSection: some View {
-        Section(header: Text("Item Details")) {
-            TextField("Name", text: $itemName)
-                .focused($focusedField, equals: .name)
-                .onAppear {
-                    focusedField = .name
-                }
-            
-            // Show suggestions if available
-            if showingSuggestions {
-                let suggestions = viewModel.getSuggestions(for: itemName)
-                if !suggestions.isEmpty {
-                    let suggestionItems = suggestions.map { ($0.name, $0.category) }
-                    SuggestionsListView(suggestions: suggestionItems) { selectedSuggestion in
-                        handleSuggestionSelection(selectedSuggestion, from: suggestions)
-                    }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-            }
-            
-            quantityRow
-            categoryPicker
-            priorityPicker
-        }
-    }
-    
-    private var quantityRow: some View {
-        HStack(alignment: .center, spacing: 8) {
+    private var quantityField: some View {
+        HStack {
             Text("Quantity")
-            
             Spacer()
-            
-            HStack(spacing: 8) {
-                TextField("1.0", text: $quantityString)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 80)
-                    .onChange(of: quantityString) { newValue in
-                        quantityString = validateQuantityString(newValue)
-                    }
-                
-                Picker("", selection: $unit) {
-                    ForEach(ShoppingList.commonUnits, id: \.self) { unit in
-                        Text(unit.isEmpty ? "None" : unit)
-                            .tag(unit)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize(horizontal: true, vertical: false)
+            TextField("Quantity", value: $quantity, format: .number)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 100)
+        }
+    }
+    
+    private var priceField: some View {
+        HStack {
+            Text("Estimated Price")
+            Spacer()
+            TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 100)
+        }
+    }
+    
+    private var unitPicker: some View {
+        Picker("Unit", selection: $unit) {
+            ForEach(Unit.allUnits, id: \.self) { unit in
+                Text(unit.displayName).tag(unit.rawValue)
             }
         }
     }
@@ -296,49 +176,52 @@ struct AddItemView: View {
         }
     }
     
-    private var priceAndBrandSection: some View {
-        Section(header: Text("Price & Brand")) {
-            priceRow
-            brandRow
-        }
-    }
-    
-    private var priceRow: some View {
-        HStack {
-            Text(settingsManager.currency.symbol)
-            TextField("Estimated Price", text: Binding(
-                get: { estimatedPriceString },
-                set: { newValue in
-                    if estimatedPriceString == "0.00" && newValue == "0.00" {
-                        estimatedPriceString = ""
-                    } else {
-                        estimatedPriceString = validatePriceString(newValue)
-                    }
-                }
-            ))
-            .keyboardType(.decimalPad)
-        }
-    }
-    
-    private var brandRow: some View {
-        TextField("Brand", text: $brand)
-            .focused($focusedField, equals: .brand)
-    }
-    
-    private var notesSection: some View {
-        Section(header: Text("Notes")) {
-            TextEditor(text: $notes)
-                .frame(minHeight: 100)
-                .focused($focusedField, equals: .notes)
-        }
-    }
-    
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
-                itemDetailsSection
-                priceAndBrandSection
-                notesSection
+                Section {
+                    Group {
+                        TextField("Item Name", text: $name)
+                            .textContentType(.name)
+                        TextField("Brand", text: $brand)
+                        quantityField
+                        unitPicker
+                    }
+                } header: {
+                    Text("Item Details")
+                }
+                
+                Section {
+                    Group {
+                        priceField
+                        categoryPicker
+                        priorityPicker
+                    }
+                } header: {
+                    Text("Additional Information")
+                }
+                
+                Section {
+                    TextEditor(text: $notes)
+                        .frame(minHeight: 100)
+                } header: {
+                    Text("Notes")
+                }
+                
+                Section {
+                    PhotosPicker(selection: $selectedImage, matching: .images) {
+                        Label("Select Image", systemImage: "photo")
+                    }
+                    
+                    if let itemImage {
+                        itemImage
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                    }
+                } header: {
+                    Text("Image")
+                }
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
@@ -350,16 +233,7 @@ struct AddItemView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        addNewItem()
-                    }
-                    .disabled(!isFormValid)
-                }
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") {
-                        focusedField = nil
+                        addItem()
                     }
                 }
             }
@@ -368,75 +242,39 @@ struct AddItemView: View {
             } message: {
                 Text(errorMessage)
             }
-            .onChange(of: itemName) { newValue in
+            .onChange(of: name) { newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 showingSuggestions = !trimmed.isEmpty
             }
         }
     }
     
-    private func handleSuggestionSelection(_ suggestion: (name: String, category: ItemCategory), from suggestions: [Item]) {
-        // Find the full item from the suggestions
-        if let selectedItem = suggestions.first(where: { $0.name == suggestion.name }) {
-            // Update all fields from the selected suggestion
-            itemName = selectedItem.name
-            // Update quantityString instead of the computed quantity property
-            quantityString = selectedItem.quantity.formatted()
-            category = selectedItem.category
-            priority = selectedItem.priority
-            // Update estimatedPriceString instead of the computed estimatedPrice property
-            if let price = selectedItem.estimatedPrice {
-                estimatedPriceString = price.formatted()
-            } else {
-                estimatedPriceString = "0.00"
+    private func addItem() {
+        do {
+            let item = Item(
+                name: name,
+                quantity: Decimal(quantity),
+                category: category,
+                isCompleted: false,
+                notes: notes.isEmpty ? nil : notes,
+                dateAdded: Date(),
+                estimatedPrice: estimatedPrice.map { Decimal($0) },
+                brand: brand.isEmpty ? nil : brand,
+                unit: unit.isEmpty ? nil : unit,
+                priority: priority
+            )
+            
+            if let selectedImage = selectedImage {
+                // TODO: Implement image saving with SwiftData
+                // For now, we'll just add the item
             }
-            brand = selectedItem.brand ?? ""
-            unit = selectedItem.unit ?? ""
-            notes = selectedItem.notes ?? ""
-            showingSuggestions = false
-        }
-    }
-    
-    private func addNewItem() {
-        // Capture the current values to avoid reference issues
-        let itemName = self.itemName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let category = self.category
-        let notes = self.notes.isEmpty ? nil : self.notes
-        let brand = self.brand.isEmpty ? nil : self.brand
-        let unit = self.unit.isEmpty ? nil : self.unit
-        
-        // Ensure quantity is at least 0.01
-        let validQuantity = max(0.01, quantity)
-        
-        let newItem = Item(
-            name: itemName,
-            quantity: validQuantity,
-            category: category,
-            isCompleted: false,
-            notes: notes,
-            dateAdded: Date(),
-            estimatedPrice: self.estimatedPrice,
-            barcode: nil,
-            brand: brand,
-            unit: unit,
-            lastPurchasedPrice: self.estimatedPrice, // Save current price as last purchased
-            lastPurchasedDate: Date(),
-            imageURL: nil,
-            priority: self.priority
-        )
-        
-        Task {
-            do {
-                try await viewModel.addItem(newItem, to: list)
-                // Update suggestions with the full item
-                viewModel.addOrUpdateSuggestion(newItem)
-                dismiss()
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.showingError = true
-                }
-            }
+            
+            list.addItem(item)
+            try modelContext.save()
+            dismiss()
+        } catch {
+            errorMessage = error.localizedDescription
+            showingError = true
         }
     }
     
@@ -543,4 +381,13 @@ struct AddItemView: View {
             }
         }
     }
+}
+
+#Preview {
+    let config = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try! ModelContainer(for: ShoppingList.self, configurations: config)
+    let list = ShoppingList(name: "Preview List")
+    
+    return AddItemView(list: list)
+        .modelContainer(container)
 }
