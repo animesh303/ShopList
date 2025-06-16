@@ -51,42 +51,50 @@ private struct SuggestionsListView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("SUGGESTIONS")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .padding(.horizontal)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
-            
-            ForEach(suggestions, id: \.name) { suggestion in
-                Button(action: { onSelect(suggestion) }) {
-                    HStack {
-                        Image(systemName: "arrow.up.left.circle.fill")
-                            .foregroundColor(.accentColor)
-                            .font(.caption)
-                        
-                        Text(suggestion.name.capitalized)
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        Text(suggestion.category.rawValue)
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(suggestion.category.color)
-                            .cornerRadius(8)
-                    }
-                    .padding(.vertical, 8)
+            if suggestions.isEmpty {
+                Text("No suggestions found")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                     .padding(.horizontal)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(PlainButtonStyle())
+                    .padding(.vertical, 8)
+            } else {
+                Text("SUGGESTIONS")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
                 
-                if suggestion.name != suggestions.last?.name {
-                    Divider()
-                        .padding(.leading)
+                ForEach(suggestions, id: \.name) { suggestion in
+                    Button(action: { onSelect(suggestion) }) {
+                        HStack {
+                            Image(systemName: "arrow.up.left.circle.fill")
+                                .foregroundColor(.accentColor)
+                                .font(.caption)
+                            
+                            Text(suggestion.name.capitalized)
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Text(suggestion.category.rawValue)
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(suggestion.category.color)
+                                .cornerRadius(8)
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    if suggestion.name != suggestions.last?.name {
+                        Divider()
+                            .padding(.leading)
+                    }
                 }
             }
         }
@@ -109,6 +117,7 @@ struct AddItemView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Bindable var list: ShoppingList
+    @Query private var allLists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
     
     @State private var name = ""
@@ -183,6 +192,24 @@ struct AddItemView: View {
                     Group {
                         TextField("Item Name", text: $name)
                             .textContentType(.name)
+                            .onChange(of: name) { _, newValue in
+                                if !newValue.isEmpty {
+                                    showingSuggestions = true
+                                } else {
+                                    showingSuggestions = false
+                                }
+                            }
+                        
+                        if showingSuggestions {
+                            SuggestionsListView(
+                                suggestions: getSuggestions(for: name),
+                                onSelect: { suggestion in
+                                    onSuggestionSelected(suggestion)
+                                }
+                            )
+                            .padding(.top, 8)
+                        }
+                        
                         TextField("Brand", text: $brand)
                         quantityField
                         unitPicker
@@ -242,10 +269,6 @@ struct AddItemView: View {
             } message: {
                 Text(errorMessage)
             }
-            .onChange(of: name) { newValue in
-                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                showingSuggestions = !trimmed.isEmpty
-            }
         }
     }
     
@@ -276,6 +299,67 @@ struct AddItemView: View {
             errorMessage = error.localizedDescription
             showingError = true
         }
+    }
+    
+    private func getSuggestions(for query: String) -> [(name: String, category: ItemCategory)] {
+        print("Getting suggestions for query: \(query)")
+        
+        // Get all items from all lists
+        let allItems = allLists.flatMap { $0.items }
+        print("Total items across all lists: \(allItems.count)")
+        print("All items: \(allItems.map { $0.name })")
+        
+        // Get unique item names
+        let uniqueItems = Array(Set(allItems.map { $0.name }))
+        print("Unique items: \(uniqueItems)")
+        
+        // Filter items that match the query
+        let matchingItems = uniqueItems.filter { $0.localizedCaseInsensitiveContains(query) }
+        print("Matching items: \(matchingItems)")
+        
+        // Get the most recent items first
+        let suggestions = matchingItems
+            .prefix(5)
+            .map { name in
+                // Find the most recent item with this name
+                if let item = allItems
+                    .filter({ $0.name == name })
+                    .sorted(by: { $0.dateAdded > $1.dateAdded })
+                    .first {
+                    print("Found item: \(item.name) with category: \(item.category)")
+                    return (name: name, category: item.category)
+                }
+                print("No matching item found for name: \(name)")
+                return (name: name, category: .other)
+            }
+        
+        print("Final suggestions: \(suggestions)")
+        return suggestions
+    }
+    
+    private func onSuggestionSelected(_ suggestion: (name: String, category: ItemCategory)) {
+        name = suggestion.name
+        category = suggestion.category
+        
+        // Find the most recent item with this name from all lists
+        if let recentItem = allLists
+            .flatMap({ $0.items })
+            .filter({ $0.name == suggestion.name })
+            .sorted(by: { $0.dateAdded > $1.dateAdded })
+            .first {
+            // Populate all fields from the recent item
+            brand = recentItem.brand ?? ""
+            quantity = Double(truncating: recentItem.quantity as NSDecimalNumber)
+            unit = recentItem.unit ?? ""
+            if let price = recentItem.estimatedPrice {
+                estimatedPrice = Double(truncating: price as NSDecimalNumber)
+            }
+            notes = recentItem.notes ?? ""
+            priority = recentItem.priority
+            // Note: imageData is not available in the Item model
+        }
+        
+        showingSuggestions = false
     }
     
     struct BarcodeScannerView: UIViewControllerRepresentable {
