@@ -3,6 +3,7 @@ import SwiftUI
 struct ListSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     let list: ShoppingList
     
     @State private var listName: String
@@ -35,7 +36,7 @@ struct ListSettingsView: View {
                 
                 Section(header: Text("Budget")) {
                     HStack {
-                        Text("$")
+                        Text(settingsManager.currency.symbol)
                         TextField("Budget Amount", value: $budget, format: .number)
                             .keyboardType(.decimalPad)
                             .onChange(of: budget) { newValue in

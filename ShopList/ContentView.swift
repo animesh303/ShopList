@@ -12,6 +12,7 @@ struct ListRowView: View {
     let list: ShoppingList
     let onDelete: () -> Void
     let onShare: () -> Void
+    @StateObject private var settingsManager = UserSettingsManager.shared
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -24,7 +25,7 @@ struct ListRowView: View {
                         .foregroundColor(.secondary)
                 }
                 Spacer()
-                Text(list.budget ?? 0, format: .currency(code: "USD").precision(.fractionLength(2)))
+                Text(list.budget ?? 0, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
@@ -39,14 +40,14 @@ struct ListRowView: View {
                 HStack {
                     Text("Budget:")
                         .foregroundStyle(.secondary)
-                    Text(budget, format: .currency(code: "USD").precision(.fractionLength(2)))
+                    Text(budget, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                 }
             }
             
             HStack {
                 Text("Estimated Total:")
                     .foregroundStyle(.secondary)
-                Text(list.estimatedTotal, format: .currency(code: "USD").precision(.fractionLength(2)))
+                Text(list.estimatedTotal, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
             }
         }
         .padding(.vertical, 4)
@@ -174,38 +175,48 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationView {
-            List {
-                ListsSection(
-                    lists: filteredLists,
-                    viewModel: viewModel,
-                    showingError: $showingError,
-                    errorMessage: $errorMessage
-                )
-            }
-            .navigationTitle("Shopping Lists")
-            .searchable(text: $searchText, prompt: "Search lists")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    SortFilterMenu(sortOrder: $sortOrder, selectedCategory: $selectedCategory)
+        TabView {
+            NavigationView {
+                List {
+                    ListsSection(
+                        lists: filteredLists,
+                        viewModel: viewModel,
+                        showingError: $showingError,
+                        errorMessage: $errorMessage
+                    )
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddList = true
-                    } label: {
-                        Label("Add List", systemImage: "plus")
+                .navigationTitle("Shopping Lists")
+                .searchable(text: $searchText, prompt: "Search lists")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        SortFilterMenu(sortOrder: $sortOrder, selectedCategory: $selectedCategory)
+                    }
+                    
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showingAddList = true
+                        } label: {
+                            Label("Add List", systemImage: "plus")
+                        }
                     }
                 }
+                .sheet(isPresented: $showingAddList) {
+                    AddListView(viewModel: viewModel)
+                }
+                .alert("Error", isPresented: $showingError) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(errorMessage)
+                }
             }
-            .sheet(isPresented: $showingAddList) {
-                AddListView(viewModel: viewModel)
+            .tabItem {
+                Label("Lists", systemImage: "list.bullet")
             }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
-            }
+            
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
         }
     }
 }

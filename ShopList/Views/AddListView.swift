@@ -3,6 +3,7 @@ import SwiftUI
 struct AddListView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var listName = ""
     @State private var category: ListCategory = .personal
     @State private var budgetString = "0.00"
@@ -52,7 +53,7 @@ struct AddListView: View {
     
     private var budgetRow: some View {
         HStack {
-            Text("$")
+            Text(settingsManager.currency.symbol)
             TextField("Budget", text: Binding(
                 get: { budgetString },
                 set: { newValue in

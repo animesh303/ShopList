@@ -5,6 +5,7 @@ struct ItemDetailView: View {
     let item: Item
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var name: String
     @State private var brand: String
@@ -106,7 +107,7 @@ struct ItemDetailView: View {
     
     private var priceSection: some View {
         VStack(alignment: .leading) {
-            TextField("Estimated Price", value: $estimatedPrice, format: .currency(code: "USD"))
+            TextField("Estimated Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
                 .keyboardType(.decimalPad)
         }
     }

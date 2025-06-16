@@ -11,6 +11,7 @@ enum ItemSortOrder: String, CaseIterable {
 struct ShoppingListView: View {
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var showingAddItemSheet = false
     @State private var showingShareSheet = false
     @State private var showingListSettings = false
@@ -144,14 +145,14 @@ struct ShoppingListView: View {
             HStack {
                 Text("Budget")
                 Spacer()
-                Text(budget, format: .currency(code: "USD").precision(.fractionLength(2)))
+                Text(budget, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                     .foregroundColor(.secondary)
             }
             
             HStack {
                 Text("Estimated Total")
                 Spacer()
-                Text(totalCost, format: .currency(code: "USD").precision(.fractionLength(2)))
+                Text(totalCost, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                     .foregroundColor(totalCost > budget ? .red : .secondary)
             }
         }
@@ -162,6 +163,7 @@ struct ItemRow: View {
     let item: Item
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var showingItemDetails = false
     @Binding var showingError: Bool
     @Binding var errorMessage: String
@@ -215,7 +217,7 @@ struct ItemRow: View {
                     }
                     
                     if let price = item.estimatedPrice {
-                        Text(price, format: .currency(code: "USD"))
+                        Text(price, format: .currency(code: settingsManager.currency.rawValue))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

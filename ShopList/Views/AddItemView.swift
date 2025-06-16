@@ -108,6 +108,7 @@ struct AddItemView: View {
     @Environment(\.dismiss) private var dismiss
     let list: ShoppingList
     @ObservedObject var viewModel: ShoppingListViewModel
+    @StateObject private var settingsManager = UserSettingsManager.shared
     
     @State private var itemName = ""
     @State private var quantityString = "1.0"
@@ -297,7 +298,7 @@ struct AddItemView: View {
     
     private var priceRow: some View {
         HStack {
-            Text("$")
+            Text(settingsManager.currency.symbol)
             TextField("Estimated Price", text: Binding(
                 get: { estimatedPriceString },
                 set: { newValue in
