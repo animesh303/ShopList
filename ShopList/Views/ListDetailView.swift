@@ -93,9 +93,30 @@ struct ListDetailView: View {
                     ForEach(filteredItems) { item in
                         NavigationLink(value: item) {
                             ItemRow(item: item)
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        let generator = UINotificationFeedbackGenerator()
+                                        generator.notificationOccurred(.success)
+                                        if let index = list.items.firstIndex(where: { $0.id == item.id }) {
+                                            list.removeItem(item)
+                                        }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                                .swipeActions(edge: .leading) {
+                                    Button {
+                                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                                        generator.impactOccurred()
+                                        item.isCompleted.toggle()
+                                    } label: {
+                                        Label(item.isCompleted ? "Uncheck" : "Check", 
+                                              systemImage: item.isCompleted ? "xmark.circle" : "checkmark.circle")
+                                    }
+                                    .tint(item.isCompleted ? .orange : .green)
+                                }
                         }
                     }
-                    .onDelete(perform: deleteItems)
                 
                     HStack {
                         Text("Items")
@@ -118,11 +139,19 @@ struct ListDetailView: View {
                         
                         Toggle("Show Completed", isOn: $showingCompletedItems)
                         
-                        Button(action: { showingEditSheet = true }) {
+                        Button(action: { 
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            showingEditSheet = true 
+                        }) {
                             Label("Edit List", systemImage: "pencil")
                         }
                         
-                        Button(role: .destructive, action: { showingDeleteConfirmation = true }) {
+                        Button(role: .destructive, action: { 
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            showingDeleteConfirmation = true 
+                        }) {
                             Label("Delete List", systemImage: "trash")
                         }
                     } label: {
@@ -137,6 +166,8 @@ struct ListDetailView: View {
                 HStack {
                     Spacer()
                     Button {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
                         showingAddItem = true
                     } label: {
                         Image(systemName: "plus")
@@ -165,6 +196,8 @@ struct ListDetailView: View {
         .alert("Delete List", isPresented: $showingDeleteConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
                 deleteList()
             }
         } message: {
@@ -173,6 +206,9 @@ struct ListDetailView: View {
     }
     
     private func deleteItems(at offsets: IndexSet) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        
         for index in offsets {
             let item = filteredItems[index]
             list.removeItem(item)

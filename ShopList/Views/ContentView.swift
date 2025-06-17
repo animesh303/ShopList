@@ -64,6 +64,8 @@ struct ContentView: View {
                     
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             showingSettings = true
                         } label: {
                             Label("Settings", systemImage: "gear")
@@ -77,6 +79,8 @@ struct ContentView: View {
                     HStack {
                         Spacer()
                         Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                             showingAddList = true
                         } label: {
                             Image(systemName: "plus")
@@ -106,6 +110,9 @@ struct ContentView: View {
     }
     
     private func deleteLists(at offsets: IndexSet) {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        
         for index in offsets {
             let list = sortedLists[index]
             modelContext.delete(list)
