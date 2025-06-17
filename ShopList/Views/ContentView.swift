@@ -38,42 +38,58 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(sortedLists) { list in
-                    NavigationLink(value: list) {
-                        ListRow(list: list)
-                    }
-                }
-                .onDelete(perform: deleteLists)
-            }
-            .navigationTitle("Shopping Lists")
-            .searchable(text: $searchText, prompt: "Search lists")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Picker("Sort Order", selection: $sortOrder) {
-                            ForEach(ListSortOrder.allCases) { order in
-                                Text(order.displayName).tag(order)
-                            }
+            ZStack {
+                List {
+                    ForEach(sortedLists) { list in
+                        NavigationLink(value: list) {
+                            ListRow(list: list)
                         }
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down")
+                    }
+                    .onDelete(perform: deleteLists)
+                }
+                .navigationTitle("Shopping Lists")
+                .searchable(text: $searchText, prompt: "Search lists")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            Picker("Sort Order", selection: $sortOrder) {
+                                ForEach(ListSortOrder.allCases) { order in
+                                    Text(order.displayName).tag(order)
+                                }
+                            }
+                        } label: {
+                            Label("Sort", systemImage: "arrow.up.arrow.down")
+                        }
+                    }
+                    
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showingSettings = true
+                        } label: {
+                            Label("Settings", systemImage: "gear")
+                        }
                     }
                 }
                 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Label("Settings", systemImage: "gear")
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingAddList = true
-                    } label: {
-                        Label("Add List", systemImage: "plus")
+                // Floating Action Button for adding new lists
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            showingAddList = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: 60, height: 60)
+                                .background(Color.accentColor)
+                                .clipShape(Circle())
+                                .shadow(radius: 4)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
                     }
                 }
             }
@@ -91,7 +107,8 @@ struct ContentView: View {
     
     private func deleteLists(at offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(sortedLists[index])
+            let list = sortedLists[index]
+            modelContext.delete(list)
         }
     }
 }
