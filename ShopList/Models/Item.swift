@@ -82,4 +82,36 @@ enum ItemPriority: Int, Codable, CaseIterable, AppEnum {
         case .high: return "red"
         }
     }
+}
+
+@Model
+final class ItemHistory {
+    @Attribute(.unique) var id: UUID
+    var name: String
+    var lowercaseName: String
+    var category: ItemCategory
+    var brand: String?
+    var unit: String?
+    var lastUsedDate: Date
+    var usageCount: Int
+    var estimatedPrice: Decimal?
+    
+    init(id: UUID = UUID(),
+         name: String,
+         category: ItemCategory,
+         brand: String? = nil,
+         unit: String? = nil,
+         lastUsedDate: Date = Date(),
+         usageCount: Int = 1,
+         estimatedPrice: Decimal? = nil) {
+        self.id = id
+        self.name = name
+        self.lowercaseName = name.lowercased()
+        self.category = category
+        self.brand = brand
+        self.unit = unit
+        self.lastUsedDate = lastUsedDate
+        self.usageCount = usageCount
+        self.estimatedPrice = estimatedPrice
+    }
 } 

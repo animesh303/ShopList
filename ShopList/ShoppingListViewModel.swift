@@ -22,12 +22,21 @@ final class ShoppingListViewModel: ObservableObject {
     // Error handling properties
     @Published var currentError: AppError?
     @Published var showingError = false
-    @Published var itemSuggestions: [String: (item: Item, count: Int)] = [:] // item name: (full item, usage count)
     
     private let modelContext: ModelContext
     
     init(modelContext: ModelContext? = nil) {
-        self.modelContext = modelContext ?? ModelContext(try! ModelContainer(for: ShoppingList.self, Item.self))
+        if let modelContext = modelContext {
+            self.modelContext = modelContext
+        } else {
+            do {
+                let config = ModelConfiguration(isStoredInMemoryOnly: false)
+                let container = try ModelContainer(for: ShoppingList.self, Item.self, ItemHistory.self, configurations: config)
+                self.modelContext = container.mainContext
+            } catch {
+                fatalError("Failed to initialize ModelContainer: \(error)")
+            }
+        }
         
         // Initialize with empty state
         self.shoppingLists = []
@@ -99,45 +108,10 @@ final class ShoppingListViewModel: ObservableObject {
             let lists = try modelContext.fetch(descriptor)
             print("Successfully loaded \(lists.count) shopping lists")
             self.shoppingLists = lists
-            
-            // Update suggestions based on existing items
-            updateSuggestionsFromLists(lists)
         } catch {
             print("Error loading shopping lists: \(error.localizedDescription)")
             handleError(error)
         }
-    }
-    
-    private func updateSuggestionsFromLists(_ lists: [ShoppingList]) {
-        print("Updating suggestions from \(lists.count) lists")
-        var itemCounts: [String: (Item, Int)] = [:]
-        
-        for list in lists {
-            for item in list.items {
-                let name = item.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-                if name.isEmpty { continue }
-                
-                if let existing = itemCounts[name] {
-                    itemCounts[name] = (existing.0, existing.1 + 1)
-                } else {
-                    itemCounts[name] = (item, 1)
-                }
-            }
-        }
-        
-        // Merge with existing suggestions, preserving higher counts
-        var updatedCount = 0
-        for (item, data) in itemCounts {
-            if let existing = itemSuggestions[item] {
-                // Keep the existing item but update the count
-                itemSuggestions[item] = (existing.item, max(existing.count, data.1))
-                updatedCount += 1
-            } else {
-                itemSuggestions[item] = data
-                updatedCount += 1
-            }
-        }
-        print("Updated \(updatedCount) suggestions. Total suggestions now: \(itemSuggestions.count)")
     }
     
     func getSuggestions(for query: String) -> [Item] {
@@ -148,29 +122,66 @@ final class ShoppingListViewModel: ObservableObject {
         
         let query = query.lowercased()
         print("Getting suggestions for query: \(query)")
-        print("Current itemSuggestions: \(itemSuggestions.keys)")
         
-        // Get matching items, sorted by usage count
-        let suggestions = itemSuggestions
-            .filter { $0.key.lowercased().contains(query) }
-            .sorted { $0.value.count > $1.value.count }
-            .prefix(5)
-            .map { $0.value.item }
+        // Fetch matching items from history
+        let descriptor = FetchDescriptor<ItemHistory>(
+            predicate: #Predicate { $0.lowercaseName.contains(query) },
+            sortBy: [SortDescriptor(\.usageCount, order: .reverse), SortDescriptor(\.lastUsedDate, order: .reverse)]
+        )
         
-        print("Found \(suggestions.count) suggestions")
-        return suggestions
+        do {
+            let historyItems = try modelContext.fetch(descriptor)
+            print("Found \(historyItems.count) suggestions in history")
+            
+            // Convert history items to Item objects for the UI
+            return historyItems.prefix(5).map { history in
+                Item(
+                    name: history.name,
+                    quantity: 1,
+                    category: history.category,
+                    isCompleted: false,
+                    notes: nil,
+                    dateAdded: Date(),
+                    brand: history.brand,
+                    unit: history.unit
+                )
+            }
+        } catch {
+            print("Error fetching suggestions: \(error)")
+            return []
+        }
     }
     
     func addOrUpdateSuggestion(_ item: Item) {
-        let name = item.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let name = item.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lowercaseName = name.lowercased()
         guard !name.isEmpty else { return }
         
-        if let existing = itemSuggestions[name] {
-            // Update the count but keep the existing item data
-            itemSuggestions[name] = (existing.item, existing.count + 1)
-        } else {
-            // Create a new suggestion with the item and initial count of 1
-            itemSuggestions[name] = (item, 1)
+        // Check if item exists in history
+        let descriptor = FetchDescriptor<ItemHistory>(
+            predicate: #Predicate { $0.lowercaseName == lowercaseName }
+        )
+        
+        do {
+            if let existingHistory = try modelContext.fetch(descriptor).first {
+                // Update existing history
+                existingHistory.usageCount += 1
+                existingHistory.lastUsedDate = Date()
+                existingHistory.brand = item.brand
+                existingHistory.unit = item.unit
+            } else {
+                // Create new history entry
+                let history = ItemHistory(
+                    name: name,
+                    category: item.category,
+                    brand: item.brand,
+                    unit: item.unit
+                )
+                modelContext.insert(history)
+            }
+            try modelContext.save()
+        } catch {
+            print("Error updating item history: \(error)")
         }
     }
     
@@ -190,6 +201,11 @@ final class ShoppingListViewModel: ObservableObject {
     }
     
     func deleteShoppingList(_ list: ShoppingList) async throws {
+        // Update history for all items before deleting the list
+        for item in list.items {
+            addOrUpdateSuggestion(item)
+        }
+        
         modelContext.delete(list)
         try modelContext.save()
         shoppingLists.removeAll { $0.id == list.id }

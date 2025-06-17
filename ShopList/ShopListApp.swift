@@ -18,11 +18,8 @@ struct ShopListApp: App {
     
     init() {
         do {
-            let container = try ModelContainer(
-                for: ShoppingList.self, Item.self, Location.self,
-                configurations: ModelConfiguration(isStoredInMemoryOnly: false)
-            )
-            self.container = container
+            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            container = try ModelContainer(for: ShoppingList.self, Item.self, ItemHistory.self, configurations: config)
             let viewModel = ShoppingListViewModel(modelContext: container.mainContext)
             _viewModel = StateObject(wrappedValue: viewModel)
         } catch {
