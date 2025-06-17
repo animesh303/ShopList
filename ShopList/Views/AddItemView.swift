@@ -189,7 +189,7 @@ struct AddItemView: View {
         NavigationView {
             Form {
                 Section {
-                    Group {
+                    VStack(spacing: 16) {
                         TextField("Item Name", text: $name)
                             .textContentType(.name)
                             .onChange(of: name) { _, newValue in
@@ -207,25 +207,59 @@ struct AddItemView: View {
                                     onSuggestionSelected(suggestion)
                                 }
                             )
-                            .padding(.top, 8)
                         }
                         
                         TextField("Brand", text: $brand)
-                        quantityField
-                        unitPicker
+                            .textContentType(.organizationName)
+                        
+                        HStack {
+                            Text("Quantity")
+                            Spacer()
+                            TextField("Quantity", value: $quantity, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 100)
+                        }
+                        
+                        Picker("Unit", selection: $unit) {
+                            ForEach(Unit.allUnits, id: \.self) { unit in
+                                Text(unit.displayName).tag(unit.rawValue)
+                            }
+                        }
                     }
                 } header: {
                     Text("Item Details")
+                } footer: {
+                    Text("Enter the basic information about your item")
                 }
                 
                 Section {
-                    Group {
-                        priceField
-                        categoryPicker
-                        priorityPicker
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Estimated Price")
+                            Spacer()
+                            TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 100)
+                        }
+                        
+                        Picker("Category", selection: $category) {
+                            ForEach(ItemCategory.allCases, id: \.self) { category in
+                                Text(category.rawValue).tag(category)
+                            }
+                        }
+                        
+                        Picker("Priority", selection: $priority) {
+                            ForEach(ItemPriority.allCases, id: \.self) { priority in
+                                Text(priority.displayName).tag(priority)
+                            }
+                        }
                     }
                 } header: {
                     Text("Additional Information")
+                } footer: {
+                    Text("Add more details to help organize your items")
                 }
                 
                 Section {
@@ -233,21 +267,8 @@ struct AddItemView: View {
                         .frame(minHeight: 100)
                 } header: {
                     Text("Notes")
-                }
-                
-                Section {
-                    PhotosPicker(selection: $selectedImage, matching: .images) {
-                        Label("Select Image", systemImage: "photo")
-                    }
-                    
-                    if let itemImage {
-                        itemImage
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
-                    }
-                } header: {
-                    Text("Image")
+                } footer: {
+                    Text("Add any additional notes or reminders about this item")
                 }
             }
             .navigationTitle("Add Item")
@@ -262,6 +283,7 @@ struct AddItemView: View {
                     Button("Add") {
                         addItem()
                     }
+                    .disabled(name.isEmpty)
                 }
             }
             .alert("Error", isPresented: $showingError) {

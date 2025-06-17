@@ -25,16 +25,22 @@ struct ListSettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("List Details")) {
+                Section {
                     TextField("List Name", text: $listName)
+                        .textContentType(.name)
+                    
                     Picker("Category", selection: $category) {
                         ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
                             Text(category.rawValue).tag(category)
                         }
                     }
+                } header: {
+                    Text("List Details")
+                } footer: {
+                    Text("Basic information about your shopping list")
                 }
                 
-                Section(header: Text("Budget")) {
+                Section {
                     HStack {
                         Text(settingsManager.currency.symbol)
                         TextField("Budget Amount", value: $budget, format: .number)
@@ -45,10 +51,18 @@ struct ListSettingsView: View {
                                 }
                             }
                     }
+                } header: {
+                    Text("Budget")
+                } footer: {
+                    Text("Set a budget to track your spending")
                 }
                 
                 Section {
                     Toggle("Save as Template", isOn: $isTemplate)
+                } header: {
+                    Text("Template")
+                } footer: {
+                    Text("Templates can be used to quickly create new lists with predefined items")
                 }
             }
             .navigationTitle("List Settings")

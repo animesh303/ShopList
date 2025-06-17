@@ -122,51 +122,59 @@ struct ListDetailView: View {
     var body: some View {
         ZStack {
             List {
-                Section {
-                    if let budget = list.budget {
+                // Budget Section
+                if let budget = list.budget {
+                    Section {
                         BudgetProgressView(
                             budget: budget,
                             spent: list.totalEstimatedCost,
                             currency: settingsManager.currency
                         )
-                    }
-                    
-                    if let budget = list.budget {
-                        HStack {
-                            Text("Budget")
-                            Spacer()
-                            Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
-                                .foregroundColor(.secondary)
+                        .padding(.vertical, 8)
+                        
+                        VStack(spacing: 12) {
+                            HStack {
+                                Label("Budget", systemImage: "dollarsign.circle")
+                                Spacer()
+                                Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            HStack {
+                                Label("Estimated Cost", systemImage: "cart")
+                                Spacer()
+                                Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            HStack {
+                                Label("Remaining", systemImage: "creditcard")
+                                Spacer()
+                                let remaining = budget - list.totalEstimatedCost
+                                Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
+                                    .foregroundColor(remaining >= 0 ? .green : .red)
+                            }
                         }
+                    } header: {
+                        Text("Budget Overview")
                     }
-                    
-                    HStack {
-                        Text("Estimated Cost")
-                        Spacer()
-                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    if let budget = list.budget {
+                }
+                
+                // Location Section
+                if let location = list.location {
+                    Section {
                         HStack {
-                            Text("Remaining")
-                            Spacer()
-                            let remaining = budget - list.totalEstimatedCost
-                            Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
-                                .foregroundColor(remaining >= 0 ? .green : .red)
-                        }
-                    }
-                    
-                    if let location = list.location {
-                        HStack {
-                            Text("Location")
+                            Label("Location", systemImage: "location")
                             Spacer()
                             Text(location.name)
                                 .foregroundColor(.secondary)
                         }
+                    } header: {
+                        Text("Store Information")
                     }
                 }
                 
+                // Items Section
                 Section {
                     ForEach(filteredItems) { item in
                         NavigationLink(value: item) {
@@ -195,12 +203,24 @@ struct ListDetailView: View {
                                 }
                         }
                     }
-                
+                    
+                    if !filteredItems.isEmpty {
+                        HStack {
+                            Label("Total Items", systemImage: "list.bullet")
+                            Spacer()
+                            Text("\(filteredItems.count) items")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                } header: {
                     HStack {
                         Text("Items")
                         Spacer()
-                        Text("\(list.items.count) items")
-                            .foregroundColor(.secondary)
+                        if !filteredItems.isEmpty {
+                            Text("\(filteredItems.count)")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                        }
                     }
                 }
             }
