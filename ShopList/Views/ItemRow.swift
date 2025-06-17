@@ -13,49 +13,88 @@ struct ItemRow: View {
     }
     
     var body: some View {
-        HStack {
-            Button(action: {
-                item.isCompleted.toggle()
-            }) {
+        HStack(spacing: 12) {
+            Button(action: toggleCompletion) {
                 Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
                     .foregroundColor(item.isCompleted ? .green : .gray)
             }
             .buttonStyle(.plain)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name)
-                    .strikethrough(item.isCompleted)
-                    .foregroundColor(item.isCompleted ? .gray : .primary)
+                HStack {
+                    Text(item.name)
+                        .font(.headline)
+                        .strikethrough(item.isCompleted)
+                    
+                    if let brand = item.brand, !brand.isEmpty {
+                        Text("•")
+                            .foregroundColor(.gray)
+                        Text(brand)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                }
                 
                 HStack(spacing: 8) {
-                    Text("\(formattedQuantity) \(item.unit ?? "")")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    if let price = item.estimatedPrice {
-                        Text(price, format: .currency(code: settingsManager.currency.rawValue))
+                    if item.quantity > 0 {
+                        Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.gray)
                     }
                     
+                    if let price = item.estimatedPrice, price > 0 {
+                        Text("•")
+                            .foregroundColor(.gray)
+                        Text(price, format: .currency(code: settingsManager.currency.rawValue))
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Text("•")
+                        .foregroundColor(.gray)
                     Text(item.category.rawValue)
                         .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(item.category.color.opacity(0.2))
-                        .foregroundColor(item.category.color)
-                        .cornerRadius(4)
+                        .foregroundColor(.gray)
                 }
             }
             
             Spacer()
             
-            if let notes = item.notes, !notes.isEmpty {
-                Image(systemName: "note.text")
-                    .foregroundColor(.gray)
+            if item.priority != .normal {
+                Image(systemName: priorityIcon)
+                    .foregroundColor(priorityColor)
+                    .font(.subheadline)
             }
         }
         .padding(.vertical, 4)
+        .contentShape(Rectangle())
+    }
+    
+    private var priorityIcon: String {
+        switch item.priority {
+        case .low:
+            return "arrow.down.circle"
+        case .normal:
+            return "circle"
+        case .high:
+            return "exclamationmark.circle"
+        }
+    }
+    
+    private var priorityColor: Color {
+        switch item.priority {
+        case .low:
+            return .gray
+        case .normal:
+            return .blue
+        case .high:
+            return .red
+        }
+    }
+    
+    private func toggleCompletion() {
+        item.isCompleted.toggle()
     }
 }
 

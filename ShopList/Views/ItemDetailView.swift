@@ -36,36 +36,59 @@ struct ItemDetailView: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Name", text: $name)
-                    TextField("Brand", text: $brand)
-                    HStack {
-                        TextField("Quantity", value: $quantity, format: .number)
-                            .keyboardType(.decimalPad)
+                    VStack(spacing: 16) {
+                        TextField("Name", text: $name)
+                            .textContentType(.name)
+                        
+                        TextField("Brand", text: $brand)
+                            .textContentType(.organizationName)
+                        
+                        HStack {
+                            Text("Quantity")
+                            Spacer()
+                            TextField("Quantity", value: $quantity, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .frame(width: 100)
+                        }
+                        
                         Picker("Unit", selection: $unit) {
                             ForEach(Unit.allUnits, id: \.self) { unit in
                                 Text(unit.displayName).tag(unit)
                             }
                         }
-                    }
-                    Picker("Category", selection: $category) {
-                        ForEach(ItemCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
+                        
+                        Picker("Category", selection: $category) {
+                            ForEach(ItemCategory.allCases, id: \.self) { category in
+                                Text(category.rawValue).tag(category)
+                            }
                         }
-                    }
-                    Picker("Priority", selection: $priority) {
-                        ForEach(ItemPriority.allCases, id: \.self) { priority in
-                            Text(priority.displayName).tag(priority)
+                        
+                        Picker("Priority", selection: $priority) {
+                            ForEach(ItemPriority.allCases, id: \.self) { priority in
+                                Text(priority.displayName).tag(priority)
+                            }
                         }
                     }
                 } header: {
                     Text("Item Details")
+                } footer: {
+                    Text("Basic information about your item")
                 }
                 
                 Section {
-                    TextField("Estimated Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
-                        .keyboardType(.decimalPad)
+                    HStack {
+                        Text("Estimated Price")
+                        Spacer()
+                        TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 100)
+                    }
                 } header: {
                     Text("Price")
+                } footer: {
+                    Text("Set an estimated price for this item")
                 }
                 
                 Section {
@@ -73,6 +96,8 @@ struct ItemDetailView: View {
                         .frame(minHeight: 100)
                 } header: {
                     Text("Notes")
+                } footer: {
+                    Text("Add any additional notes or reminders about this item")
                 }
                 
                 Section {
@@ -81,10 +106,12 @@ struct ItemDetailView: View {
                             image
                                 .resizable()
                                 .scaledToFit()
+                                .frame(maxHeight: 200)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         } placeholder: {
                             ProgressView()
+                                .frame(height: 200)
                         }
-                        .frame(height: 200)
                     }
                     
                     PhotosPicker(selection: $selectedImage, matching: .images) {
@@ -92,6 +119,8 @@ struct ItemDetailView: View {
                     }
                 } header: {
                     Text("Image")
+                } footer: {
+                    Text("Add a photo of the item for easy identification")
                 }
             }
             .navigationTitle("Edit Item")

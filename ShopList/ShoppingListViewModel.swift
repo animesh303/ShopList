@@ -5,7 +5,16 @@ import PhotosUI
 
 @MainActor
 final class ShoppingListViewModel: ObservableObject {
-    static let shared = ShoppingListViewModel()
+    private static var sharedInstance: ShoppingListViewModel?
+    
+    static var shared: ShoppingListViewModel {
+        if let instance = sharedInstance {
+            return instance
+        }
+        let instance = ShoppingListViewModel()
+        sharedInstance = instance
+        return instance
+    }
     
     @Published var shoppingLists: [ShoppingList] = []
     @Published var selectedList: ShoppingList?
