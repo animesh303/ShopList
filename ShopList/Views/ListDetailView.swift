@@ -1,6 +1,70 @@
 import SwiftUI
 import SwiftData
 
+struct BudgetProgressView: View {
+    let budget: Double
+    let spent: Double
+    let currency: Currency
+    
+    private var progress: Double {
+        min(spent / budget, 1.0)
+    }
+    
+    private var remaining: Double {
+        budget - spent
+    }
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("Budget Progress")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("\(currency.symbol)\(String(format: "%.2f", spent)) / \(currency.symbol)\(String(format: "%.2f", budget))")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color(.systemGray5))
+                        .frame(height: 12)
+                    
+                    // Progress
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(progressColor)
+                        .frame(width: geometry.size.width * progress, height: 12)
+                }
+            }
+            .frame(height: 12)
+            
+            HStack {
+                Text("Remaining: \(currency.symbol)\(String(format: "%.2f", remaining))")
+                    .font(.caption)
+                    .foregroundColor(remaining >= 0 ? .green : .red)
+                Spacer()
+                Text("\(Int(progress * 100))%")
+                    .font(.caption)
+                    .foregroundColor(progressColor)
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    private var progressColor: Color {
+        if progress >= 1.0 {
+            return .red
+        } else if progress >= 0.8 {
+            return .orange
+        } else {
+            return .green
+        }
+    }
+}
+
 struct ListDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -53,6 +117,14 @@ struct ListDetailView: View {
         ZStack {
             List {
                 Section {
+                    if let budget = list.budget {
+                        BudgetProgressView(
+                            budget: budget,
+                            spent: list.totalEstimatedCost,
+                            currency: settingsManager.currency
+                        )
+                    }
+                    
                     if let budget = list.budget {
                         HStack {
                             Text("Budget")
