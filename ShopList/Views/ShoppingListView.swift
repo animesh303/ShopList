@@ -136,9 +136,10 @@ struct ListRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Header with name and category
-            HStack {
+            HStack(alignment: .center) {
                 Text(list.name)
                     .font(.headline)
+                    .lineLimit(1)
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
                     .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
                 
@@ -174,24 +175,33 @@ struct ListRow: View {
             // Details row
             HStack(spacing: 12) {
                 // Items count
-                Label("\(list.items.count) items", systemImage: "cart")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 4) {
+                    Image(systemName: "cart")
+                        .font(.caption)
+                    Text("\(list.items.count)")
+                        .font(.caption)
+                }
+                .foregroundColor(.secondary)
                 
                 // Completion status
                 if !list.items.isEmpty {
-                    Label("\(Int(completionPercentage * 100))%", systemImage: "checkmark.circle")
-                        .font(.caption)
-                        .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle")
+                            .font(.caption)
+                        Text("\(Int(completionPercentage * 100))%")
+                            .font(.caption)
+                    }
+                    .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
                 }
                 
                 // Budget status
                 if let budget = list.budget {
-                    Label(
-                        settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost),
-                        systemImage: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle"
-                    )
-                    .font(.caption)
+                    HStack(spacing: 4) {
+                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle")
+                            .font(.caption)
+                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
+                            .font(.caption)
+                    }
                     .foregroundColor(isOverBudget ? .red : .secondary)
                 }
                 
