@@ -123,33 +123,87 @@ struct ListRow: View {
     let list: ShoppingList
     @StateObject private var settingsManager = UserSettingsManager.shared
     
+    private var completionPercentage: Double {
+        guard !list.items.isEmpty else { return 0 }
+        return Double(list.completedItems.count) / Double(list.items.count)
+    }
+    
+    private var isOverBudget: Bool {
+        guard let budget = list.budget else { return false }
+        return list.totalEstimatedCost > budget
+    }
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(list.name)
-                .strikethrough(list.items.allSatisfy { $0.isCompleted })
-                .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
-            
-            HStack(spacing: 8) {
-                Text("\(list.items.count) items")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+            // Header with name and category
+            HStack {
+                Text(list.name)
+                    .font(.headline)
+                    .strikethrough(list.items.allSatisfy { $0.isCompleted })
+                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
                 
-                if list.totalEstimatedCost > 0 {
-                    Text(list.totalEstimatedCost, format: .currency(code: settingsManager.currency.rawValue))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                Spacer()
                 
                 Text(list.category.rawValue)
                     .font(.caption)
                     .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, 4)
                     .background(list.category.color.opacity(0.2))
                     .foregroundColor(list.category.color)
-                    .cornerRadius(4)
+                    .cornerRadius(8)
+            }
+            
+            // Progress bar for completion
+            if !list.items.isEmpty {
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color(.systemGray5))
+                            .frame(height: 6)
+                        
+                        // Progress
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(completionPercentage == 1.0 ? Color.green : Color.blue)
+                            .frame(width: geometry.size.width * completionPercentage, height: 6)
+                    }
+                }
+                .frame(height: 6)
+            }
+            
+            // Details row
+            HStack(spacing: 12) {
+                // Items count
+                Label("\(list.items.count) items", systemImage: "cart")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                // Completion status
+                if !list.items.isEmpty {
+                    Label("\(Int(completionPercentage * 100))%", systemImage: "checkmark.circle")
+                        .font(.caption)
+                        .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
+                }
+                
+                // Budget status
+                if let budget = list.budget {
+                    Label(
+                        settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost),
+                        systemImage: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle"
+                    )
+                    .font(.caption)
+                    .foregroundColor(isOverBudget ? .red : .secondary)
+                }
+                
+                Spacer()
+                
+                // Last modified date
+                Text(list.lastModified, style: .relative)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
     }
 }
 

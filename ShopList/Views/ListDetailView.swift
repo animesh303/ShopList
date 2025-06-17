@@ -70,6 +70,7 @@ struct ListDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var list: ShoppingList
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var viewModel: ShoppingListViewModel
     
     @State private var showingAddItem = false
     @State private var showingDeleteConfirmation = false
@@ -78,6 +79,11 @@ struct ListDetailView: View {
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var showingCompletedItems = true
     @State private var editingBudget: String = ""
+    
+    init(list: ShoppingList) {
+        self.list = list
+        _viewModel = StateObject(wrappedValue: ShoppingListViewModel(modelContext: list.modelContext))
+    }
     
     private var filteredItems: [Item] {
         var items = list.items
@@ -260,7 +266,7 @@ struct ListDetailView: View {
             AddItemView(list: list)
         }
         .sheet(isPresented: $showingEditSheet) {
-            ListSettingsView(list: list, viewModel: ShoppingListViewModel.shared)
+            ListSettingsView(list: list, viewModel: viewModel)
         }
         .navigationDestination(for: Item.self) { item in
             ItemDetailView(item: item)
