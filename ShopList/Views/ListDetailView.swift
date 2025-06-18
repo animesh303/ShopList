@@ -164,13 +164,25 @@ struct ListDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
+                        // Sort & Filter Options
+                        Label("Sort Items", systemImage: "arrow.up.arrow.down")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
                         Picker("Sort By", selection: $sortOrder) {
                             ForEach(ListSortOrder.allCases, id: \.self) { order in
                                 Text(order.rawValue).tag(order)
                             }
                         }
                         
-                        Toggle("Show Completed", isOn: $settingsManager.showCompletedItemsByDefault)
+                        Toggle("Show Completed Items", isOn: $settingsManager.showCompletedItemsByDefault)
+                        
+                        Divider()
+                        
+                        // List Management Options
+                        Label("List Actions", systemImage: "list.bullet")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                         
                         Button(action: { 
                             let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -189,6 +201,7 @@ struct ListDetailView: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
+                            .font(.title2)
                     }
                 }
             }
