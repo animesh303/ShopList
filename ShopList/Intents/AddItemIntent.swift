@@ -29,7 +29,8 @@ struct AddItemIntent: AppIntent {
             throw AppError.invalidInput("Item name cannot be empty")
         }
         
-        guard let list = await viewModel.findList(byName: listName) else {
+        let list = await viewModel.findList(byName: listName)
+        guard let list = list else {
             throw AppError.listNotFound
         }
         
@@ -80,7 +81,8 @@ struct CreateListIntent: AppIntent {
             throw AppError.invalidListName
         }
         
-        guard await viewModel.findList(byName: listName) == nil else {
+        let existingList = await viewModel.findList(byName: listName)
+        guard existingList == nil else {
             throw AppError.listAlreadyExists
         }
         

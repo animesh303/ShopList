@@ -238,7 +238,7 @@ struct GridListCard: View {
                 
                 Spacer()
                 
-                if let budget = list.budget {
+                if list.budget != nil {
                     HStack(spacing: 4) {
                         Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle")
                             .font(.caption)

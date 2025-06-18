@@ -7,10 +7,12 @@ struct ListDetailView: View {
     @Bindable var list: ShoppingList
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var viewModel: ShoppingListViewModel
+    @StateObject private var notificationManager = NotificationManager.shared
     
     @State private var showingAddItem = false
     @State private var showingDeleteConfirmation = false
     @State private var showingEditSheet = false
+    @State private var showingReminderSheet = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
@@ -192,6 +194,16 @@ struct ListDetailView: View {
                             Label("Edit List", systemImage: "pencil")
                         }
                         
+                        if settingsManager.notificationsEnabled && notificationManager.isAuthorized {
+                            Button(action: {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingReminderSheet = true
+                            }) {
+                                Label("Set Reminder", systemImage: "bell")
+                            }
+                        }
+                        
                         Button(role: .destructive, action: { 
                             let generator = UIImpactFeedbackGenerator(style: .medium)
                             generator.impactOccurred()
@@ -235,6 +247,9 @@ struct ListDetailView: View {
         }
         .sheet(isPresented: $showingEditSheet) {
             ListSettingsView(list: list, viewModel: viewModel)
+        }
+        .sheet(isPresented: $showingReminderSheet) {
+            ReminderSheet(list: list)
         }
         .navigationDestination(for: Item.self) { item in
             ItemDetailView(item: item)

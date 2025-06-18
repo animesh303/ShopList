@@ -45,7 +45,7 @@ struct ListSettingsView: View {
                         Text(settingsManager.currency.symbol)
                         TextField("Budget Amount", value: $budget, format: .number)
                             .keyboardType(.decimalPad)
-                            .onChange(of: budget) { newValue in
+                            .onChange(of: budget) { oldValue, newValue in
                                 if let value = newValue, (value.isNaN || value.isInfinite) {
                                     budget = nil
                                 }

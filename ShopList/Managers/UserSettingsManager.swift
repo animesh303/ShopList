@@ -82,6 +82,19 @@ class UserSettingsManager: ObservableObject {
     @Published var notificationsEnabled: Bool {
         didSet {
             UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled")
+            
+            // Handle notification permission when setting is toggled
+            if notificationsEnabled {
+                Task {
+                    let granted = await NotificationManager.shared.requestNotificationPermission()
+                    if !granted {
+                        // If permission denied, revert the setting
+                        await MainActor.run {
+                            self.notificationsEnabled = false
+                        }
+                    }
+                }
+            }
         }
     }
     

@@ -5,6 +5,7 @@ struct AddListView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var notificationManager = NotificationManager.shared
     @State private var listName = ""
     @State private var category: ListCategory
     @State private var budgetString = "0.00"
@@ -120,6 +121,21 @@ struct AddListView: View {
                             
                             modelContext.insert(newList)
                             try modelContext.save()
+                            
+                            // Schedule notification if enabled
+                            if settingsManager.notificationsEnabled && notificationManager.isAuthorized {
+                                Task {
+                                    // Schedule a reminder for tomorrow at the default time
+                                    let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+                                    let defaultTime = settingsManager.defaultReminderTime
+                                    let calendar = Calendar.current
+                                    let components = calendar.dateComponents([.hour, .minute], from: defaultTime)
+                                    let reminderDate = calendar.date(bySettingHour: components.hour ?? 9, minute: components.minute ?? 0, second: 0, of: tomorrow) ?? tomorrow
+                                    
+                                    await notificationManager.scheduleShoppingListReminder(for: newList, at: reminderDate)
+                                }
+                            }
+                            
                             dismiss()
                         } catch {
                             errorMessage = error.localizedDescription

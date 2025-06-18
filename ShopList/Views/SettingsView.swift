@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var notificationManager = NotificationManager.shared
     
     var body: some View {
         NavigationView {
@@ -85,6 +86,12 @@ struct SettingsView: View {
                 Section(header: Text("Notifications")) {
                     Toggle("Enable Notifications", isOn: $settingsManager.notificationsEnabled)
                     
+                    if !notificationManager.isAuthorized && settingsManager.notificationsEnabled {
+                        Text("Please enable notifications in Settings to receive reminders")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                    
                     if settingsManager.notificationsEnabled {
                         DatePicker("Default Reminder Time",
                                  selection: $settingsManager.defaultReminderTime,
@@ -95,6 +102,16 @@ struct SettingsView: View {
                                 Text(sound.rawValue)
                                     .tag(sound)
                             }
+                        }
+                        
+                        NavigationLink("Manage Notifications") {
+                            NotificationSettingsView()
+                        }
+                        
+                        if notificationManager.isAuthorized {
+                            Text("Notifications are enabled and ready")
+                                .font(.caption)
+                                .foregroundColor(.green)
                         }
                     }
                 }
