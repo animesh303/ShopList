@@ -5,12 +5,14 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var lists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var notificationManager = NotificationManager.shared
     @State private var showingAddList = false
     @State private var showingSettings = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var isExpanded = false
     @State private var fabTimer: Timer?
+    @State private var navigationPath = NavigationPath()
     
     private var filteredLists: [ShoppingList] {
         if searchText.isEmpty {
@@ -39,7 +41,7 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ZStack {
                 if settingsManager.defaultListViewStyle == .grid {
                     ScrollView {
@@ -163,6 +165,13 @@ struct ContentView: View {
             }
             .navigationDestination(for: ShoppingList.self) { list in
                 ListDetailView(list: list)
+            }
+            .onChange(of: notificationManager.listToOpen) { _, list in
+                if let list = list {
+                    navigationPath.append(list)
+                    // Clear the list to open to prevent repeated navigation
+                    notificationManager.listToOpen = nil
+                }
             }
         }
     }

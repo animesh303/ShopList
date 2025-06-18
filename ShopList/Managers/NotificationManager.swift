@@ -1,19 +1,30 @@
 import Foundation
 import UserNotifications
 import SwiftUI
+import SwiftData
 
 @MainActor
 class NotificationManager: NSObject, ObservableObject {
     static let shared = NotificationManager()
     private let notificationCenter = UNUserNotificationCenter.current()
+    private var modelContext: ModelContext?
     
     @Published var isAuthorized = false
     @Published var pendingNotifications: [UNNotificationRequest] = []
+    @Published var listToOpen: ShoppingList?
     
     private override init() {
         super.init()
         checkAuthorizationStatus()
         notificationCenter.delegate = self
+    }
+    
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+    }
+    
+    func clearListToOpen() {
+        listToOpen = nil
     }
     
     // MARK: - Authorization
@@ -54,6 +65,13 @@ class NotificationManager: NSObject, ObservableObject {
         content.badge = 1
         content.categoryIdentifier = "SHOPPING_REMINDER"
         
+        // Add list information to user info
+        content.userInfo = [
+            "listId": list.id.uuidString,
+            "listName": list.name,
+            "notificationType": "shopping_reminder"
+        ]
+        
         // Create date components for the reminder
         let calendar = Calendar.current
         let components = calendar.dateComponents([.hour, .minute], from: date)
@@ -87,6 +105,13 @@ class NotificationManager: NSObject, ObservableObject {
         content.badge = 1
         content.categoryIdentifier = "RECURRING_REMINDER"
         
+        // Add list information to user info
+        content.userInfo = [
+            "listId": list.id.uuidString,
+            "listName": list.name,
+            "notificationType": "recurring_reminder"
+        ]
+        
         // Create date components for daily reminder
         let calendar = Calendar.current
         let components = calendar.dateComponents([.hour, .minute], from: time)
@@ -119,6 +144,15 @@ class NotificationManager: NSObject, ObservableObject {
         content.sound = getNotificationSound()
         content.badge = 1
         content.categoryIdentifier = "ITEM_REMINDER"
+        
+        // Add list and item information to user info
+        content.userInfo = [
+            "listId": list.id.uuidString,
+            "listName": list.name,
+            "itemId": item.id.uuidString,
+            "itemName": item.name,
+            "notificationType": "item_reminder"
+        ]
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: date.timeIntervalSinceNow, repeats: false)
         
@@ -233,6 +267,28 @@ class NotificationManager: NSObject, ObservableObject {
             itemReminderCategory
         ])
     }
+    
+    private func findAndSetListToOpen(listId: UUID) async {
+        guard let modelContext = modelContext else {
+            print("Model context not set")
+            return
+        }
+        
+        do {
+            let descriptor = FetchDescriptor<ShoppingList>(
+                predicate: #Predicate<ShoppingList> { $0.id == listId }
+            )
+            
+            if let list = try modelContext.fetch(descriptor).first {
+                self.listToOpen = list
+                print("Found and set list to open: \(list.name)")
+            } else {
+                print("List not found with ID: \(listId)")
+            }
+        } catch {
+            print("Error finding list: \(error)")
+        }
+    }
 }
 
 // MARK: - Notification Delegate
@@ -251,12 +307,21 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        let userInfo = response.notification.request.content.userInfo
         let identifier = response.actionIdentifier
+        
+        // Handle notification tap to open list
+        if identifier == UNNotificationDefaultActionIdentifier {
+            Task { @MainActor in
+                await self.handleNotificationTap(userInfo: userInfo)
+            }
+        }
         
         switch identifier {
         case "VIEW_LIST":
-            // Handle view list action
-            print("User tapped View List")
+            Task { @MainActor in
+                await self.handleNotificationTap(userInfo: userInfo)
+            }
         case "MARK_COMPLETE":
             // Handle mark complete action
             print("User tapped Mark Complete")
@@ -268,5 +333,16 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         }
         
         completionHandler()
+    }
+    
+    private func handleNotificationTap(userInfo: [AnyHashable: Any]) async {
+        guard let listIdString = userInfo["listId"] as? String,
+              let listId = UUID(uuidString: listIdString) else {
+            print("Invalid list ID in notification")
+            return
+        }
+        
+        // Find the list and set it to open
+        await findAndSetListToOpen(listId: listId)
     }
 } 

@@ -37,6 +37,8 @@ struct ShopListApp: App {
                 .onAppear {
                     // Set up notification categories
                     notificationManager.setupNotificationCategories()
+                    // Set up model context for notification handling
+                    notificationManager.setModelContext(container.mainContext)
                 }
                 .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
                     if hasChanges {
