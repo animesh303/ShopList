@@ -191,49 +191,55 @@ struct AddItemView: View {
         NavigationView {
             Form {
                 Section {
-                    VStack(spacing: 16) {
-                        // Image Picker Button
-                        Button(action: { showingImageOptions = true }) {
-                            if let itemImage = itemImage {
-                                itemImage
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } else {
-                                HStack {
-                                    Image(systemName: "photo")
-                                    Text("Add Photo")
-                                }
+                    // Image Picker Button
+                    Button(action: { showingImageOptions = true }) {
+                        if let itemImage = itemImage {
+                            itemImage
+                                .resizable()
+                                .scaledToFill()
                                 .frame(width: 100, height: 100)
-                                .background(Color(.systemGray6))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } else {
+                            HStack {
+                                Image(systemName: "photo")
+                                Text("Add Photo")
                             }
+                            .frame(width: 100, height: 100)
+                            .background(Color(.systemGray6))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
-                        .confirmationDialog("Choose Image Source", isPresented: $showingImageOptions) {
-                            Button("Camera") {
-                                showingCamera = true
-                            }
-                            Button("Photo Library") {
-                                showingImagePicker = true
-                            }
-                            Button("Cancel", role: .cancel) { }
+                    }
+                    .confirmationDialog("Choose Image Source", isPresented: $showingImageOptions) {
+                        Button("Camera") {
+                            showingCamera = true
                         }
-                        .photosPicker(isPresented: $showingImagePicker, selection: $selectedImage, matching: .images)
-                        .sheet(isPresented: $showingCamera) {
-                            CameraView(image: $itemImage, imageData: $imageData)
+                        Button("Photo Library") {
+                            showingImagePicker = true
                         }
-                        .onChange(of: selectedImage) { _, newValue in
-                            Task {
-                                if let data = try? await newValue?.loadTransferable(type: Data.self) {
-                                    imageData = data
-                                    if let uiImage = UIImage(data: data) {
-                                        itemImage = Image(uiImage: uiImage)
-                                    }
+                        Button("Cancel", role: .cancel) { }
+                    }
+                    .photosPicker(isPresented: $showingImagePicker, selection: $selectedImage, matching: .images)
+                    .sheet(isPresented: $showingCamera) {
+                        CameraView(image: $itemImage, imageData: $imageData)
+                    }
+                    .onChange(of: selectedImage) { _, newValue in
+                        Task {
+                            if let data = try? await newValue?.loadTransferable(type: Data.self) {
+                                imageData = data
+                                if let uiImage = UIImage(data: data) {
+                                    itemImage = Image(uiImage: uiImage)
                                 }
                             }
                         }
-                        
+                    }
+                } header: {
+                    Text("Item Photo")
+                } footer: {
+                    Text("Add a photo to help identify the item")
+                }
+
+                Section {
+                    VStack(spacing: 16) {
                         TextField("Item Name", text: $name)
                             .textContentType(.name)
                             .onChange(of: name) { _, newValue in
