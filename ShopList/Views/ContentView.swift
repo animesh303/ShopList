@@ -40,27 +40,27 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                List {
-                    ForEach(sortedLists) { list in
-                        NavigationLink(value: list) {
-                            ListRow(list: list)
-                        }
-                    }
-                    .onDelete(perform: deleteLists)
-                }
-                .navigationTitle("Shopping Lists")
-                .searchable(text: $searchText, prompt: "Search lists")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            Picker("Sort Order", selection: $sortOrder) {
-                                ForEach(ListSortOrder.allCases) { order in
-                                    Text(order.displayName).tag(order)
+                if settingsManager.defaultListViewStyle == .grid {
+                    ScrollView {
+                        LazyVGrid(columns: [
+                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
+                        ], spacing: 16) {
+                            ForEach(sortedLists) { list in
+                                NavigationLink(value: list) {
+                                    GridListCard(list: list)
                                 }
                             }
-                        } label: {
-                            Label("Sort", systemImage: "arrow.up.arrow.down")
                         }
+                        .padding()
+                    }
+                } else {
+                    List {
+                        ForEach(sortedLists) { list in
+                            NavigationLink(value: list) {
+                                ListRow(list: list)
+                            }
+                        }
+                        .onDelete(perform: deleteLists)
                     }
                 }
                 
@@ -126,6 +126,21 @@ struct ContentView: View {
                     }
                 }
             }
+            .navigationTitle("Shopping Lists")
+            .searchable(text: $searchText, prompt: "Search lists")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Picker("Sort Order", selection: $sortOrder) {
+                            ForEach(ListSortOrder.allCases) { order in
+                                Text(order.displayName).tag(order)
+                            }
+                        }
+                    } label: {
+                        Label("Sort", systemImage: "arrow.up.arrow.down")
+                    }
+                }
+            }
             .sheet(isPresented: $showingAddList) {
                 AddListView()
             }
@@ -139,13 +154,75 @@ struct ContentView: View {
     }
     
     private func deleteLists(at offsets: IndexSet) {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-        
         for index in offsets {
             let list = sortedLists[index]
             modelContext.delete(list)
         }
+    }
+}
+
+struct GridListCard: View {
+    let list: ShoppingList
+    @StateObject private var settingsManager = UserSettingsManager.shared
+    
+    private var completionPercentage: Double {
+        guard !list.items.isEmpty else { return 0 }
+        return Double(list.completedItems.count) / Double(list.items.count)
+    }
+    
+    private var isOverBudget: Bool {
+        guard let budget = list.budget else { return false }
+        return list.totalEstimatedCost > budget
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header with name and category
+            VStack(alignment: .leading, spacing: 8) {
+                Text(list.name)
+                    .font(.headline)
+                    .lineLimit(2)
+                    .strikethrough(list.items.allSatisfy { $0.isCompleted })
+                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
+                
+                Text(list.category.rawValue)
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(list.category.color.opacity(0.2))
+                    .foregroundColor(list.category.color)
+                    .cornerRadius(8)
+            }
+            
+            Spacer()
+            
+            // Progress bar
+            ProgressView(value: completionPercentage)
+                .tint(list.category.color)
+            
+            // Footer with item count and budget
+            HStack {
+                Text("\(list.pendingItems.count) items")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                if let budget = list.budget {
+                    HStack(spacing: 4) {
+                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle")
+                            .font(.caption)
+                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
+                            .font(.caption)
+                    }
+                    .foregroundColor(isOverBudget ? .red : .secondary)
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(radius: 2)
     }
 }
 
