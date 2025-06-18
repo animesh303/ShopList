@@ -120,9 +120,7 @@ struct ListDetailView: View {
                                     Button(role: .destructive) {
                                         let generator = UINotificationFeedbackGenerator()
                                         generator.notificationOccurred(.success)
-                                        if let index = list.items.firstIndex(where: { $0.id == item.id }) {
-                                            list.removeItem(item)
-                                        }
+                                        list.removeItem(item)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }

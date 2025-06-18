@@ -243,8 +243,31 @@ final class ShoppingListViewModel: ObservableObject {
     
     // MARK: - Helper Methods
     
-    func findList(byName name: String) async -> ShoppingList? {
-        shoppingLists.first { $0.name.lowercased() == name.lowercased() }
+    // Sendable wrapper for list information
+    struct ListInfo: Sendable {
+        let id: UUID
+        let name: String
+        let persistentModelID: PersistentIdentifier
+    }
+    
+    func findListInfo(byName name: String) async -> ListInfo? {
+        guard let list = shoppingLists.first(where: { $0.name.lowercased() == name.lowercased() }) else {
+            return nil
+        }
+        return ListInfo(
+            id: list.id,
+            name: list.name,
+            persistentModelID: list.persistentModelID
+        )
+    }
+    
+    func addItemToPersistentID(_ item: Item, persistentID: PersistentIdentifier) async throws {
+        guard let list = shoppingLists.first(where: { $0.persistentModelID == persistentID }) else {
+            throw AppError.listNotFound
+        }
+        list.addItem(item)
+        try modelContext.save()
+        addOrUpdateSuggestion(item)
     }
     
     private func handleError(_ error: Error) {

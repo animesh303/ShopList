@@ -29,8 +29,8 @@ struct AddItemIntent: AppIntent {
             throw AppError.invalidInput("Item name cannot be empty")
         }
         
-        let list = await viewModel.findList(byName: listName)
-        guard let list = list else {
+        let listInfo = await viewModel.findListInfo(byName: listName)
+        guard let listInfo = listInfo else {
             throw AppError.listNotFound
         }
         
@@ -55,7 +55,8 @@ struct AddItemIntent: AppIntent {
             priority: .normal
         )
         
-        try await viewModel.addItem(item, to: list)
+        // Add the item directly using the persistent model ID
+        try await viewModel.addItemToPersistentID(item, persistentID: listInfo.persistentModelID)
         return .result()
     }
 }
@@ -81,8 +82,8 @@ struct CreateListIntent: AppIntent {
             throw AppError.invalidListName
         }
         
-        let existingList = await viewModel.findList(byName: listName)
-        guard existingList == nil else {
+        let existingListInfo = await viewModel.findListInfo(byName: listName)
+        guard existingListInfo == nil else {
             throw AppError.listAlreadyExists
         }
         

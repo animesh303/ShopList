@@ -83,7 +83,7 @@ struct ListSettingsView: View {
                                 
                                 // Check if the new name conflicts with another list
                                 if listName != list.name {
-                                    if await viewModel.findList(byName: listName) != nil {
+                                    if await viewModel.findListInfo(byName: listName) != nil {
                                         throw AppError.listAlreadyExists
                                     }
                                 }
