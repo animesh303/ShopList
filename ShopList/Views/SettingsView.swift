@@ -76,12 +76,9 @@ struct SettingsView: View {
                     }
                     
                     Picker("Default Sort Order", selection: $settingsManager.defaultListSortOrder) {
-                        Text("Name (A-Z)").tag(SortOrder.nameAsc)
-                        Text("Name (Z-A)").tag(SortOrder.nameDesc)
-                        Text("Date (Oldest)").tag(SortOrder.dateAsc)
-                        Text("Date (Newest)").tag(SortOrder.dateDesc)
-                        Text("Category (A-Z)").tag(SortOrder.categoryAsc)
-                        Text("Category (Z-A)").tag(SortOrder.categoryDesc)
+                        ForEach(ListSortOrder.allCases) { order in
+                            Text(order.rawValue).tag(order)
+                        }
                     }
                 }
                 
