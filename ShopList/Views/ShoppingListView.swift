@@ -17,7 +17,6 @@ struct ShoppingListView: View {
     @State private var showingAddList = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
-    @State private var showingCompletedLists = true
     
     private var filteredLists: [ShoppingList] {
         var filtered = lists
@@ -30,7 +29,7 @@ struct ShoppingListView: View {
         }
         
         // Apply completed lists filter
-        if !showingCompletedLists {
+        if !settingsManager.showCompletedItemsByDefault {
             filtered = filtered.filter { !$0.items.allSatisfy { $0.isCompleted } }
         }
         
@@ -78,7 +77,7 @@ struct ShoppingListView: View {
                             }
                         }
                         
-                        Toggle("Show Completed", isOn: $showingCompletedLists)
+                        Toggle("Show Completed", isOn: $settingsManager.showCompletedItemsByDefault)
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }

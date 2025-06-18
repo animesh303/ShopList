@@ -13,7 +13,6 @@ struct ListDetailView: View {
     @State private var showingEditSheet = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
-    @State private var showingCompletedItems = true
     @State private var editingBudget: String = ""
     
     init(list: ShoppingList) {
@@ -32,7 +31,7 @@ struct ListDetailView: View {
         }
         
         // Apply completed items filter
-        if !showingCompletedItems {
+        if !settingsManager.showCompletedItemsByDefault {
             items = items.filter { !$0.isCompleted }
         }
         
@@ -171,7 +170,7 @@ struct ListDetailView: View {
                             }
                         }
                         
-                        Toggle("Show Completed", isOn: $showingCompletedItems)
+                        Toggle("Show Completed", isOn: $settingsManager.showCompletedItemsByDefault)
                         
                         Button(action: { 
                             let generator = UIImpactFeedbackGenerator(style: .medium)
