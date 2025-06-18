@@ -101,17 +101,12 @@ struct ItemDetailView: View {
                 }
                 
                 Section {
-                    if let imageURL = item.imageURL {
-                        AsyncImage(url: imageURL) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxHeight: 200)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } placeholder: {
-                            ProgressView()
-                                .frame(height: 200)
-                        }
+                    if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     
                     PhotosPicker(selection: $selectedImage, matching: .images) {
@@ -157,8 +152,16 @@ struct ItemDetailView: View {
             item.notes = notes.isEmpty ? nil : notes
             
             if let selectedImage = selectedImage {
-                // TODO: Implement image saving with SwiftData
-                // For now, we'll just dismiss
+                Task {
+                    do {
+                        if let data = try await selectedImage.loadTransferable(type: Data.self) {
+                            item.imageData = data
+                        }
+                    } catch {
+                        errorMessage = "Failed to load image: \(error.localizedDescription)"
+                        showingError = true
+                    }
+                }
             }
             
             try modelContext.save()

@@ -133,9 +133,11 @@ struct AddItemView: View {
     @State private var showingSuggestions = false
     @State private var selectedSuggestions: Set<String> = []
     @State private var showingImagePicker = false
+    @State private var showingCamera = false
     @State private var selectedImage: PhotosPickerItem?
     @State private var itemImage: Image?
     @State private var imageData: Data?
+    @State private var showingImageOptions = false
     
     @FocusState private var focusedField: Field?
     
@@ -190,6 +192,48 @@ struct AddItemView: View {
             Form {
                 Section {
                     VStack(spacing: 16) {
+                        // Image Picker Button
+                        Button(action: { showingImageOptions = true }) {
+                            if let itemImage = itemImage {
+                                itemImage
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } else {
+                                HStack {
+                                    Image(systemName: "photo")
+                                    Text("Add Photo")
+                                }
+                                .frame(width: 100, height: 100)
+                                .background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                        .confirmationDialog("Choose Image Source", isPresented: $showingImageOptions) {
+                            Button("Camera") {
+                                showingCamera = true
+                            }
+                            Button("Photo Library") {
+                                showingImagePicker = true
+                            }
+                            Button("Cancel", role: .cancel) { }
+                        }
+                        .photosPicker(isPresented: $showingImagePicker, selection: $selectedImage, matching: .images)
+                        .sheet(isPresented: $showingCamera) {
+                            CameraView(image: $itemImage, imageData: $imageData)
+                        }
+                        .onChange(of: selectedImage) { _, newValue in
+                            Task {
+                                if let data = try? await newValue?.loadTransferable(type: Data.self) {
+                                    imageData = data
+                                    if let uiImage = UIImage(data: data) {
+                                        itemImage = Image(uiImage: uiImage)
+                                    }
+                                }
+                            }
+                        }
+                        
                         TextField("Item Name", text: $name)
                             .textContentType(.name)
                             .onChange(of: name) { _, newValue in
@@ -335,9 +379,9 @@ struct AddItemView: View {
                 priority: priority
             )
             
-            if let selectedImage = selectedImage {
-                // TODO: Implement image saving with SwiftData
-                // For now, we'll just add the item
+            if let imageData = imageData {
+                // Save image data to the item
+                item.imageData = imageData
             }
             
             // Add item to list
@@ -506,6 +550,45 @@ struct AddItemView: View {
             func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
                 parent.dismiss()
             }
+        }
+    }
+}
+
+struct CameraView: UIViewControllerRepresentable {
+    @Binding var image: Image?
+    @Binding var imageData: Data?
+    @Environment(\.dismiss) private var dismiss
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.sourceType = .camera
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraView
+        
+        init(_ parent: CameraView) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let uiImage = info[.originalImage] as? UIImage {
+                parent.image = Image(uiImage: uiImage)
+                parent.imageData = uiImage.jpegData(compressionQuality: 0.8)
+            }
+            parent.dismiss()
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
         }
     }
 }

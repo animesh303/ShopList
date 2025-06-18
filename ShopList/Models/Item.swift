@@ -17,7 +17,7 @@ final class Item {
     var unit: String?
     var lastPurchasedPrice: Decimal?
     var lastPurchasedDate: Date?
-    var imageURL: URL?
+    var imageData: Data?
     var priority: ItemPriority
     
     init(id: UUID = UUID(), 
@@ -33,7 +33,7 @@ final class Item {
          unit: String? = nil,
          lastPurchasedPrice: Decimal? = nil,
          lastPurchasedDate: Date? = nil,
-         imageURL: URL? = nil,
+         imageData: Data? = nil,
          priority: ItemPriority = .normal) {
         self.id = id
         self.name = name
@@ -49,7 +49,7 @@ final class Item {
         self.unit = unit
         self.lastPurchasedPrice = lastPurchasedPrice
         self.lastPurchasedDate = lastPurchasedDate
-        self.imageURL = imageURL
+        self.imageData = imageData
         self.priority = priority
     }
 }

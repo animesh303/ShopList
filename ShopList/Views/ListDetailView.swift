@@ -238,16 +238,6 @@ struct ListDetailView: View {
         }
     }
     
-    private func deleteItems(at offsets: IndexSet) {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-        
-        for index in offsets {
-            let item = filteredItems[index]
-            list.removeItem(item)
-        }
-    }
-    
     private func deleteList() {
         modelContext.delete(list)
         dismiss()
@@ -257,10 +247,8 @@ struct ListDetailView: View {
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: ShoppingList.self, configurations: config)
-    let list = ShoppingList(name: "Preview List")
+    let list = ShoppingList(name: "Test List", category: .groceries)
     
-    return NavigationView {
-        ListDetailView(list: list)
-    }
-    .modelContainer(container)
+    return ListDetailView(list: list)
+        .modelContainer(container)
 } 

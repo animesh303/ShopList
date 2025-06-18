@@ -50,7 +50,7 @@ struct AddItemIntent: AppIntent {
             unit: nil,
             lastPurchasedPrice: nil,
             lastPurchasedDate: nil,
-            imageURL: nil,
+            imageData: nil,
             priority: .normal
         )
         

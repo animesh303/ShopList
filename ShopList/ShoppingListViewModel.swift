@@ -94,7 +94,7 @@ final class ShoppingListViewModel: ObservableObject {
                 unit: nil,
                 lastPurchasedPrice: nil,
                 lastPurchasedDate: nil,
-                imageURL: nil,
+                imageData: nil,
                 priority: .normal
             )
             sampleList.addItem(item)
