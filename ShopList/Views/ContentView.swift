@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
+    @State private var isExpanded = false
     
     private var filteredLists: [ShoppingList] {
         if searchText.isEmpty {
@@ -61,36 +62,64 @@ struct ContentView: View {
                             Label("Sort", systemImage: "arrow.up.arrow.down")
                         }
                     }
-                    
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.impactOccurred()
-                            showingSettings = true
-                        } label: {
-                            Label("Settings", systemImage: "gear")
-                        }
-                    }
                 }
                 
-                // Floating Action Button for adding new lists
+                // Floating Action Buttons for adding new lists and opening settings
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        Button {
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.impactOccurred()
-                            showingAddList = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .frame(width: 60, height: 60)
-                                .background(Color.accentColor)
-                                .clipShape(Circle())
-                                .shadow(radius: 4)
+                        // Collapsible FAB for add and settings
+                        VStack {
+                            if isExpanded {
+                                // Settings button
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingSettings = true
+                                } label: {
+                                    Image(systemName: "gear")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: 60, height: 60)
+                                        .background(Color.secondary)
+                                        .clipShape(Circle())
+                                        .shadow(radius: 4)
+                                }
+                                .padding(.bottom, 10)
+                                // Add button
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingAddList = true
+                                } label: {
+                                    Image(systemName: "plus")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: 60, height: 60)
+                                        .background(Color.accentColor)
+                                        .clipShape(Circle())
+                                        .shadow(radius: 4)
+                                }
+                                .padding(.bottom, 10)
+                            }
+                            // Toggle button
+                            Button {
+                                withAnimation {
+                                    isExpanded.toggle()
+                                }
+                            } label: {
+                                Image(systemName: isExpanded ? "chevron.down" : "ellipsis")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: 60, height: 60)
+                                    .background(Color.accentColor)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 4)
+                            }
                         }
                         .padding(.trailing, 20)
                         .padding(.bottom, 20)
