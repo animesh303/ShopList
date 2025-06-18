@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var isExpanded = false
+    @State private var fabTimer: Timer?
     
     private var filteredLists: [ShoppingList] {
         if searchText.isEmpty {
@@ -77,6 +78,10 @@ struct ContentView: View {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     showingSettings = true
+                                    withAnimation {
+                                        isExpanded = false
+                                    }
+                                    stopFabTimer()
                                 } label: {
                                     Image(systemName: "gear")
                                         .font(.title2)
@@ -93,6 +98,10 @@ struct ContentView: View {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     showingAddList = true
+                                    withAnimation {
+                                        isExpanded = false
+                                    }
+                                    stopFabTimer()
                                 } label: {
                                     Image(systemName: "plus")
                                         .font(.title2)
@@ -109,6 +118,11 @@ struct ContentView: View {
                             Button {
                                 withAnimation {
                                     isExpanded.toggle()
+                                }
+                                if isExpanded {
+                                    startFabTimer()
+                                } else {
+                                    stopFabTimer()
                                 }
                             } label: {
                                 Image(systemName: isExpanded ? "chevron.down" : "ellipsis")
@@ -158,6 +172,22 @@ struct ContentView: View {
             let list = sortedLists[index]
             modelContext.delete(list)
         }
+    }
+    
+    // MARK: - FAB Timer Functions
+    
+    private func startFabTimer() {
+        stopFabTimer() // Cancel any existing timer
+        fabTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+            withAnimation {
+                isExpanded = false
+            }
+        }
+    }
+    
+    private func stopFabTimer() {
+        fabTimer?.invalidate()
+        fabTimer = nil
     }
 }
 
