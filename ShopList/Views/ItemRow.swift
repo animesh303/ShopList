@@ -22,12 +22,21 @@ struct ItemRow: View {
             .buttonStyle(.plain)
             
             // Item Image
-            if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            if settingsManager.showItemImagesByDefault {
+                if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    Image(systemName: item.category.icon)
+                        .font(.title2)
+                        .foregroundColor(item.category.color)
+                        .frame(width: 50, height: 50)
+                        .background(item.category.color.opacity(0.2))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
             } else {
                 Image(systemName: item.category.icon)
                     .font(.title2)
