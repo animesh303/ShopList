@@ -261,10 +261,29 @@ class NotificationManager: NSObject, ObservableObject {
             options: []
         )
         
+        let locationReminderCategory = UNNotificationCategory(
+            identifier: "LOCATION_REMINDER",
+            actions: [
+                UNNotificationAction(
+                    identifier: "VIEW_LIST",
+                    title: "View List",
+                    options: [.foreground]
+                ),
+                UNNotificationAction(
+                    identifier: "SNOOZE",
+                    title: "Snooze 30 Min",
+                    options: []
+                )
+            ],
+            intentIdentifiers: [],
+            options: []
+        )
+        
         notificationCenter.setNotificationCategories([
             shoppingReminderCategory,
             recurringReminderCategory,
-            itemReminderCategory
+            itemReminderCategory,
+            locationReminderCategory
         ])
     }
     

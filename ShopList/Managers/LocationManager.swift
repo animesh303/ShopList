@@ -8,14 +8,15 @@ class LocationManager: NSObject, ObservableObject {
     private let notificationCenter = UNUserNotificationCenter.current()
     
     @Published var locationReminders: [LocationReminder] = []
+    @Published var isAuthorized = false
     
     override init() {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
         
+        checkAuthorizationStatus()
         loadReminders()
     }
     
@@ -30,6 +31,13 @@ class LocationManager: NSObject, ObservableObject {
             } else if let error = error {
                 print("Error requesting notification permission: \(error)")
             }
+        }
+    }
+    
+    func checkAuthorizationStatus() {
+        let status = locationManager.authorizationStatus
+        DispatchQueue.main.async {
+            self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
         }
     }
     
@@ -53,13 +61,62 @@ class LocationManager: NSObject, ObservableObject {
         region.notifyOnEntry = true
         region.notifyOnExit = false
         
-        locationManager.startMonitoring(for: region)
+        // Only start monitoring if we have proper authorization
+        if locationManager.authorizationStatus == .authorizedAlways {
+            locationManager.startMonitoring(for: region)
+        } else {
+            print("Cannot start region monitoring: requires 'Always' location authorization")
+        }
     }
     
-    private func loadReminders() {
+    func removeLocationReminder(_ reminder: LocationReminder) {
+        // Stop monitoring the region
+        locationManager.stopMonitoring(for: CLCircularRegion(
+            center: reminder.location,
+            radius: reminder.radius,
+            identifier: reminder.id.uuidString
+        ))
+        
+        // Remove from array
+        locationReminders.removeAll { $0.id == reminder.id }
+        saveReminders()
+    }
+    
+    func clearAllLocationReminders() {
+        // Stop monitoring all regions
+        for reminder in locationReminders {
+            locationManager.stopMonitoring(for: CLCircularRegion(
+                center: reminder.location,
+                radius: reminder.radius,
+                identifier: reminder.id.uuidString
+            ))
+        }
+        
+        // Clear array
+        locationReminders.removeAll()
+        saveReminders()
+    }
+    
+    func loadReminders() {
         if let data = UserDefaults.standard.data(forKey: "LocationReminders"),
            let reminders = try? JSONDecoder().decode([LocationReminder].self, from: data) {
             locationReminders = reminders
+            
+            // Only restart monitoring if we have proper authorization
+            if locationManager.authorizationStatus == .authorizedAlways {
+                for reminder in reminders {
+                    let region = CLCircularRegion(
+                        center: reminder.location,
+                        radius: reminder.radius,
+                        identifier: reminder.id.uuidString
+                    )
+                    region.notifyOnEntry = true
+                    region.notifyOnExit = false
+                    locationManager.startMonitoring(for: region)
+                }
+            } else {
+                print("Cannot restore region monitoring: requires 'Always' location authorization")
+            }
         }
     }
     
@@ -78,6 +135,15 @@ extension LocationManager: CLLocationManagerDelegate {
         content.title = "Shopping List Reminder"
         content.body = reminder.message
         content.sound = .default
+        content.badge = 1
+        content.categoryIdentifier = "LOCATION_REMINDER"
+        
+        // Add list information to user info
+        content.userInfo = [
+            "listId": reminder.listId.uuidString,
+            "reminderId": reminder.id.uuidString,
+            "notificationType": "location_reminder"
+        ]
         
         let request = UNNotificationRequest(
             identifier: reminder.id.uuidString,
@@ -98,5 +164,29 @@ extension LocationManager: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
         print("Monitoring failed for region: \(error)")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        DispatchQueue.main.async {
+            self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
+            
+            // If authorization changed to 'Always', restart monitoring for existing reminders
+            if status == .authorizedAlways {
+                self.restartMonitoringForExistingReminders()
+            }
+        }
+    }
+    
+    private func restartMonitoringForExistingReminders() {
+        for reminder in locationReminders {
+            let region = CLCircularRegion(
+                center: reminder.location,
+                radius: reminder.radius,
+                identifier: reminder.id.uuidString
+            )
+            region.notifyOnEntry = true
+            region.notifyOnExit = false
+            locationManager.startMonitoring(for: region)
+        }
     }
 } 

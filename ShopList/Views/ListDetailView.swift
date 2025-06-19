@@ -8,11 +8,13 @@ struct ListDetailView: View {
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var viewModel: ShoppingListViewModel
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var locationManager = LocationManager.shared
     
     @State private var showingAddItem = false
     @State private var showingDeleteConfirmation = false
     @State private var showingEditSheet = false
     @State private var showingReminderSheet = false
+    @State private var showingLocationSetup = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
@@ -106,8 +108,24 @@ struct ListDetailView: View {
                             Text(location.name)
                                 .foregroundColor(.secondary)
                         }
+                        
+                        Button("Update Location Reminder") {
+                            showingLocationSetup = true
+                        }
+                        .buttonStyle(.bordered)
                     } header: {
                         Text("Store Information")
+                    }
+                } else {
+                    Section {
+                        Button("Set Up Location Reminder") {
+                            showingLocationSetup = true
+                        }
+                        .buttonStyle(.bordered)
+                    } header: {
+                        Text("Location Reminder")
+                    } footer: {
+                        Text("Get notified when you're near the store")
                     }
                 }
                 
@@ -248,6 +266,9 @@ struct ListDetailView: View {
         }
         .sheet(isPresented: $showingReminderSheet) {
             ReminderSheet(list: list)
+        }
+        .sheet(isPresented: $showingLocationSetup) {
+            LocationSetupView(list: list)
         }
         .navigationDestination(for: Item.self) { item in
             ItemDetailView(item: item)

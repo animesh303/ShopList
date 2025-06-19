@@ -1,8 +1,10 @@
 import SwiftUI
+import CoreLocation
 
 struct SettingsView: View {
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var locationManager = LocationManager.shared
     
     var body: some View {
         NavigationView {
@@ -115,8 +117,70 @@ struct SettingsView: View {
                         }
                     }
                 }
+                
+                Section(header: Text("Location Reminders")) {
+                    HStack {
+                        Image(systemName: locationManager.isAuthorized ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundColor(locationManager.isAuthorized ? .green : .red)
+                        
+                        VStack(alignment: .leading) {
+                            Text("Location Access")
+                                .font(.headline)
+                            Text(getLocationPermissionStatus())
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        if !locationManager.isAuthorized {
+                            Button("Request") {
+                                locationManager.requestLocationPermission()
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                    
+                    if locationManager.isAuthorized {
+                        NavigationLink("Manage Location Reminders") {
+                            LocationManagementView()
+                        }
+                        
+                        let status = CLLocationManager().authorizationStatus
+                        if status == .authorizedAlways {
+                            Text("Location reminders are enabled")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        } else {
+                            Text("Background monitoring requires 'Always' location access")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+                    } else {
+                        Text("Enable location access to set up store-based reminders")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                }
             }
             .navigationTitle("Settings")
+        }
+    }
+    
+    private func getLocationPermissionStatus() -> String {
+        switch CLLocationManager().authorizationStatus {
+        case .notDetermined:
+            return "Location permission not determined"
+        case .restricted:
+            return "Location permission restricted"
+        case .denied:
+            return "Location permission denied"
+        case .authorizedWhenInUse:
+            return "Location permission authorized when in use"
+        case .authorizedAlways:
+            return "Location permission authorized always"
+        @unknown default:
+            return "Unknown location permission status"
         }
     }
 }
