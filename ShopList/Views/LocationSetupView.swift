@@ -18,6 +18,11 @@ struct LocationSetupView: View {
     @State private var showingMap = false
     @State private var searchResults: [MKMapItem] = []
     @State private var isSearching = false
+    @State private var userLocation: CLLocationCoordinate2D?
+    @State private var showingLocationError = false
+    @State private var locationHandler: LocationHandler?
+    @State private var tempLocationManager: CLLocationManager?
+    @State private var permissionRequested = false
     
     private let radiusOptions = [50.0, 100.0, 200.0, 500.0, 1000.0]
     
@@ -43,6 +48,55 @@ struct LocationSetupView: View {
                         }
                     }
                     
+                    // Show location permission status
+                    let status = CLLocationManager().authorizationStatus
+                    if status == .denied || status == .restricted {
+                        HStack {
+                            Image(systemName: "location.slash")
+                                .foregroundColor(.orange)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Location Access Required")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                Text("Enable location access for local search results")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Button("Enable") {
+                                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(settingsUrl)
+                                }
+                            }
+                            .buttonStyle(.bordered)
+                            .font(.caption)
+                        }
+                        .padding(.vertical, 4)
+                    } else if status == .notDetermined {
+                        HStack {
+                            Image(systemName: "location.questionmark")
+                                .foregroundColor(.blue)
+                            Text("Location permission not determined")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            if permissionRequested {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    } else if userLocation != nil {
+                        HStack {
+                            Image(systemName: "location.fill")
+                                .foregroundColor(.green)
+                            Text("Using your current location for local search")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    
                     if !searchResults.isEmpty {
                         ForEach(searchResults, id: \.self) { item in
                             Button(action: {
@@ -55,6 +109,12 @@ struct LocationSetupView: View {
                                         Text(address)
                                             .font(.caption)
                                             .foregroundColor(.secondary)
+                                    }
+                                    if let userLocation = userLocation {
+                                        let distance = calculateDistance(from: userLocation, to: item.placemark.coordinate)
+                                        Text("\(String(format: "%.1f", distance)) km away")
+                                            .font(.caption)
+                                            .foregroundColor(.blue)
                                     }
                                 }
                             }
@@ -133,6 +193,11 @@ struct LocationSetupView: View {
             } message: {
                 Text("Location-based reminders require 'Always' location access to work in the background. Please enable this in Settings.")
             }
+            .alert("Location Error", isPresented: $showingLocationError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Unable to get your current location. Search will use global results.")
+            }
             .sheet(isPresented: $showingMap) {
                 if let coordinate = selectedCoordinate {
                     LocationMapView(coordinate: coordinate, radius: radius, storeName: storeName)
@@ -140,6 +205,24 @@ struct LocationSetupView: View {
             }
             .onAppear {
                 checkLocationPermission()
+                // Request location permission if not determined
+                let status = CLLocationManager().authorizationStatus
+                if status == .notDetermined {
+                    permissionRequested = true
+                    let tempManager = CLLocationManager()
+                    tempManager.requestWhenInUseAuthorization()
+                    
+                    // Check for permission change after a delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        let newStatus = CLLocationManager().authorizationStatus
+                        if newStatus == .authorizedWhenInUse || newStatus == .authorizedAlways {
+                            getCurrentLocation()
+                        }
+                        permissionRequested = false
+                    }
+                } else if status == .authorizedWhenInUse || status == .authorizedAlways {
+                    getCurrentLocation()
+                }
             }
         }
     }
@@ -154,6 +237,49 @@ struct LocationSetupView: View {
         locationManager.checkAuthorizationStatus()
     }
     
+    private func getCurrentLocation() {
+        let status = CLLocationManager().authorizationStatus
+        
+        // Only request location if we have permission
+        guard status == .authorizedWhenInUse || status == .authorizedAlways else {
+            print("Location permission not granted. Status: \(status.rawValue)")
+            return
+        }
+        
+        tempLocationManager = CLLocationManager()
+        tempLocationManager?.desiredAccuracy = kCLLocationAccuracyBest
+        
+        // Create and store the location handler
+        locationHandler = LocationHandler { location in
+            self.userLocation = location.coordinate
+        } errorHandler: { error in
+            print("Location error: \(error)")
+            DispatchQueue.main.async {
+                if let clError = error as? CLError {
+                    switch clError.code {
+                    case .denied:
+                        self.showingLocationError = true
+                    case .locationUnknown:
+                        print("Location temporarily unavailable")
+                    case .network:
+                        print("Network error")
+                    default:
+                        self.showingLocationError = true
+                    }
+                } else {
+                    self.showingLocationError = true
+                }
+            }
+        }
+        
+        // Set the delegate and request location
+        if let manager = tempLocationManager, let handler = locationHandler {
+            handler.setLocationManager(manager)
+            manager.delegate = handler
+            manager.requestLocation()
+        }
+    }
+    
     private func searchForLocations(query: String) {
         guard !query.isEmpty else {
             searchResults = []
@@ -165,6 +291,15 @@ struct LocationSetupView: View {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = query
         request.resultTypes = .pointOfInterest
+        
+        // Add region if we have user location
+        if let userLocation = userLocation {
+            let region = MKCoordinateRegion(
+                center: userLocation,
+                span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1) // ~10km radius
+            )
+            request.region = region
+        }
         
         let search = MKLocalSearch(request: request)
         search.start { response, error in
@@ -178,6 +313,12 @@ struct LocationSetupView: View {
                 searchResults = response?.mapItems ?? []
             }
         }
+    }
+    
+    private func calculateDistance(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
+        let fromLocation = CLLocation(latitude: from.latitude, longitude: from.longitude)
+        let toLocation = CLLocation(latitude: to.latitude, longitude: to.longitude)
+        return fromLocation.distance(from: toLocation) / 1000 // Convert to kilometers
     }
     
     private func selectLocation(_ item: MKMapItem) {
@@ -219,6 +360,39 @@ struct LocationSetupView: View {
         )
         
         dismiss()
+    }
+}
+
+// Helper class for one-time location requests
+class LocationHandler: NSObject, CLLocationManagerDelegate {
+    let locationHandler: (CLLocation) -> Void
+    let errorHandler: (Error) -> Void
+    weak var locationManager: CLLocationManager?
+    
+    init(locationHandler: @escaping (CLLocation) -> Void, errorHandler: @escaping (Error) -> Void) {
+        self.locationHandler = locationHandler
+        self.errorHandler = errorHandler
+    }
+    
+    func setLocationManager(_ manager: CLLocationManager) {
+        self.locationManager = manager
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            locationHandler(location)
+        }
+        cleanup()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        errorHandler(error)
+        cleanup()
+    }
+    
+    private func cleanup() {
+        locationManager?.delegate = nil
+        locationManager = nil
     }
 }
 
