@@ -164,20 +164,25 @@ struct ListRow: View {
                 
                 Spacer()
                 
-                Text(list.category.rawValue)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        LinearGradient(
-                            colors: [list.category.color.opacity(0.2), list.category.color.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                HStack(spacing: 6) {
+                    Image(systemName: list.category.icon)
+                        .font(.caption2)
+                        .foregroundColor(list.category.color)
+                    Text(list.category.rawValue)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(list.category.color)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    LinearGradient(
+                        colors: [list.category.color.opacity(0.2), list.category.color.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
-                    .foregroundColor(list.category.color)
-                    .cornerRadius(10)
+                )
+                .cornerRadius(10)
             }
             
             // Enhanced progress bar for completion

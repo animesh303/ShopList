@@ -201,6 +201,53 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
         }
     }
     
+    var icon: String {
+        switch self {
+        case .groceries:
+            return "cart.fill"
+        case .household:
+            return "house.fill"
+        case .personalCare:
+            return "hand.raised.fill"
+        case .health:
+            return "cross.case.fill"
+        case .electronics:
+            return "desktopcomputer"
+        case .clothing:
+            return "tshirt.fill"
+        case .office:
+            return "doc.text.fill"
+        case .pet:
+            return "pawprint.fill"
+        case .baby:
+            return "heart.fill"
+        case .automotive:
+            return "car.fill"
+        case .homeImprovement:
+            return "hammer.fill"
+        case .garden:
+            return "leaf.fill"
+        case .gifts:
+            return "gift.fill"
+        case .party:
+            return "party.popper.fill"
+        case .holiday:
+            return "star.fill"
+        case .travel:
+            return "airplane"
+        case .vacation:
+            return "beach.umbrella.fill"
+        case .work:
+            return "briefcase.fill"
+        case .business:
+            return "building.2.fill"
+        case .personal:
+            return "person.fill"
+        case .other:
+            return "questionmark.circle.fill"
+        }
+    }
+    
     static var typeDisplayRepresentation: TypeDisplayRepresentation = "List Category"
     
     static let caseDisplayRepresentations: [ListCategory: DisplayRepresentation] = [

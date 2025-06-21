@@ -267,9 +267,9 @@ struct GridListCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             // Header with name and category
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(list.name)
                     .font(.headline)
                     .fontWeight(.semibold)
@@ -277,70 +277,62 @@ struct GridListCard: View {
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
                     .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
                 
-                Text(list.category.rawValue)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        LinearGradient(
-                            colors: [list.category.color.opacity(0.2), list.category.color.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .foregroundColor(list.category.color)
-                    .cornerRadius(12)
-            }
-            
-            Spacer()
-            
-            // Enhanced progress bar
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("\(Int(completionPercentage * 100))%")
+                HStack(spacing: 4) {
+                    Image(systemName: list.category.icon)
+                        .font(.caption2)
+                        .foregroundColor(list.category.color)
+                    Text(list.category.rawValue)
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Text("\(list.completedItems.count)/\(list.items.count)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(list.category.color)
                 }
-                
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        // Background track
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color(.systemGray5))
-                            .frame(height: 8)
-                        
-                        // Progress fill with gradient
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        list.category.color,
-                                        list.category.color.opacity(0.8)
-                                    ],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(width: geometry.size.width * completionPercentage, height: 8)
-                            .animation(.easeInOut(duration: 0.3), value: completionPercentage)
-                    }
-                }
-                .frame(height: 8)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(list.category.color.opacity(0.15))
+                .cornerRadius(6)
             }
             
-            // Footer with item count and budget
-            HStack {
-                HStack(spacing: 4) {
+            Spacer(minLength: 4)
+            
+            // Compact progress bar
+            if !list.items.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("\(Int(completionPercentage * 100))%")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(list.completedItems.count)/\(list.items.count)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            // Background track
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(.systemGray5))
+                                .frame(height: 6)
+                            
+                            // Progress fill
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(list.category.color)
+                                .frame(width: geometry.size.width * completionPercentage, height: 6)
+                                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                        }
+                    }
+                    .frame(height: 6)
+                }
+            }
+            
+            // Compact footer
+            HStack(spacing: 8) {
+                HStack(spacing: 3) {
                     Image(systemName: "cart.fill")
                         .font(.caption)
                         .foregroundColor(.blue)
-                    Text("\(list.pendingItems.count) items")
+                    Text("\(list.pendingItems.count)")
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
@@ -349,11 +341,11 @@ struct GridListCard: View {
                 Spacer()
                 
                 if list.budget != nil {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 3) {
                         Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
                             .foregroundColor(isOverBudget ? .red : .green)
-                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
+                        Text(settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost))
                             .font(.caption)
                             .fontWeight(.medium)
                             .foregroundColor(isOverBudget ? .red : .secondary)
@@ -361,27 +353,15 @@ struct GridListCard: View {
                 }
             }
         }
-        .padding(16)
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 12)
                 .fill(Color(.systemBackground))
-                .shadow(
-                    color: Color.black.opacity(0.08),
-                    radius: 12,
-                    x: 0,
-                    y: 4
-                )
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(
-                    LinearGradient(
-                        colors: [Color.clear, Color(.systemGray6)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 0.5
-                )
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(.systemGray6), lineWidth: 0.5)
         )
     }
 }
