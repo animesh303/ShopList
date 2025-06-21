@@ -162,6 +162,45 @@ struct SettingsView: View {
                             .foregroundColor(.orange)
                     }
                 }
+                
+                Section(header: Text("Location Search")) {
+                    HStack {
+                        Image(systemName: settingsManager.restrictSearchToLocality ? "location.fill" : "location.slash")
+                            .foregroundColor(settingsManager.restrictSearchToLocality ? .green : .secondary)
+                        
+                        VStack(alignment: .leading) {
+                            Text("Search Restrictions")
+                                .font(.headline)
+                            Text(settingsManager.restrictSearchToLocality ? "Search limited to local area" : "Search not restricted")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        NavigationLink("Configure") {
+                            LocationSearchSettingsView()
+                        }
+                    }
+                    
+                    if settingsManager.restrictSearchToLocality {
+                        HStack {
+                            Image(systemName: "circle.dashed")
+                                .foregroundColor(.blue)
+                            Text("Search radius: \(Int(settingsManager.searchRadius / 1000)) km")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        HStack {
+                            Image(systemName: settingsManager.useCurrentLocationForSearch ? "location.fill" : "mappin")
+                                .foregroundColor(.blue)
+                            Text(settingsManager.useCurrentLocationForSearch ? "Using current location" : "Using custom location")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
             }
             .navigationTitle("Settings")
         }

@@ -179,6 +179,25 @@ struct ListDetailView: View {
             }
             .navigationTitle(list.name)
             .searchable(text: $searchText, prompt: "Search items")
+            .overlay(
+                Group {
+                    if settingsManager.restrictSearchToLocality && !searchText.isEmpty {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundColor(.blue)
+                                Text("Search restricted to local area")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
+                        }
+                    }
+                }
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {

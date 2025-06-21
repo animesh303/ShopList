@@ -292,8 +292,10 @@ struct LocationSetupView: View {
         request.naturalLanguageQuery = query
         request.resultTypes = .pointOfInterest
         
-        // Add region if we have user location
-        if let userLocation = userLocation {
+        // Add region if we have user location and location restrictions are enabled
+        if let searchRegion = locationManager.getSearchRegion() {
+            request.region = searchRegion
+        } else if let userLocation = userLocation {
             let region = MKCoordinateRegion(
                 center: userLocation,
                 span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1) // ~10km radius
@@ -310,7 +312,16 @@ struct LocationSetupView: View {
                     return
                 }
                 
-                searchResults = response?.mapItems ?? []
+                var results = response?.mapItems ?? []
+                
+                // Filter results by location if restrictions are enabled
+                if self.locationManager.settingsManager.restrictSearchToLocality {
+                    results = results.filter { item in
+                        self.locationManager.isLocationWithinSearchRadius(item.placemark.coordinate)
+                    }
+                }
+                
+                searchResults = results
             }
         }
     }

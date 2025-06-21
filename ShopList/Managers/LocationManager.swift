@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import UserNotifications
+import MapKit
 
 class LocationManager: NSObject, ObservableObject {
     static let shared = LocationManager()
@@ -9,6 +10,10 @@ class LocationManager: NSObject, ObservableObject {
     
     @Published var locationReminders: [LocationReminder] = []
     @Published var isAuthorized = false
+    @Published var currentLocation: CLLocationCoordinate2D?
+    @Published var isLocationAvailable = false
+    
+    let settingsManager = UserSettingsManager.shared
     
     override init() {
         super.init()
@@ -38,7 +43,60 @@ class LocationManager: NSObject, ObservableObject {
         let status = locationManager.authorizationStatus
         DispatchQueue.main.async {
             self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
+            
+            // Start location updates if authorized
+            if self.isAuthorized {
+                self.startLocationUpdates()
+            }
         }
+    }
+    
+    func startLocationUpdates() {
+        guard isAuthorized else { return }
+        locationManager.startUpdatingLocation()
+    }
+    
+    func stopLocationUpdates() {
+        locationManager.stopUpdatingLocation()
+    }
+    
+    func getSearchRegion() -> MKCoordinateRegion? {
+        guard settingsManager.restrictSearchToLocality else { return nil }
+        
+        let centerLocation: CLLocationCoordinate2D
+        
+        if settingsManager.useCurrentLocationForSearch {
+            guard let currentLocation = currentLocation else { return nil }
+            centerLocation = currentLocation
+        } else {
+            guard let savedLocation = settingsManager.savedSearchLocation else { return nil }
+            centerLocation = savedLocation
+        }
+        
+        let radiusInDegrees = settingsManager.searchRadius / 111000 // Approximate conversion from meters to degrees
+        let span = MKCoordinateSpan(latitudeDelta: radiusInDegrees, longitudeDelta: radiusInDegrees)
+        
+        return MKCoordinateRegion(center: centerLocation, span: span)
+    }
+    
+    func isLocationWithinSearchRadius(_ location: CLLocationCoordinate2D) -> Bool {
+        guard settingsManager.restrictSearchToLocality else { return true }
+        
+        let centerLocation: CLLocationCoordinate2D
+        
+        if settingsManager.useCurrentLocationForSearch {
+            guard let currentLocation = currentLocation else { return false }
+            centerLocation = currentLocation
+        } else {
+            guard let savedLocation = settingsManager.savedSearchLocation else { return false }
+            centerLocation = savedLocation
+        }
+        
+        let centerCLLocation = CLLocation(latitude: centerLocation.latitude, longitude: centerLocation.longitude)
+        let targetCLLocation = CLLocation(latitude: location.latitude, longitude: location.longitude)
+        
+        let distance = centerCLLocation.distance(from: targetCLLocation)
+        return distance <= settingsManager.searchRadius
     }
     
     func addLocationReminder(for list: ShoppingList, at location: CLLocationCoordinate2D, radius: Double, message: String) {
@@ -174,6 +232,13 @@ extension LocationManager: CLLocationManagerDelegate {
             if status == .authorizedAlways {
                 self.restartMonitoringForExistingReminders()
             }
+            
+            // Start location updates if authorized
+            if self.isAuthorized {
+                self.startLocationUpdates()
+            } else {
+                self.stopLocationUpdates()
+            }
         }
     }
     
@@ -187,6 +252,14 @@ extension LocationManager: CLLocationManagerDelegate {
             region.notifyOnEntry = true
             region.notifyOnExit = false
             locationManager.startMonitoring(for: region)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        DispatchQueue.main.async {
+            self.currentLocation = location.coordinate
+            self.isLocationAvailable = true
         }
     }
 } 

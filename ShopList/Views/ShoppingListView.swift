@@ -64,6 +64,25 @@ struct ShoppingListView: View {
             }
             .navigationTitle("Shopping Lists")
             .searchable(text: $searchText, prompt: "Search lists")
+            .overlay(
+                Group {
+                    if settingsManager.restrictSearchToLocality && !searchText.isEmpty {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundColor(.blue)
+                                Text("Search restricted to local area")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
+                        }
+                    }
+                }
+            )
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {

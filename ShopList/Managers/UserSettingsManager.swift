@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import CoreLocation
 
 // Remove all @_exported imports since they're not needed
 // The enums are already available in the module
@@ -110,6 +111,36 @@ class UserSettingsManager: ObservableObject {
         }
     }
     
+    @Published var restrictSearchToLocality: Bool {
+        didSet {
+            UserDefaults.standard.set(restrictSearchToLocality, forKey: "restrictSearchToLocality")
+        }
+    }
+    
+    @Published var searchRadius: Double {
+        didSet {
+            UserDefaults.standard.set(searchRadius, forKey: "searchRadius")
+        }
+    }
+    
+    @Published var useCurrentLocationForSearch: Bool {
+        didSet {
+            UserDefaults.standard.set(useCurrentLocationForSearch, forKey: "useCurrentLocationForSearch")
+        }
+    }
+    
+    @Published var savedSearchLocation: CLLocationCoordinate2D? {
+        didSet {
+            if let location = savedSearchLocation {
+                UserDefaults.standard.set(location.latitude, forKey: "savedSearchLocationLatitude")
+                UserDefaults.standard.set(location.longitude, forKey: "savedSearchLocationLongitude")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "savedSearchLocationLatitude")
+                UserDefaults.standard.removeObject(forKey: "savedSearchLocationLongitude")
+            }
+        }
+    }
+    
     private init() {
         // Default to USD if no currency is set
         let savedCurrency = UserDefaults.standard.string(forKey: "selectedCurrency") ?? Currency.USD.rawValue
@@ -165,5 +196,22 @@ class UserSettingsManager: ObservableObject {
         
         let savedNotificationSound = UserDefaults.standard.string(forKey: "notificationSound") ?? NotificationSound.defaultSound.rawValue
         self.notificationSound = NotificationSound(rawValue: savedNotificationSound) ?? .defaultSound
+        
+        // Location-based search settings
+        self.restrictSearchToLocality = UserDefaults.standard.bool(forKey: "restrictSearchToLocality")
+        
+        let savedSearchRadius = UserDefaults.standard.double(forKey: "searchRadius")
+        self.searchRadius = savedSearchRadius == 0 ? 5000 : savedSearchRadius // Default 5km radius
+        
+        self.useCurrentLocationForSearch = UserDefaults.standard.bool(forKey: "useCurrentLocationForSearch")
+        
+        // Load saved search location
+        let savedLatitude = UserDefaults.standard.double(forKey: "savedSearchLocationLatitude")
+        let savedLongitude = UserDefaults.standard.double(forKey: "savedSearchLocationLongitude")
+        if savedLatitude != 0 && savedLongitude != 0 {
+            self.savedSearchLocation = CLLocationCoordinate2D(latitude: savedLatitude, longitude: savedLongitude)
+        } else {
+            self.savedSearchLocation = nil
+        }
     }
 } 
