@@ -17,67 +17,74 @@ struct BudgetProgressView: View {
     private var progressColor: Color {
         switch progress {
         case 0..<0.5:
-            return .green
+            return DesignSystem.Colors.success
         case 0.5..<0.8:
-            return .yellow
+            return DesignSystem.Colors.warning
         case 0.8..<1.0:
-            return .orange
+            return DesignSystem.Colors.error.opacity(0.8)
         default:
-            return .red
+            return DesignSystem.Colors.error
         }
     }
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: DesignSystem.Spacing.sm) {
             HStack {
                 Text("Budget Progress")
-                    .font(.headline)
+                    .font(DesignSystem.Typography.headline)
+                    .foregroundColor(DesignSystem.Colors.primaryText)
                 Spacer()
                 Text("\(Int(progress * 100))%")
-                    .font(.subheadline)
+                    .font(DesignSystem.Typography.subheadlineBold)
                     .foregroundColor(progressColor)
             }
             
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color.gray.opacity(0.2))
+                        .fill(DesignSystem.Colors.tertiaryBackground)
                         .frame(height: 8)
-                        .cornerRadius(4)
+                        .cornerRadius(DesignSystem.CornerRadius.xs)
                     
                     Rectangle()
                         .fill(progressColor)
                         .frame(width: geometry.size.width * progress, height: 8)
-                        .cornerRadius(4)
+                        .cornerRadius(DesignSystem.CornerRadius.xs)
+                        .animation(DesignSystem.Animations.standard, value: progress)
                 }
             }
             .frame(height: 8)
             
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text("Spent")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignSystem.Typography.caption1)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                     Text(spent, format: .currency(code: currency.rawValue))
-                        .font(.subheadline)
+                        .font(DesignSystem.Typography.subheadlineBold)
                         .foregroundColor(progressColor)
                 }
                 
                 Spacer()
                 
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
                     Text("Remaining")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                        .font(DesignSystem.Typography.caption1)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                     Text(remaining, format: .currency(code: currency.rawValue))
-                        .font(.subheadline)
-                        .foregroundColor(remaining > 0 ? .green : .red)
+                        .font(DesignSystem.Typography.subheadlineBold)
+                        .foregroundColor(remaining > 0 ? DesignSystem.Colors.success : DesignSystem.Colors.error)
                 }
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .padding(DesignSystem.Spacing.lg)
+        .background(DesignSystem.Colors.background)
+        .cornerRadius(DesignSystem.CornerRadius.md)
+        .shadow(
+            color: DesignSystem.Shadows.small.color,
+            radius: DesignSystem.Shadows.small.radius,
+            x: DesignSystem.Shadows.small.x,
+            y: DesignSystem.Shadows.small.y
+        )
     }
 } 

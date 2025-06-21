@@ -43,11 +43,11 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ZStack {
-                // Subtle background gradient
+                // Enhanced background with subtle gradient
                 LinearGradient(
                     colors: [
-                        Color(.systemBackground),
-                        Color(.systemBackground).opacity(0.95)
+                        DesignSystem.Colors.background,
+                        DesignSystem.Colors.secondaryBackground.opacity(0.3)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -57,15 +57,15 @@ struct ContentView: View {
                 if settingsManager.defaultListViewStyle == .grid {
                     ScrollView {
                         LazyVGrid(columns: [
-                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: 16)
-                        ], spacing: 16) {
+                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
+                        ], spacing: DesignSystem.Spacing.lg) {
                             ForEach(sortedLists) { list in
                                 NavigationLink(value: list) {
                                     GridListCard(list: list)
                                 }
                             }
                         }
-                        .padding()
+                        .padding(DesignSystem.Spacing.lg)
                     }
                 } else {
                     List {
@@ -79,19 +79,19 @@ struct ContentView: View {
                     .listStyle(PlainListStyle())
                 }
                 
-                // Enhanced Floating Action Buttons
+                // Enhanced Floating Action Buttons with improved design
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        VStack(spacing: 12) {
+                        VStack(spacing: DesignSystem.Spacing.md) {
                             if isExpanded {
                                 // Settings button with enhanced design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     showingSettings = true
-                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                    withAnimation(DesignSystem.Animations.spring) {
                                         isExpanded = false
                                     }
                                     stopFabTimer()
@@ -100,16 +100,21 @@ struct ContentView: View {
                                         .font(.title2)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
-                                        .frame(width: 56, height: 56)
+                                        .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                         .background(
                                             LinearGradient(
-                                                colors: [Color(.systemGray4), Color(.systemGray3)],
+                                                colors: [DesignSystem.Colors.secondaryText, DesignSystem.Colors.tertiaryText],
                                                 startPoint: .topLeading,
                                                 endPoint: .bottomTrailing
                                             )
                                         )
                                         .clipShape(Circle())
-                                        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                                        .shadow(
+                                            color: DesignSystem.Shadows.medium.color,
+                                            radius: DesignSystem.Shadows.medium.radius,
+                                            x: DesignSystem.Shadows.medium.x,
+                                            y: DesignSystem.Shadows.medium.y
+                                        )
                                 }
                                 .transition(.scale.combined(with: .opacity))
                                 
@@ -118,7 +123,7 @@ struct ContentView: View {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     showingAddList = true
-                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                    withAnimation(DesignSystem.Animations.spring) {
                                         isExpanded = false
                                     }
                                     stopFabTimer()
@@ -127,23 +132,28 @@ struct ContentView: View {
                                         .font(.title2)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
-                                        .frame(width: 56, height: 56)
+                                        .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                         .background(
                                             LinearGradient(
-                                                colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                                colors: [DesignSystem.Colors.primary, DesignSystem.Colors.primary.opacity(0.8)],
                                                 startPoint: .topLeading,
                                                 endPoint: .bottomTrailing
                                             )
                                         )
                                         .clipShape(Circle())
-                                        .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
+                                        .shadow(
+                                            color: DesignSystem.Colors.primary.opacity(0.3),
+                                            radius: DesignSystem.Shadows.medium.radius,
+                                            x: DesignSystem.Shadows.medium.x,
+                                            y: DesignSystem.Shadows.medium.y
+                                        )
                                 }
                                 .transition(.scale.combined(with: .opacity))
                             }
                             
                             // Enhanced toggle button
                             Button {
-                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                withAnimation(DesignSystem.Animations.spring) {
                                     isExpanded.toggle()
                                 }
                                 if isExpanded {
@@ -156,20 +166,25 @@ struct ContentView: View {
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                    .frame(width: 56, height: 56)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
                                         LinearGradient(
-                                            colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                            colors: [DesignSystem.Colors.primary, DesignSystem.Colors.primary.opacity(0.8)],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
                                     )
                                     .clipShape(Circle())
-                                    .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
+                                    .shadow(
+                                        color: DesignSystem.Colors.primary.opacity(0.3),
+                                        radius: DesignSystem.Shadows.medium.radius,
+                                        x: DesignSystem.Shadows.medium.x,
+                                        y: DesignSystem.Shadows.medium.y
+                                    )
                             }
                         }
-                        .padding(.trailing, 20)
-                        .padding(.bottom, 20)
+                        .padding(.trailing, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
                     }
                 }
             }
@@ -183,14 +198,14 @@ struct ContentView: View {
                             Spacer()
                             HStack {
                                 Image(systemName: "location.fill")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(DesignSystem.Colors.info)
                                 Text("Search restricted to local area")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .font(DesignSystem.Typography.caption1)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                                 Spacer()
                             }
-                            .padding(.horizontal)
-                            .padding(.bottom, 8)
+                            .padding(.horizontal, DesignSystem.Spacing.lg)
+                            .padding(.bottom, DesignSystem.Spacing.sm)
                         }
                     }
                 }
@@ -205,7 +220,7 @@ struct ContentView: View {
                         }
                     } label: {
                         Label("Sort", systemImage: "arrow.up.arrow.down")
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(DesignSystem.Colors.primary)
                     }
                 }
             }
@@ -267,59 +282,59 @@ struct GridListCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             // Header with name and category
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                 Text(list.name)
-                    .font(.headline)
+                    .font(DesignSystem.Typography.headline)
                     .fontWeight(.semibold)
                     .lineLimit(2)
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
-                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
+                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: DesignSystem.Spacing.xs) {
                     Image(systemName: list.category.icon)
                         .font(.caption2)
                         .foregroundColor(list.category.color)
                     Text(list.category.rawValue)
-                        .font(.caption)
+                        .font(DesignSystem.Typography.caption1)
                         .fontWeight(.medium)
                         .foregroundColor(list.category.color)
                 }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 3)
+                .padding(.horizontal, DesignSystem.Spacing.xs)
+                .padding(.vertical, DesignSystem.Spacing.xs)
                 .background(list.category.color.opacity(0.15))
-                .cornerRadius(6)
+                .cornerRadius(DesignSystem.CornerRadius.xs)
             }
             
-            Spacer(minLength: 4)
+            Spacer(minLength: DesignSystem.Spacing.xs)
             
             // Compact progress bar
             if !list.items.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     HStack {
                         Text("\(Int(completionPercentage * 100))%")
-                            .font(.caption)
+                            .font(DesignSystem.Typography.caption1)
                             .fontWeight(.medium)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                         Spacer()
                         Text("\(list.completedItems.count)/\(list.items.count)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(DesignSystem.Typography.caption1)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
                             // Background track
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(.systemGray5))
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
+                                .fill(DesignSystem.Colors.tertiaryBackground)
                                 .frame(height: 6)
                             
                             // Progress fill
-                            RoundedRectangle(cornerRadius: 4)
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
                                 .fill(list.category.color)
                                 .frame(width: geometry.size.width * completionPercentage, height: 6)
-                                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                                .animation(DesignSystem.Animations.standard, value: completionPercentage)
                         }
                     }
                     .frame(height: 6)
@@ -327,41 +342,46 @@ struct GridListCard: View {
             }
             
             // Compact footer
-            HStack(spacing: 8) {
-                HStack(spacing: 3) {
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                HStack(spacing: DesignSystem.Spacing.xs) {
                     Image(systemName: "cart.fill")
                         .font(.caption)
-                        .foregroundColor(.blue)
+                        .foregroundColor(DesignSystem.Colors.info)
                     Text("\(list.pendingItems.count)")
-                        .font(.caption)
+                        .font(DesignSystem.Typography.caption1)
                         .fontWeight(.medium)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 
                 Spacer()
                 
                 if list.budget != nil {
-                    HStack(spacing: 3) {
+                    HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
-                            .foregroundColor(isOverBudget ? .red : .green)
+                            .foregroundColor(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success)
                         Text(settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost))
-                            .font(.caption)
+                            .font(DesignSystem.Typography.caption1)
                             .fontWeight(.medium)
-                            .foregroundColor(isOverBudget ? .red : .secondary)
+                            .foregroundColor(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.secondaryText)
                     }
                 }
             }
         }
-        .padding(12)
+        .padding(DesignSystem.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .fill(DesignSystem.Colors.background)
+                .shadow(
+                    color: DesignSystem.Shadows.small.color,
+                    radius: DesignSystem.Shadows.small.radius,
+                    x: DesignSystem.Shadows.small.x,
+                    y: DesignSystem.Shadows.small.y
+                )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(.systemGray6), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .stroke(DesignSystem.Colors.borderLight, lineWidth: 0.5)
         )
     }
 }

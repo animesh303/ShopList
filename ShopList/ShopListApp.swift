@@ -31,11 +31,11 @@ struct ShopListApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                // Subtle background gradient for the entire app
+                // Enhanced background gradient for the entire app
                 LinearGradient(
                     colors: [
-                        Color(.systemBackground),
-                        Color(.systemBackground).opacity(0.98)
+                        DesignSystem.Colors.background,
+                        DesignSystem.Colors.secondaryBackground.opacity(0.2)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing

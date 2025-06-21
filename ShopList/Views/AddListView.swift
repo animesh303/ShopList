@@ -2,64 +2,39 @@ import SwiftUI
 import SwiftData
 
 struct AddListView: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var settingsManager = UserSettingsManager.shared
-    @StateObject private var notificationManager = NotificationManager.shared
+    
     @State private var listName = ""
-    @State private var category: ListCategory
-    @State private var budgetString = "0.00"
-    @State private var showingError = false
-    @State private var errorMessage = ""
+    @State private var category: ListCategory = .groceries
+    @State private var budgetString = ""
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
-    init() {
-        _category = State(initialValue: UserSettingsManager.shared.defaultListCategory)
-    }
-    
-    private var budget: Decimal? {
+    private var budget: Double? {
         guard !budgetString.isEmpty else { return nil }
-        return Decimal(string: budgetString)
+        return Double(budgetString)
     }
     
-    private func validateBudgetString(_ newValue: String) -> String {
-        // Allow only numbers and one decimal point
-        let filtered = newValue.filter { "0123456789.".contains($0) }
-        
-        // Handle empty input
-        if filtered.isEmpty {
-            return "0.00"
-        }
-        
-        // Handle leading decimal point
-        if filtered == "." {
-            return "0."
-        }
-        
+    private var isFormValid: Bool {
+        !listName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    private func validateBudgetString(_ input: String) -> String {
+        let filtered = input.filter { "0123456789.".contains($0) }
         let components = filtered.components(separatedBy: ".")
-        
-        // If more than one decimal point, keep only the first one
         if components.count > 2 {
-            let firstPart = components[0]
-            let decimalPart = components[1...].joined()
-            return "\(firstPart).\(decimalPart)"
+            return String(components.prefix(2).joined(separator: "."))
         }
-        
-        // Limit to 7 digits before decimal
-        if let first = components.first, first.count > 7 {
-            return String(first.prefix(7)) + (components.count > 1 ? ".\(components[1])" : "")
-        }
-        
-        // Limit to 2 decimal places
-        if components.count == 2, let last = components.last, last.count > 2 {
-            return "\(components[0]).\(last.prefix(2))"
-        }
-        
         return filtered
     }
     
     private var budgetRow: some View {
         HStack {
             Text(settingsManager.currency.symbol)
+                .font(DesignSystem.Typography.body)
+                .foregroundColor(DesignSystem.Colors.primaryText)
             TextField("Budget", text: Binding(
                 get: { budgetString },
                 set: { newValue in
@@ -71,6 +46,7 @@ struct AddListView: View {
                 }
             ))
             .keyboardType(.decimalPad)
+            .textFieldStyle(RoundedBorderTextFieldStyle())
         }
     }
     
@@ -79,17 +55,58 @@ struct AddListView: View {
             Form {
                 Section {
                     TextField("List Name", text: $listName)
+                        .font(DesignSystem.Typography.body)
+                    
                     Picker("Category", selection: $category) {
                         ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
                             HStack {
                                 Image(systemName: category.icon)
                                     .foregroundColor(category.color)
+                                    .font(.title3)
                                 Text(category.rawValue)
+                                    .font(DesignSystem.Typography.body)
                             }
                             .tag(category)
                         }
                     }
+                    .pickerStyle(MenuPickerStyle())
+                    
                     budgetRow
+                } header: {
+                    Text("List Details")
+                        .font(DesignSystem.Typography.subheadlineBold)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                }
+                
+                Section {
+                    HStack {
+                        Image(systemName: category.icon)
+                            .foregroundColor(category.color)
+                            .font(.title2)
+                        
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Preview")
+                                .font(DesignSystem.Typography.subheadlineBold)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            Text("Category: \(category.rawValue)")
+                                .font(DesignSystem.Typography.caption1)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            if let budget = budget {
+                                Text("Budget: \(budget, format: .currency(code: settingsManager.currency.rawValue))")
+                                    .font(DesignSystem.Typography.caption1)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(DesignSystem.Spacing.sm)
+                    .background(category.color.opacity(0.1))
+                    .cornerRadius(DesignSystem.CornerRadius.sm)
+                } header: {
+                    Text("Preview")
+                        .font(DesignSystem.Typography.subheadlineBold)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                 }
             }
             .navigationTitle("New List")
@@ -99,62 +116,52 @@ struct AddListView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(DesignSystem.Colors.primary)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        do {
-                            guard !listName.isEmpty else {
-                                throw AppError.invalidListName
-                            }
-                            
-                            // Check if list with same name exists
-                            let descriptor = FetchDescriptor<ShoppingList>(
-                                predicate: #Predicate { $0.name == listName }
-                            )
-                            if try modelContext.fetch(descriptor).first != nil {
-                                throw AppError.listAlreadyExists
-                            }
-                            
-                            let newList = ShoppingList(
-                                name: listName,
-                                items: [],
-                                dateCreated: Date(),
-                                isShared: false,
-                                category: category,
-                                budget: budget != nil ? Double(truncating: budget! as NSNumber) : 0
-                            )
-                            
-                            modelContext.insert(newList)
-                            try modelContext.save()
-                            
-                            // Schedule notification if enabled
-                            if settingsManager.notificationsEnabled && notificationManager.isAuthorized {
-                                Task {
-                                    // Schedule a reminder for tomorrow at the default time
-                                    let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
-                                    let defaultTime = settingsManager.defaultReminderTime
-                                    let calendar = Calendar.current
-                                    let components = calendar.dateComponents([.hour, .minute], from: defaultTime)
-                                    let reminderDate = calendar.date(bySettingHour: components.hour ?? 9, minute: components.minute ?? 0, second: 0, of: tomorrow) ?? tomorrow
-                                    
-                                    await notificationManager.scheduleShoppingListReminder(for: newList, at: reminderDate)
-                                }
-                            }
-                            
-                            dismiss()
-                        } catch {
-                            errorMessage = error.localizedDescription
-                            showingError = true
-                        }
+                        addList()
                     }
-                    .disabled(listName.isEmpty)
+                    .disabled(!isFormValid)
+                    .foregroundColor(isFormValid ? DesignSystem.Colors.primary : DesignSystem.Colors.tertiaryText)
                 }
             }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
+            .alert("Error", isPresented: $showingAlert) {
+                Button("OK") { }
             } message: {
-                Text(errorMessage)
+                Text(alertMessage)
             }
         }
     }
+    
+    private func addList() {
+        let trimmedName = listName.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedName.isEmpty else {
+            alertMessage = "Please enter a list name"
+            showingAlert = true
+            return
+        }
+        
+        let newList = ShoppingList(
+            name: trimmedName,
+            category: category,
+            budget: budget
+        )
+        
+        modelContext.insert(newList)
+        
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            alertMessage = "Failed to create list: \(error.localizedDescription)"
+            showingAlert = true
+        }
+    }
+}
+
+#Preview {
+    AddListView()
+        .modelContainer(for: ShoppingList.self, inMemory: true)
 } 

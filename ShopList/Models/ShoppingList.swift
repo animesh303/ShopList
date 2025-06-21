@@ -157,47 +157,47 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
     var color: Color {
         switch self {
         case .groceries:
-            return .green
+            return DesignSystem.Colors.categoryGroceries
         case .household:
-            return .blue
+            return DesignSystem.Colors.categoryHousehold
         case .personalCare:
-            return .pink
+            return DesignSystem.Colors.categoryPersonalCare
         case .health:
-            return .red
+            return DesignSystem.Colors.categoryHealth
         case .electronics:
-            return .purple
+            return DesignSystem.Colors.categoryElectronics
         case .clothing:
-            return .orange
+            return DesignSystem.Colors.categoryClothing
         case .office:
-            return .gray
+            return DesignSystem.Colors.categoryOffice
         case .pet:
-            return .brown
+            return DesignSystem.Colors.categoryPet
         case .baby:
-            return .mint
+            return DesignSystem.Colors.categoryBaby
         case .automotive:
-            return .indigo
+            return DesignSystem.Colors.categoryAutomotive
         case .homeImprovement:
-            return .teal
+            return DesignSystem.Colors.categoryHomeImprovement
         case .garden:
-            return .green
+            return DesignSystem.Colors.categoryGarden
         case .gifts:
-            return .pink
+            return DesignSystem.Colors.categoryGifts
         case .party:
-            return .purple
+            return DesignSystem.Colors.categoryParty
         case .holiday:
-            return .red
+            return DesignSystem.Colors.categoryHoliday
         case .travel:
-            return .blue
+            return DesignSystem.Colors.categoryTravel
         case .vacation:
-            return .cyan
+            return DesignSystem.Colors.categoryVacation
         case .work:
-            return .gray
+            return DesignSystem.Colors.categoryWork
         case .business:
-            return .indigo
+            return DesignSystem.Colors.categoryBusiness
         case .personal:
-            return .mint
+            return DesignSystem.Colors.categoryPersonal
         case .other:
-            return .gray
+            return DesignSystem.Colors.categoryOther
         }
     }
     

@@ -9,37 +9,37 @@ extension ItemCategory {
     var color: Color {
         switch self {
         // Food & Beverages
-        case .groceries: return .blue
-        case .dairy: return .blue.opacity(0.7)
-        case .bakery: return .brown
-        case .produce: return .green
-        case .meat: return .red
-        case .frozenFoods: return .blue.opacity(0.5)
-        case .beverages: return .blue.opacity(0.9)
-        case .snacks: return .orange.opacity(0.8)
-        case .spices: return .orange.opacity(0.6)
+        case .groceries: return DesignSystem.Colors.categoryGroceries
+        case .dairy: return DesignSystem.Colors.categoryGroceries.opacity(0.8)
+        case .bakery: return DesignSystem.Colors.categoryGroceries.opacity(0.9)
+        case .produce: return DesignSystem.Colors.categoryGroceries.opacity(0.7)
+        case .meat: return DesignSystem.Colors.categoryHealth.opacity(0.8)
+        case .frozenFoods: return DesignSystem.Colors.categoryGroceries.opacity(0.6)
+        case .beverages: return DesignSystem.Colors.categoryGroceries.opacity(0.9)
+        case .snacks: return DesignSystem.Colors.categoryClothing.opacity(0.8)
+        case .spices: return DesignSystem.Colors.categoryClothing.opacity(0.6)
             
         // Household
-        case .household: return .orange
-        case .cleaning: return .blue.opacity(0.3)
-        case .laundry: return .blue.opacity(0.4)
-        case .kitchen: return .orange.opacity(0.7)
-        case .bathroom: return .blue.opacity(0.2)
-        case .office: return .gray.opacity(0.5)
+        case .household: return DesignSystem.Colors.categoryHousehold
+        case .cleaning: return DesignSystem.Colors.categoryHousehold.opacity(0.7)
+        case .laundry: return DesignSystem.Colors.categoryHousehold.opacity(0.8)
+        case .kitchen: return DesignSystem.Colors.categoryHousehold.opacity(0.9)
+        case .bathroom: return DesignSystem.Colors.categoryHousehold.opacity(0.6)
+        case .office: return DesignSystem.Colors.categoryOffice
             
         // Personal Care
-        case .personalCare: return .purple.opacity(0.7)
-        case .beauty: return .pink.opacity(0.8)
-        case .health: return .red.opacity(0.8)
-        case .babyCare: return .pink.opacity(0.6)
-        case .petCare: return .brown.opacity(0.6)
+        case .personalCare: return DesignSystem.Colors.categoryPersonalCare
+        case .beauty: return DesignSystem.Colors.categoryPersonalCare.opacity(0.9)
+        case .health: return DesignSystem.Colors.categoryHealth
+        case .babyCare: return DesignSystem.Colors.categoryBaby
+        case .petCare: return DesignSystem.Colors.categoryPet
             
         // Other
-        case .electronics: return .purple
-        case .clothing: return .pink
-        case .automotive: return .gray.opacity(0.7)
-        case .garden: return .green.opacity(0.7)
-        case .other: return .gray
+        case .electronics: return DesignSystem.Colors.categoryElectronics
+        case .clothing: return DesignSystem.Colors.categoryClothing
+        case .automotive: return DesignSystem.Colors.categoryAutomotive
+        case .garden: return DesignSystem.Colors.categoryGarden
+        case .other: return DesignSystem.Colors.categoryOther
         }
     }
 }
