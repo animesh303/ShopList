@@ -419,12 +419,7 @@ struct AddItemView: View {
                         .foregroundColor(.primary)
                     Picker("Category", selection: $category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
-                            HStack {
-                                Image(systemName: category.icon)
-                                    .foregroundColor(category.color)
-                                Text(category.rawValue)
-                            }
-                            .tag(category)
+                            Text(category.rawValue).tag(category)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
