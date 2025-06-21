@@ -186,17 +186,22 @@ struct ItemRow: View {
                 
                 // Category and priority badges in a single row
                 HStack(spacing: 6) {
-                    // Category badge
-                    Text(item.category.rawValue)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(item.category.color.opacity(0.15))
-                        .foregroundColor(item.category.color)
-                        .cornerRadius(4)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
+                    // Category badge with icon
+                    HStack(spacing: 3) {
+                        Image(systemName: item.category.icon)
+                            .font(.caption2)
+                            .foregroundColor(item.category.color)
+                        Text(item.category.rawValue)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(item.category.color)
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(item.category.color.opacity(0.15))
+                    .cornerRadius(4)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     
                     // Priority badge
                     if item.priority != .normal {

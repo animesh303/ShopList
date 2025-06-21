@@ -68,7 +68,7 @@ enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable, Identifia
         switch self {
         // Food & Beverages
         case .groceries: return "cart.fill"
-        case .dairy: return "milkbottle.fill"
+        case .dairy: return "drop.fill"
         case .bakery: return "birthday.cake.fill"
         case .produce: return "leaf.fill"
         case .meat: return "fish.fill"
@@ -89,7 +89,7 @@ enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable, Identifia
         case .personalCare: return "hand.raised.fill"
         case .beauty: return "comb.fill"
         case .health: return "cross.case.fill"
-        case .babyCare: return "figure.and.baby"
+        case .babyCare: return "heart.fill"
         case .petCare: return "pawprint.fill"
             
         // Other
