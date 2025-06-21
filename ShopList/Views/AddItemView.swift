@@ -52,58 +52,83 @@ private struct SuggestionsListView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if suggestions.isEmpty {
-                Text("No suggestions found")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                    Text("No suggestions found")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             } else {
-                Text("SUGGESTIONS")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 4)
-                
-                ForEach(suggestions, id: \.name) { suggestion in
-                    Button(action: { onSelect(suggestion) }) {
-                        HStack {
-                            Image(systemName: "arrow.up.left.circle.fill")
-                                .foregroundColor(.accentColor)
-                                .font(.caption)
-                            
-                            Text(suggestion.name.capitalized)
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                            
-                            Text(suggestion.category.rawValue)
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(suggestion.category.color)
-                                .cornerRadius(8)
-                        }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal)
-                        .contentShape(Rectangle())
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack {
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundColor(.yellow)
+                            .font(.caption)
+                        Text("SUGGESTIONS")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.secondary)
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
                     
-                    if suggestion.name != suggestions.last?.name {
-                        Divider()
-                            .padding(.leading)
+                    ForEach(suggestions, id: \.name) { suggestion in
+                        Button(action: { onSelect(suggestion) }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "arrow.up.left.circle.fill")
+                                    .foregroundColor(.accentColor)
+                                    .font(.caption)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(suggestion.name.capitalized)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                        .lineLimit(1)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(suggestion.category.rawValue)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [suggestion.category.color, suggestion.category.color.opacity(0.8)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .cornerRadius(8)
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        if suggestion.name != suggestions.last?.name {
+                            Divider()
+                                .padding(.leading, 40)
+                        }
                     }
                 }
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 12)
                 .fill(Color(.secondarySystemBackground))
-                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
         )
-        .padding(.horizontal)
+        .padding(.horizontal, 4)
         .padding(.top, 8)
     }
 }
@@ -190,136 +215,10 @@ struct AddItemView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    // Image Picker Button
-                    Button(action: { showingImageOptions = true }) {
-                        if let itemImage = itemImage {
-                            itemImage
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 100)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } else {
-                            HStack {
-                                Image(systemName: "photo")
-                                Text("Add Photo")
-                            }
-                            .frame(width: 100, height: 100)
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                    }
-                    .confirmationDialog("Choose Image Source", isPresented: $showingImageOptions) {
-                        Button("Camera") {
-                            showingCamera = true
-                        }
-                        Button("Photo Library") {
-                            showingImagePicker = true
-                        }
-                        Button("Cancel", role: .cancel) { }
-                    }
-                    .photosPicker(isPresented: $showingImagePicker, selection: $selectedImage, matching: .images)
-                    .sheet(isPresented: $showingCamera) {
-                        CameraView(image: $itemImage, imageData: $imageData)
-                    }
-                    .onChange(of: selectedImage) { _, newValue in
-                        Task {
-                            if let data = try? await newValue?.loadTransferable(type: Data.self) {
-                                imageData = data
-                                if let uiImage = UIImage(data: data) {
-                                    itemImage = Image(uiImage: uiImage)
-                                }
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Item Photo")
-                } footer: {
-                    Text("Add a photo to help identify the item")
-                }
-
-                Section {
-                    VStack(spacing: 16) {
-                        TextField("Item Name", text: $name)
-                            .textContentType(.name)
-                            .onChange(of: name) { _, newValue in
-                                if !newValue.isEmpty {
-                                    showingSuggestions = true
-                                } else {
-                                    showingSuggestions = false
-                                }
-                            }
-                        
-                        if showingSuggestions {
-                            SuggestionsListView(
-                                suggestions: getSuggestions(for: name),
-                                onSelect: { suggestion in
-                                    onSuggestionSelected(suggestion)
-                                }
-                            )
-                        }
-                        
-                        TextField("Brand", text: $brand)
-                            .textContentType(.organizationName)
-                        
-                        HStack {
-                            Text("Quantity")
-                            Spacer()
-                            TextField("Quantity", value: $quantity, format: .number)
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                                .frame(width: 100)
-                        }
-                        
-                        Picker("Unit", selection: $unit) {
-                            ForEach(Unit.allUnits, id: \.self) { unit in
-                                Text(unit.displayName).tag(unit.rawValue)
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Item Details")
-                } footer: {
-                    Text("Enter the basic information about your item")
-                }
-                
-                Section {
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Estimated Price")
-                            Spacer()
-                            TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                                .frame(width: 100)
-                        }
-                        
-                        Picker("Category", selection: $category) {
-                            ForEach(ItemCategory.allCases, id: \.self) { category in
-                                Text(category.rawValue).tag(category)
-                            }
-                        }
-                        
-                        Picker("Priority", selection: $priority) {
-                            ForEach(ItemPriority.allCases, id: \.self) { priority in
-                                Text(priority.displayName).tag(priority)
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Additional Information")
-                } footer: {
-                    Text("Add more details to help organize your items")
-                }
-                
-                Section {
-                    TextEditor(text: $notes)
-                        .frame(minHeight: 100)
-                } header: {
-                    Text("Notes")
-                } footer: {
-                    Text("Add any additional notes or reminders about this item")
-                }
+                imageSection
+                itemDetailsSection
+                additionalInfoSection
+                notesSection
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
@@ -328,12 +227,14 @@ struct AddItemView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.red)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
                         addItem()
                     }
                     .disabled(name.isEmpty)
+                    .fontWeight(.semibold)
                 }
             }
             .alert("Error", isPresented: $showingError) {
@@ -341,6 +242,274 @@ struct AddItemView: View {
             } message: {
                 Text(errorMessage)
             }
+        }
+    }
+    
+    // MARK: - Section Views
+    
+    private var imageSection: some View {
+        Section {
+            // Enhanced Image Picker Button
+            Button(action: { showingImageOptions = true }) {
+                if let itemImage = itemImage {
+                    itemImage
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "photo.badge.plus")
+                            .font(.title)
+                            .foregroundColor(.accentColor)
+                        Text("Add Photo")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.accentColor)
+                    }
+                    .frame(width: 120, height: 120)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color(.systemGray6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.accentColor.opacity(0.3), lineWidth: 2)
+                            )
+                    )
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .confirmationDialog("Choose Image Source", isPresented: $showingImageOptions) {
+                Button("Camera") {
+                    showingCamera = true
+                }
+                Button("Photo Library") {
+                    showingImagePicker = true
+                }
+                Button("Cancel", role: .cancel) { }
+            }
+            .photosPicker(isPresented: $showingImagePicker, selection: $selectedImage, matching: .images)
+            .sheet(isPresented: $showingCamera) {
+                CameraView(image: $itemImage, imageData: $imageData)
+            }
+            .onChange(of: selectedImage) { _, newValue in
+                Task {
+                    if let data = try? await newValue?.loadTransferable(type: Data.self) {
+                        imageData = data
+                        if let uiImage = UIImage(data: data) {
+                            itemImage = Image(uiImage: uiImage)
+                        }
+                    }
+                }
+            }
+        } header: {
+            Text("Item Photo")
+                .font(.headline)
+                .foregroundColor(.primary)
+        } footer: {
+            Text("Add a photo to help identify the item")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private var itemDetailsSection: some View {
+        Section {
+            VStack(spacing: 20) {
+                // Enhanced Item Name field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Item Name")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    TextField("Enter item name", text: $name)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .textContentType(.name)
+                        .onChange(of: name) { _, newValue in
+                            if !newValue.isEmpty {
+                                showingSuggestions = true
+                            } else {
+                                showingSuggestions = false
+                            }
+                        }
+                }
+                
+                if showingSuggestions {
+                    SuggestionsListView(
+                        suggestions: getSuggestions(for: name),
+                        onSelect: { suggestion in
+                            onSuggestionSelected(suggestion)
+                        }
+                    )
+                }
+                
+                // Enhanced Brand field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Brand")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    TextField("Enter brand name", text: $brand)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .textContentType(.organizationName)
+                }
+                
+                // Enhanced Quantity and Unit
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Quantity")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                        TextField("0", value: $quantity, format: .number)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.decimalPad)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Unit")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                        Picker("Unit", selection: $unit) {
+                            ForEach(Unit.allUnits, id: \.self) { unit in
+                                Text(unit.displayName).tag(unit.rawValue)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                    }
+                }
+            }
+        } header: {
+            Text("Item Details")
+                .font(.headline)
+                .foregroundColor(.primary)
+        } footer: {
+            Text("Enter the basic information about your item")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private var additionalInfoSection: some View {
+        Section {
+            VStack(spacing: 20) {
+                // Enhanced Price field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Estimated Price")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    TextField("0.00", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .keyboardType(.decimalPad)
+                }
+                
+                // Enhanced Category picker
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Category")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    Picker("Category", selection: $category) {
+                        ForEach(ItemCategory.allCases, id: \.self) { category in
+                            HStack {
+                                Image(systemName: category.icon)
+                                    .foregroundColor(category.color)
+                                Text(category.rawValue)
+                            }
+                            .tag(category)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                }
+                
+                // Enhanced Priority picker
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Priority")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    Picker("Priority", selection: $priority) {
+                        ForEach(ItemPriority.allCases, id: \.self) { priority in
+                            priorityRow(for: priority)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                }
+            }
+        } header: {
+            Text("Additional Information")
+                .font(.headline)
+                .foregroundColor(.primary)
+        } footer: {
+            Text("Add more details to help organize your items")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private var notesSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Notes")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+                TextEditor(text: $notes)
+                    .frame(minHeight: 100)
+                    .padding(8)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+            }
+        } header: {
+            Text("Notes")
+                .font(.headline)
+                .foregroundColor(.primary)
+        } footer: {
+            Text("Add any additional notes or reminders about this item")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    // MARK: - Helper Views
+    
+    private func priorityRow(for priority: ItemPriority) -> some View {
+        HStack {
+            let (iconName, iconColor) = getPriorityIconAndColor(for: priority)
+            
+            Image(systemName: iconName)
+                .foregroundColor(iconColor)
+            Text(priority.displayName)
+        }
+        .tag(priority)
+    }
+    
+    private func getPriorityIconAndColor(for priority: ItemPriority) -> (iconName: String, color: Color) {
+        switch priority {
+        case .high:
+            return ("exclamationmark.circle.fill", .red)
+        case .normal:
+            return ("circle.fill", .blue)
+        case .low:
+            return ("circle", .gray)
         }
     }
     

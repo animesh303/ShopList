@@ -43,6 +43,17 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ZStack {
+                // Subtle background gradient
+                LinearGradient(
+                    colors: [
+                        Color(.systemBackground),
+                        Color(.systemBackground).opacity(0.95)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
                 if settingsManager.defaultListViewStyle == .grid {
                     ScrollView {
                         LazyVGrid(columns: [
@@ -65,22 +76,22 @@ struct ContentView: View {
                         }
                         .onDelete(perform: deleteLists)
                     }
+                    .listStyle(PlainListStyle())
                 }
                 
-                // Floating Action Buttons for adding new lists and opening settings
+                // Enhanced Floating Action Buttons
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        // Collapsible FAB for add and settings
-                        VStack {
+                        VStack(spacing: 12) {
                             if isExpanded {
-                                // Settings button
+                                // Settings button with enhanced design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     showingSettings = true
-                                    withAnimation {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                         isExpanded = false
                                     }
                                     stopFabTimer()
@@ -89,18 +100,25 @@ struct ContentView: View {
                                         .font(.title2)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
-                                        .frame(width: 60, height: 60)
-                                        .background(Color.secondary)
+                                        .frame(width: 56, height: 56)
+                                        .background(
+                                            LinearGradient(
+                                                colors: [Color(.systemGray4), Color(.systemGray3)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
                                         .clipShape(Circle())
-                                        .shadow(radius: 4)
+                                        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                                 }
-                                .padding(.bottom, 10)
-                                // Add button
+                                .transition(.scale.combined(with: .opacity))
+                                
+                                // Add button with enhanced design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     showingAddList = true
-                                    withAnimation {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                         isExpanded = false
                                     }
                                     stopFabTimer()
@@ -109,16 +127,23 @@ struct ContentView: View {
                                         .font(.title2)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
-                                        .frame(width: 60, height: 60)
-                                        .background(Color.accentColor)
+                                        .frame(width: 56, height: 56)
+                                        .background(
+                                            LinearGradient(
+                                                colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
                                         .clipShape(Circle())
-                                        .shadow(radius: 4)
+                                        .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                                 }
-                                .padding(.bottom, 10)
+                                .transition(.scale.combined(with: .opacity))
                             }
-                            // Toggle button
+                            
+                            // Enhanced toggle button
                             Button {
-                                withAnimation {
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                     isExpanded.toggle()
                                 }
                                 if isExpanded {
@@ -131,10 +156,16 @@ struct ContentView: View {
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
-                                    .frame(width: 60, height: 60)
-                                    .background(Color.accentColor)
+                                    .frame(width: 56, height: 56)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
                                     .clipShape(Circle())
-                                    .shadow(radius: 4)
+                                    .shadow(color: Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                             }
                         }
                         .padding(.trailing, 20)
@@ -143,6 +174,7 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Shopping Lists")
+            .navigationBarTitleDisplayMode(.large)
             .searchable(text: $searchText, prompt: "Search lists")
             .overlay(
                 Group {
@@ -173,6 +205,7 @@ struct ContentView: View {
                         }
                     } label: {
                         Label("Sort", systemImage: "arrow.up.arrow.down")
+                            .foregroundColor(.accentColor)
                     }
                 }
             }
@@ -234,53 +267,122 @@ struct GridListCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             // Header with name and category
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(list.name)
                     .font(.headline)
+                    .fontWeight(.semibold)
                     .lineLimit(2)
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
                     .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
                 
                 Text(list.category.rawValue)
                     .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(list.category.color.opacity(0.2))
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        LinearGradient(
+                            colors: [list.category.color.opacity(0.2), list.category.color.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .foregroundColor(list.category.color)
-                    .cornerRadius(8)
+                    .cornerRadius(12)
             }
             
             Spacer()
             
-            // Progress bar
-            ProgressView(value: completionPercentage)
-                .tint(list.category.color)
+            // Enhanced progress bar
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("\(Int(completionPercentage * 100))%")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("\(list.completedItems.count)/\(list.items.count)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        // Background track
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color(.systemGray5))
+                            .frame(height: 8)
+                        
+                        // Progress fill with gradient
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        list.category.color,
+                                        list.category.color.opacity(0.8)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(width: geometry.size.width * completionPercentage, height: 8)
+                            .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                    }
+                }
+                .frame(height: 8)
+            }
             
             // Footer with item count and budget
             HStack {
-                Text("\(list.pendingItems.count) items")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 4) {
+                    Image(systemName: "cart.fill")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    Text("\(list.pendingItems.count) items")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                }
                 
                 Spacer()
                 
                 if list.budget != nil {
                     HStack(spacing: 4) {
-                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle")
+                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
+                            .foregroundColor(isOverBudget ? .red : .green)
                         Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
                             .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(isOverBudget ? .red : .secondary)
                     }
-                    .foregroundColor(isOverBudget ? .red : .secondary)
                 }
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(radius: 2)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(
+                    color: Color.black.opacity(0.08),
+                    radius: 12,
+                    x: 0,
+                    y: 4
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.clear, Color(.systemGray6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.5
+                )
+        )
     }
 }
 

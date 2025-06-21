@@ -30,21 +30,34 @@ struct ShopListApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .modifier(iOSVersionCheck())
-                .environmentObject(viewModel)
-                .preferredColorScheme(settingsManager.appearance.colorScheme)
-                .onAppear {
-                    // Set up notification categories
-                    notificationManager.setupNotificationCategories()
-                    // Set up model context for notification handling
-                    notificationManager.setModelContext(container.mainContext)
-                }
-                .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
-                    if hasChanges {
-                        updateWidgetData()
+            ZStack {
+                // Subtle background gradient for the entire app
+                LinearGradient(
+                    colors: [
+                        Color(.systemBackground),
+                        Color(.systemBackground).opacity(0.98)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ContentView()
+                    .modifier(iOSVersionCheck())
+                    .environmentObject(viewModel)
+                    .preferredColorScheme(settingsManager.appearance.colorScheme)
+                    .onAppear {
+                        // Set up notification categories
+                        notificationManager.setupNotificationCategories()
+                        // Set up model context for notification handling
+                        notificationManager.setModelContext(container.mainContext)
                     }
-                }
+                    .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
+                        if hasChanges {
+                            updateWidgetData()
+                        }
+                    }
+            }
         }
         .modelContainer(container)
     }

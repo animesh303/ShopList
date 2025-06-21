@@ -152,11 +152,12 @@ struct ListRow: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             // Header with name and category
             HStack(alignment: .center) {
                 Text(list.name)
                     .font(.headline)
+                    .fontWeight(.semibold)
                     .lineLimit(1)
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
                     .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
@@ -165,73 +166,118 @@ struct ListRow: View {
                 
                 Text(list.category.rawValue)
                     .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(list.category.color.opacity(0.2))
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(
+                        LinearGradient(
+                            colors: [list.category.color.opacity(0.2), list.category.color.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .foregroundColor(list.category.color)
-                    .cornerRadius(8)
+                    .cornerRadius(10)
             }
             
-            // Progress bar for completion
+            // Enhanced progress bar for completion
             if !list.items.isEmpty {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        // Background
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(.systemGray5))
-                            .frame(height: 6)
-                        
-                        // Progress
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(completionPercentage == 1.0 ? Color.green : Color.blue)
-                            .frame(width: geometry.size.width * completionPercentage, height: 6)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text("\(Int(completionPercentage * 100))%")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(list.completedItems.count)/\(list.items.count)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
+                    
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            // Background track
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color(.systemGray5))
+                                .frame(height: 8)
+                            
+                            // Progress fill with gradient
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            completionPercentage == 1.0 ? Color.green : list.category.color,
+                                            completionPercentage == 1.0 ? Color.green.opacity(0.8) : list.category.color.opacity(0.8)
+                                        ],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: geometry.size.width * completionPercentage, height: 8)
+                                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                        }
+                    }
+                    .frame(height: 8)
                 }
-                .frame(height: 6)
             }
             
-            // Details row
-            HStack(spacing: 12) {
-                // Items count
-                HStack(spacing: 4) {
-                    Image(systemName: "cart")
+            // Enhanced details row
+            HStack(spacing: 16) {
+                // Items count with enhanced styling
+                HStack(spacing: 6) {
+                    Image(systemName: "cart.fill")
                         .font(.caption)
+                        .foregroundColor(.blue)
                     Text("\(list.items.count)")
                         .font(.caption)
+                        .fontWeight(.medium)
                 }
                 .foregroundColor(.secondary)
                 
-                // Completion status
+                // Completion status with enhanced styling
                 if !list.items.isEmpty {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle")
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
                             .font(.caption)
+                            .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
                         Text("\(Int(completionPercentage * 100))%")
                             .font(.caption)
+                            .fontWeight(.medium)
                     }
                     .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
                 }
                 
-                // Budget status
+                // Budget status with enhanced styling
                 if list.budget != nil {
-                    HStack(spacing: 4) {
-                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle")
+                    HStack(spacing: 6) {
+                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
+                            .foregroundColor(isOverBudget ? .red : .green)
                         Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
                             .font(.caption)
+                            .fontWeight(.medium)
                     }
                     .foregroundColor(isOverBudget ? .red : .secondary)
                 }
                 
                 Spacer()
                 
-                // Last modified date
+                // Last modified date with enhanced styling
                 Text(list.lastModified, style: .relative)
                     .font(.caption2)
+                    .fontWeight(.medium)
                     .foregroundColor(.secondary)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground))
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+        )
+        .padding(.horizontal, 8)
+        .padding(.vertical, 2)
     }
 }
 
