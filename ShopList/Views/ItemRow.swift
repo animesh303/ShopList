@@ -22,6 +22,7 @@ struct ItemRow: View {
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
+        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
     }
     
     // MARK: - Compact View
@@ -128,147 +129,136 @@ struct ItemRow: View {
     
     // MARK: - Detailed View
     private var detailedView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Main row with completion, image, and name
-            HStack(spacing: 16) {
-                Button(action: toggleCompletion) {
-                    Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundColor(item.isCompleted ? .green : .gray)
-                        .scaleEffect(item.isCompleted ? 1.1 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: item.isCompleted)
-                }
-                .buttonStyle(.plain)
-                
-                // Enhanced Item Image
-                if settingsManager.showItemImagesByDefault {
-                    if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 64, height: 64)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-                    } else {
-                        Image(systemName: item.category.icon)
-                            .font(.title)
-                            .foregroundColor(item.category.color)
-                            .frame(width: 64, height: 64)
-                            .background(
-                                LinearGradient(
-                                    colors: [item.category.color.opacity(0.2), item.category.color.opacity(0.1)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
+        HStack(alignment: .top, spacing: 12) {
+            // Completion button
+            Button(action: toggleCompletion) {
+                Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(item.isCompleted ? .green : .gray)
+                    .scaleEffect(item.isCompleted ? 1.1 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: item.isCompleted)
+            }
+            .buttonStyle(.plain)
+            
+            // Item image/icon
+            if settingsManager.showItemImagesByDefault {
+                if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
                     Image(systemName: item.category.icon)
-                        .font(.title)
+                        .font(.title3)
                         .foregroundColor(item.category.color)
-                        .frame(width: 64, height: 64)
-                        .background(
-                            LinearGradient(
-                                colors: [item.category.color.opacity(0.2), item.category.color.opacity(0.1)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .frame(width: 50, height: 50)
+                        .background(item.category.color.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            } else {
+                Image(systemName: item.category.icon)
+                    .font(.title3)
+                    .foregroundColor(item.category.color)
+                    .frame(width: 50, height: 50)
+                    .background(item.category.color.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            
+            // Content area
+            VStack(alignment: .leading, spacing: 6) {
+                // Item name and brand
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.name)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .strikethrough(item.isCompleted)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                    
+                    if let brand = item.brand, !brand.isEmpty {
+                        Text(brand)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text(item.name)
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .strikethrough(item.isCompleted)
-                        
-                        if let brand = item.brand, !brand.isEmpty {
-                            Text("•")
-                                .foregroundColor(.gray)
-                            Text(brand)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                // Category and priority badges in a single row
+                HStack(spacing: 6) {
+                    // Category badge
+                    Text(item.category.rawValue)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(item.category.color.opacity(0.15))
+                        .foregroundColor(item.category.color)
+                        .cornerRadius(4)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                    
+                    // Priority badge
+                    if item.priority != .normal {
+                        HStack(spacing: 2) {
+                            Image(systemName: priorityIcon)
+                                .font(.caption2)
+                                .foregroundColor(priorityColor)
+                            Text(item.priority.displayName)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(priorityColor)
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(priorityColor.opacity(0.15))
+                        .cornerRadius(4)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                    }
+                    
+                    Spacer()
+                }
+                
+                // Quantity and price info
+                HStack(spacing: 12) {
+                    if item.quantity > 0 {
+                        HStack(spacing: 3) {
+                            Image(systemName: "number.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                            Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                     }
                     
-                    // Enhanced Category and Priority
-                    HStack(spacing: 10) {
-                        Text(item.category.rawValue)
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(
-                                LinearGradient(
-                                    colors: [item.category.color.opacity(0.2), item.category.color.opacity(0.1)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .foregroundColor(item.category.color)
-                            .cornerRadius(10)
-                        
-                        if item.priority != .normal {
-                            HStack(spacing: 4) {
-                                Image(systemName: priorityIcon)
-                                    .foregroundColor(priorityColor)
-                                    .font(.caption)
-                                Text(item.priority.displayName)
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(priorityColor)
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(priorityColor.opacity(0.1))
-                            .cornerRadius(8)
+                    if let price = item.estimatedPrice, price > 0 {
+                        HStack(spacing: 3) {
+                            Image(systemName: "dollarsign.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                            Text(price, format: .currency(code: settingsManager.currency.rawValue))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                     }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
             }
             
-            // Enhanced Details row
-            HStack(spacing: 20) {
-                if item.quantity > 0 {
-                    HStack(spacing: 6) {
-                        Image(systemName: "number.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                        Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                if let price = item.estimatedPrice, price > 0 {
-                    HStack(spacing: 6) {
-                        Image(systemName: "dollarsign.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                        Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                Spacer()
-            }
+            Spacer(minLength: 0)
         }
-        .padding(16)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 4)
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.05), radius: 6, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
         )
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
     
     private var priorityIcon: String {
