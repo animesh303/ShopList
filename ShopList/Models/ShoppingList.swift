@@ -157,47 +157,94 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
     var color: Color {
         switch self {
         case .groceries:
-            return .green
+            return DesignSystem.Colors.categoryGroceries
         case .household:
-            return .blue
+            return DesignSystem.Colors.categoryHousehold
         case .personalCare:
-            return .pink
+            return DesignSystem.Colors.categoryPersonalCare
         case .health:
-            return .red
+            return DesignSystem.Colors.categoryHealth
         case .electronics:
-            return .purple
+            return DesignSystem.Colors.categoryElectronics
         case .clothing:
-            return .orange
+            return DesignSystem.Colors.categoryClothing
         case .office:
-            return .gray
+            return DesignSystem.Colors.categoryOffice
         case .pet:
-            return .brown
+            return DesignSystem.Colors.categoryPet
         case .baby:
-            return .mint
+            return DesignSystem.Colors.categoryBaby
         case .automotive:
-            return .indigo
+            return DesignSystem.Colors.categoryAutomotive
         case .homeImprovement:
-            return .teal
+            return DesignSystem.Colors.categoryHomeImprovement
         case .garden:
-            return .green
+            return DesignSystem.Colors.categoryGarden
         case .gifts:
-            return .pink
+            return DesignSystem.Colors.categoryGifts
         case .party:
-            return .purple
+            return DesignSystem.Colors.categoryParty
         case .holiday:
-            return .red
+            return DesignSystem.Colors.categoryHoliday
         case .travel:
-            return .blue
+            return DesignSystem.Colors.categoryTravel
         case .vacation:
-            return .cyan
+            return DesignSystem.Colors.categoryVacation
         case .work:
-            return .gray
+            return DesignSystem.Colors.categoryWork
         case .business:
-            return .indigo
+            return DesignSystem.Colors.categoryBusiness
         case .personal:
-            return .mint
+            return DesignSystem.Colors.categoryPersonal
         case .other:
-            return .gray
+            return DesignSystem.Colors.categoryOther
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .groceries:
+            return "cart.fill"
+        case .household:
+            return "house.fill"
+        case .personalCare:
+            return "hand.raised.fill"
+        case .health:
+            return "cross.case.fill"
+        case .electronics:
+            return "desktopcomputer"
+        case .clothing:
+            return "tshirt.fill"
+        case .office:
+            return "doc.text.fill"
+        case .pet:
+            return "pawprint.fill"
+        case .baby:
+            return "heart.fill"
+        case .automotive:
+            return "car.fill"
+        case .homeImprovement:
+            return "hammer.fill"
+        case .garden:
+            return "leaf.fill"
+        case .gifts:
+            return "gift.fill"
+        case .party:
+            return "party.popper.fill"
+        case .holiday:
+            return "star.fill"
+        case .travel:
+            return "airplane"
+        case .vacation:
+            return "beach.umbrella.fill"
+        case .work:
+            return "briefcase.fill"
+        case .business:
+            return "building.2.fill"
+        case .personal:
+            return "person.fill"
+        case .other:
+            return "questionmark.circle.fill"
         }
     }
     

@@ -60,7 +60,12 @@ struct ItemDetailView: View {
                         
                         Picker("Category", selection: $category) {
                             ForEach(ItemCategory.allCases, id: \.self) { category in
-                                Text(category.rawValue).tag(category)
+                                HStack {
+                                    Image(systemName: category.icon)
+                                        .foregroundColor(category.color)
+                                    Text(category.rawValue)
+                                }
+                                .tag(category)
                             }
                         }
                         
