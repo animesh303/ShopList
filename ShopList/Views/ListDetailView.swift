@@ -60,6 +60,10 @@ struct ListDetailView: View {
     
     var body: some View {
         ZStack {
+            // Enhanced background with vibrant gradient
+            DesignSystem.Colors.backgroundGradient
+                .ignoresSafeArea()
+            
             List {
                 // Budget Section
                 if let budget = list.budget {
@@ -74,28 +78,32 @@ struct ListDetailView: View {
                         VStack(spacing: 12) {
                             HStack {
                                 Label("Budget", systemImage: "dollarsign.circle")
+                                    .foregroundColor(DesignSystem.Colors.primary)
                                 Spacer()
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                             
                             HStack {
                                 Label("Estimated Cost", systemImage: "cart")
+                                    .foregroundColor(DesignSystem.Colors.info)
                                 Spacer()
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                             
                             HStack {
                                 Label("Remaining", systemImage: "creditcard")
+                                    .foregroundColor(DesignSystem.Colors.success)
                                 Spacer()
                                 let remaining = budget - list.totalEstimatedCost
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
-                                    .foregroundColor(remaining >= 0 ? .green : .red)
+                                    .foregroundColor(remaining >= 0 ? DesignSystem.Colors.success : DesignSystem.Colors.error)
                             }
                         }
                     } header: {
                         Text("Budget Overview")
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                     }
                 }
                 
@@ -104,17 +112,20 @@ struct ListDetailView: View {
                     Section {
                         HStack {
                             Label("Location", systemImage: "location")
+                                .foregroundColor(DesignSystem.Colors.info)
                             Spacer()
                             Text(location.name)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
                         
                         Button("Update Location Reminder") {
                             showingLocationSetup = true
                         }
                         .buttonStyle(.bordered)
+                        .tint(DesignSystem.Colors.primary)
                     } header: {
                         Text("Store Information")
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                     }
                 } else {
                     Section {
@@ -122,10 +133,13 @@ struct ListDetailView: View {
                             showingLocationSetup = true
                         }
                         .buttonStyle(.bordered)
+                        .tint(DesignSystem.Colors.primary)
                     } header: {
                         Text("Location Reminder")
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                     } footer: {
                         Text("Get notified when you're near the store")
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                 }
                 
@@ -152,7 +166,7 @@ struct ListDetailView: View {
                                         Label(item.isCompleted ? "Uncheck" : "Check", 
                                               systemImage: item.isCompleted ? "xmark.circle" : "checkmark.circle")
                                     }
-                                    .tint(item.isCompleted ? .orange : .green)
+                                    .tint(item.isCompleted ? DesignSystem.Colors.warning : DesignSystem.Colors.success)
                                 }
                         }
                     }
@@ -160,23 +174,26 @@ struct ListDetailView: View {
                     if !filteredItems.isEmpty {
                         HStack {
                             Label("Total Items", systemImage: "list.bullet")
+                                .foregroundColor(DesignSystem.Colors.primary)
                             Spacer()
                             Text("\(filteredItems.count) items")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
                     }
                 } header: {
                     HStack {
                         Text("Items")
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                         Spacer()
                         if !filteredItems.isEmpty {
                             Text("\(filteredItems.count)")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                                 .font(.caption)
                         }
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
             .navigationTitle(list.name)
             .searchable(text: $searchText, prompt: "Search items")
             .overlay(
@@ -186,10 +203,10 @@ struct ListDetailView: View {
                             Spacer()
                             HStack {
                                 Image(systemName: "location.fill")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(DesignSystem.Colors.info)
                                 Text("Search restricted to local area")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                                 Spacer()
                             }
                             .padding(.horizontal)

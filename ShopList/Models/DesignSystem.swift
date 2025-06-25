@@ -6,21 +6,51 @@ struct DesignSystem {
     
     // MARK: - Colors
     struct Colors {
-        // Primary Colors
+        // Primary Colors - Enhanced with vibrant gradients
         static let primary = Color("AccentColor")
-        static let primaryLight = Color(red: 0.0, green: 0.576, blue: 0.941)
-        static let primaryDark = Color(red: 0.0, green: 0.678, blue: 1.0)
+        static let primaryLight = Color(red: 0.2, green: 0.8, blue: 1.0) // Bright cyan
+        static let primaryDark = Color(red: 0.0, green: 0.6, blue: 0.9) // Deep blue
         
-        // Semantic Colors
-        static let success = Color(red: 0.2, green: 0.8, blue: 0.4)
-        static let warning = Color(red: 1.0, green: 0.8, blue: 0.0)
-        static let error = Color(red: 1.0, green: 0.3, blue: 0.3)
-        static let info = Color(red: 0.0, green: 0.6, blue: 1.0)
+        // Secondary Colors - Vibrant palette
+        static let secondary = Color(red: 0.9, green: 0.3, blue: 0.7) // Bright magenta
+        static let secondaryLight = Color(red: 1.0, green: 0.4, blue: 0.8) // Light magenta
+        static let secondaryDark = Color(red: 0.7, green: 0.2, blue: 0.6) // Dark magenta
         
-        // Background Colors
+        // Accent Colors - Bright and cheerful
+        static let accent1 = Color(red: 1.0, green: 0.6, blue: 0.0) // Bright orange
+        static let accent2 = Color(red: 0.3, green: 0.9, blue: 0.5) // Bright green
+        static let accent3 = Color(red: 0.8, green: 0.2, blue: 0.9) // Bright purple
+        static let accent4 = Color(red: 0.0, green: 0.8, blue: 0.8) // Bright teal
+        
+        // Semantic Colors - Enhanced vibrancy
+        static let success = Color(red: 0.2, green: 0.9, blue: 0.4) // Bright green
+        static let warning = Color(red: 1.0, green: 0.8, blue: 0.0) // Bright yellow
+        static let error = Color(red: 1.0, green: 0.3, blue: 0.3) // Bright red
+        static let info = Color(red: 0.0, green: 0.7, blue: 1.0) // Bright blue
+        
+        // Background Colors - Enhanced with gradients
         static let background = Color(.systemBackground)
         static let secondaryBackground = Color(.secondarySystemBackground)
         static let tertiaryBackground = Color(.tertiarySystemBackground)
+        
+        // Enhanced Background Gradients
+        static let backgroundGradient = LinearGradient(
+            colors: [
+                Color(red: 0.95, green: 0.98, blue: 1.0), // Very light blue tint
+                Color(red: 1.0, green: 0.98, blue: 0.95)  // Very light orange tint
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let cardBackgroundGradient = LinearGradient(
+            colors: [
+                Color.white,
+                Color(red: 0.98, green: 0.99, blue: 1.0)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
         
         // Text Colors
         static let primaryText = Color(.label)
@@ -28,32 +58,94 @@ struct DesignSystem {
         static let tertiaryText = Color(.tertiaryLabel)
         static let quaternaryText = Color(.quaternaryLabel)
         
-        // Border Colors
+        // Border Colors - Enhanced
         static let border = Color(.separator)
         static let borderLight = Color(.separator).opacity(0.5)
+        static let borderColorful = Color(red: 0.9, green: 0.9, blue: 0.95)
         
-        // Category Colors (Enhanced)
-        static let categoryGroceries = Color(red: 0.2, green: 0.8, blue: 0.4)
-        static let categoryHousehold = Color(red: 0.0, green: 0.6, blue: 1.0)
-        static let categoryPersonalCare = Color(red: 0.9, green: 0.3, blue: 0.7)
-        static let categoryHealth = Color(red: 1.0, green: 0.3, blue: 0.3)
-        static let categoryElectronics = Color(red: 0.6, green: 0.3, blue: 0.9)
-        static let categoryClothing = Color(red: 1.0, green: 0.6, blue: 0.0)
-        static let categoryOffice = Color(red: 0.5, green: 0.5, blue: 0.5)
-        static let categoryPet = Color(red: 0.8, green: 0.5, blue: 0.2)
-        static let categoryBaby = Color(red: 0.3, green: 0.8, blue: 0.8)
-        static let categoryAutomotive = Color(red: 0.4, green: 0.3, blue: 0.8)
-        static let categoryHomeImprovement = Color(red: 0.0, green: 0.7, blue: 0.7)
-        static let categoryGarden = Color(red: 0.2, green: 0.7, blue: 0.3)
-        static let categoryGifts = Color(red: 0.9, green: 0.3, blue: 0.5)
-        static let categoryParty = Color(red: 0.7, green: 0.3, blue: 0.9)
-        static let categoryHoliday = Color(red: 1.0, green: 0.4, blue: 0.4)
-        static let categoryTravel = Color(red: 0.0, green: 0.5, blue: 0.8)
-        static let categoryVacation = Color(red: 0.0, green: 0.8, blue: 0.8)
-        static let categoryWork = Color(red: 0.6, green: 0.6, blue: 0.6)
-        static let categoryBusiness = Color(red: 0.4, green: 0.3, blue: 0.7)
-        static let categoryPersonal = Color(red: 0.3, green: 0.7, blue: 0.7)
-        static let categoryOther = Color(red: 0.5, green: 0.5, blue: 0.5)
+        // Category Colors - Completely enhanced with vibrant colors
+        static let categoryGroceries = Color(red: 0.2, green: 0.9, blue: 0.4) // Bright green
+        static let categoryHousehold = Color(red: 0.0, green: 0.7, blue: 1.0) // Bright blue
+        static let categoryPersonalCare = Color(red: 0.9, green: 0.3, blue: 0.7) // Bright magenta
+        static let categoryHealth = Color(red: 1.0, green: 0.3, blue: 0.3) // Bright red
+        static let categoryElectronics = Color(red: 0.6, green: 0.3, blue: 0.9) // Bright purple
+        static let categoryClothing = Color(red: 1.0, green: 0.6, blue: 0.0) // Bright orange
+        static let categoryOffice = Color(red: 0.5, green: 0.5, blue: 0.8) // Soft blue-gray
+        static let categoryPet = Color(red: 0.8, green: 0.5, blue: 0.2) // Warm brown
+        static let categoryBaby = Color(red: 0.3, green: 0.8, blue: 0.8) // Bright teal
+        static let categoryAutomotive = Color(red: 0.4, green: 0.3, blue: 0.8) // Deep purple
+        static let categoryHomeImprovement = Color(red: 0.0, green: 0.7, blue: 0.7) // Teal
+        static let categoryGarden = Color(red: 0.2, green: 0.7, blue: 0.3) // Forest green
+        static let categoryGifts = Color(red: 0.9, green: 0.3, blue: 0.5) // Pink
+        static let categoryParty = Color(red: 0.7, green: 0.3, blue: 0.9) // Purple
+        static let categoryHoliday = Color(red: 1.0, green: 0.4, blue: 0.4) // Coral
+        static let categoryTravel = Color(red: 0.0, green: 0.5, blue: 0.8) // Ocean blue
+        static let categoryVacation = Color(red: 0.0, green: 0.8, blue: 0.8) // Cyan
+        static let categoryWork = Color(red: 0.6, green: 0.6, blue: 0.6) // Gray
+        static let categoryBusiness = Color(red: 0.4, green: 0.3, blue: 0.7) // Indigo
+        static let categoryPersonal = Color(red: 0.3, green: 0.7, blue: 0.7) // Teal
+        static let categoryOther = Color(red: 0.5, green: 0.5, blue: 0.5) // Gray
+        
+        // Enhanced Category Gradients
+        static func categoryGradient(for category: ItemCategory) -> LinearGradient {
+            let baseColor = category.color
+            return LinearGradient(
+                colors: [
+                    baseColor,
+                    baseColor.opacity(0.8),
+                    baseColor.opacity(0.6)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        
+        // Button Gradients
+        static let primaryButtonGradient = LinearGradient(
+            colors: [
+                Color(red: 0.0, green: 0.7, blue: 0.9),
+                Color(red: 0.0, green: 0.5, blue: 0.8)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let secondaryButtonGradient = LinearGradient(
+            colors: [
+                Color(red: 0.9, green: 0.3, blue: 0.7),
+                Color(red: 0.7, green: 0.2, blue: 0.6)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        static let accentButtonGradient = LinearGradient(
+            colors: [
+                Color(red: 1.0, green: 0.6, blue: 0.0),
+                Color(red: 0.8, green: 0.4, blue: 0.0)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
+        // Card Gradients
+        static let cardGradient = LinearGradient(
+            colors: [
+                Color.white,
+                Color(red: 0.98, green: 0.99, blue: 1.0)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        
+        static let cardGradientColored = LinearGradient(
+            colors: [
+                Color(red: 0.98, green: 0.99, blue: 1.0),
+                Color(red: 0.95, green: 0.98, blue: 1.0)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
     
     // MARK: - Typography
@@ -107,12 +199,17 @@ struct DesignSystem {
         static let full: CGFloat = 999
     }
     
-    // MARK: - Shadows
+    // MARK: - Shadows - Enhanced with colorful shadows
     struct Shadows {
         static let small = Shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
         static let medium = Shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
         static let large = Shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
         static let extraLarge = Shadow(color: .black.opacity(0.25), radius: 16, x: 0, y: 8)
+        
+        // Colorful shadows for enhanced visual appeal
+        static let colorfulSmall = Shadow(color: Colors.primary.opacity(0.2), radius: 3, x: 0, y: 2)
+        static let colorfulMedium = Shadow(color: Colors.secondary.opacity(0.15), radius: 6, x: 0, y: 3)
+        static let colorfulLarge = Shadow(color: Colors.accent1.opacity(0.1), radius: 12, x: 0, y: 6)
     }
     
     // MARK: - Animations
@@ -155,6 +252,11 @@ extension Color {
     static let designWarning = DesignSystem.Colors.warning
     static let designError = DesignSystem.Colors.error
     static let designInfo = DesignSystem.Colors.info
+    static let designSecondary = DesignSystem.Colors.secondary
+    static let designAccent1 = DesignSystem.Colors.accent1
+    static let designAccent2 = DesignSystem.Colors.accent2
+    static let designAccent3 = DesignSystem.Colors.accent3
+    static let designAccent4 = DesignSystem.Colors.accent4
 }
 
 // MARK: - View Extensions
@@ -213,10 +315,10 @@ extension View {
         self.padding(DesignSystem.Layout.largePadding)
     }
     
-    // Card styling
+    // Enhanced Card styling with gradients
     func cardStyle() -> some View {
         self
-            .background(DesignSystem.Colors.background)
+            .background(DesignSystem.Colors.cardGradient)
             .cornerRadius(DesignSystem.Layout.cardCornerRadius)
             .shadow(
                 color: DesignSystem.Shadows.medium.color,
@@ -226,24 +328,70 @@ extension View {
             )
     }
     
-    // Button styling
+    // Enhanced Card styling with colorful shadows
+    func colorfulCardStyle() -> some View {
+        self
+            .background(DesignSystem.Colors.cardGradientColored)
+            .cornerRadius(DesignSystem.Layout.cardCornerRadius)
+            .shadow(
+                color: DesignSystem.Shadows.colorfulMedium.color,
+                radius: DesignSystem.Shadows.colorfulMedium.radius,
+                x: DesignSystem.Shadows.colorfulMedium.x,
+                y: DesignSystem.Shadows.colorfulMedium.y
+            )
+    }
+    
+    // Enhanced Button styling with gradients
     func primaryButtonStyle() -> some View {
         self
             .font(DesignSystem.Typography.bodyBold)
             .foregroundColor(.white)
             .padding(.horizontal, DesignSystem.Spacing.lg)
             .padding(.vertical, DesignSystem.Spacing.md)
-            .background(DesignSystem.Colors.primary)
+            .background(DesignSystem.Colors.primaryButtonGradient)
             .cornerRadius(DesignSystem.CornerRadius.md)
+            .shadow(
+                color: DesignSystem.Colors.primary.opacity(0.3),
+                radius: 4,
+                x: 0,
+                y: 2
+            )
     }
     
     func secondaryButtonStyle() -> some View {
         self
             .font(DesignSystem.Typography.bodyBold)
-            .foregroundColor(DesignSystem.Colors.primary)
+            .foregroundColor(.white)
             .padding(.horizontal, DesignSystem.Spacing.lg)
             .padding(.vertical, DesignSystem.Spacing.md)
-            .background(DesignSystem.Colors.primary.opacity(0.1))
+            .background(DesignSystem.Colors.secondaryButtonGradient)
             .cornerRadius(DesignSystem.CornerRadius.md)
+            .shadow(
+                color: DesignSystem.Colors.secondary.opacity(0.3),
+                radius: 4,
+                x: 0,
+                y: 2
+            )
+    }
+    
+    func accentButtonStyle() -> some View {
+        self
+            .font(DesignSystem.Typography.bodyBold)
+            .foregroundColor(.white)
+            .padding(.horizontal, DesignSystem.Spacing.lg)
+            .padding(.vertical, DesignSystem.Spacing.md)
+            .background(DesignSystem.Colors.accentButtonGradient)
+            .cornerRadius(DesignSystem.CornerRadius.md)
+            .shadow(
+                color: DesignSystem.Colors.accent1.opacity(0.3),
+                radius: 4,
+                x: 0,
+                y: 2
+            )
+    }
+    
+    // Background gradient modifier
+    func colorfulBackground() -> some View {
+        self.background(DesignSystem.Colors.backgroundGradient)
     }
 } 

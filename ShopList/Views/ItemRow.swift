@@ -50,19 +50,21 @@ struct ItemRow: View {
             }
             .buttonStyle(.plain)
             
-            // Enhanced Category Icon
+            // Enhanced Category Icon with vibrant gradient
             Image(systemName: item.category.icon)
                 .font(.title3)
-                .foregroundColor(item.category.color)
+                .foregroundColor(.white)
                 .frame(width: 32, height: 32)
                 .background(
-                    LinearGradient(
-                        colors: [item.category.color.opacity(0.2), item.category.color.opacity(0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    DesignSystem.Colors.categoryGradient(for: item.category)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
+                .shadow(
+                    color: item.category.color.opacity(0.3),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                )
             
             // Item Name and Brand with enhanced typography
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -119,26 +121,41 @@ struct ItemRow: View {
             
             Spacer()
             
-            // Enhanced Priority indicator
+            // Enhanced Priority indicator with vibrant colors
             if item.priority != .normal {
                 Image(systemName: priorityIcon)
-                    .foregroundColor(priorityColor)
+                    .foregroundColor(.white)
                     .font(.caption)
                     .padding(DesignSystem.Spacing.xs)
-                    .background(priorityColor.opacity(0.1))
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                priorityColor,
+                                priorityColor.opacity(0.8)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .clipShape(Circle())
+                    .shadow(
+                        color: priorityColor.opacity(0.3),
+                        radius: 3,
+                        x: 0,
+                        y: 1
+                    )
             }
         }
         .padding(.vertical, DesignSystem.Spacing.sm)
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                .fill(DesignSystem.Colors.background)
+                .fill(DesignSystem.Colors.cardGradient)
                 .shadow(
-                    color: DesignSystem.Shadows.small.color,
-                    radius: DesignSystem.Shadows.small.radius,
-                    x: DesignSystem.Shadows.small.x,
-                    y: DesignSystem.Shadows.small.y
+                    color: DesignSystem.Shadows.colorfulSmall.color,
+                    radius: DesignSystem.Shadows.colorfulSmall.radius,
+                    x: DesignSystem.Shadows.colorfulSmall.x,
+                    y: DesignSystem.Shadows.colorfulSmall.y
                 )
         )
         .padding(.horizontal, DesignSystem.Spacing.sm)

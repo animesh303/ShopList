@@ -27,6 +27,35 @@ struct BudgetProgressView: View {
         }
     }
     
+    private var progressGradient: LinearGradient {
+        switch progress {
+        case 0..<0.5:
+            return LinearGradient(
+                colors: [DesignSystem.Colors.success, DesignSystem.Colors.accent2],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case 0.5..<0.8:
+            return LinearGradient(
+                colors: [DesignSystem.Colors.warning, DesignSystem.Colors.accent1],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case 0.8..<1.0:
+            return LinearGradient(
+                colors: [DesignSystem.Colors.error, DesignSystem.Colors.accent3],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        default:
+            return LinearGradient(
+                colors: [DesignSystem.Colors.error, DesignSystem.Colors.accent3],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+    }
+    
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.sm) {
             HStack {
@@ -43,17 +72,23 @@ struct BudgetProgressView: View {
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .fill(DesignSystem.Colors.tertiaryBackground)
-                        .frame(height: 8)
-                        .cornerRadius(DesignSystem.CornerRadius.xs)
+                        .frame(height: 12)
+                        .cornerRadius(DesignSystem.CornerRadius.sm)
                     
                     Rectangle()
-                        .fill(progressColor)
-                        .frame(width: geometry.size.width * progress, height: 8)
-                        .cornerRadius(DesignSystem.CornerRadius.xs)
+                        .fill(progressGradient)
+                        .frame(width: geometry.size.width * progress, height: 12)
+                        .cornerRadius(DesignSystem.CornerRadius.sm)
                         .animation(DesignSystem.Animations.standard, value: progress)
+                        .shadow(
+                            color: progressColor.opacity(0.3),
+                            radius: 2,
+                            x: 0,
+                            y: 1
+                        )
                 }
             }
-            .frame(height: 8)
+            .frame(height: 12)
             
             HStack {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -78,13 +113,13 @@ struct BudgetProgressView: View {
             }
         }
         .padding(DesignSystem.Spacing.lg)
-        .background(DesignSystem.Colors.background)
+        .background(DesignSystem.Colors.cardGradient)
         .cornerRadius(DesignSystem.CornerRadius.md)
         .shadow(
-            color: DesignSystem.Shadows.small.color,
-            radius: DesignSystem.Shadows.small.radius,
-            x: DesignSystem.Shadows.small.x,
-            y: DesignSystem.Shadows.small.y
+            color: DesignSystem.Shadows.colorfulMedium.color,
+            radius: DesignSystem.Shadows.colorfulMedium.radius,
+            x: DesignSystem.Shadows.colorfulMedium.x,
+            y: DesignSystem.Shadows.colorfulMedium.y
         )
     }
 } 

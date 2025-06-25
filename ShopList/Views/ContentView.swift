@@ -43,16 +43,9 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ZStack {
-                // Enhanced background with subtle gradient
-                LinearGradient(
-                    colors: [
-                        DesignSystem.Colors.background,
-                        DesignSystem.Colors.secondaryBackground.opacity(0.3)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                // Enhanced background with vibrant gradient
+                DesignSystem.Colors.backgroundGradient
+                    .ignoresSafeArea()
                 
                 if settingsManager.defaultListViewStyle == .grid {
                     ScrollView {
@@ -77,16 +70,17 @@ struct ContentView: View {
                         .onDelete(perform: deleteLists)
                     }
                     .listStyle(PlainListStyle())
+                    .scrollContentBackground(.hidden)
                 }
                 
-                // Enhanced Floating Action Buttons with improved design
+                // Enhanced Floating Action Buttons with vibrant design
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
                         VStack(spacing: DesignSystem.Spacing.md) {
                             if isExpanded {
-                                // Settings button with enhanced design
+                                // Settings button with vibrant design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
@@ -102,23 +96,19 @@ struct ContentView: View {
                                         .foregroundColor(.white)
                                         .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                         .background(
-                                            LinearGradient(
-                                                colors: [DesignSystem.Colors.secondaryText, DesignSystem.Colors.tertiaryText],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
+                                            DesignSystem.Colors.secondaryButtonGradient
                                         )
                                         .clipShape(Circle())
                                         .shadow(
-                                            color: DesignSystem.Shadows.medium.color,
-                                            radius: DesignSystem.Shadows.medium.radius,
-                                            x: DesignSystem.Shadows.medium.x,
-                                            y: DesignSystem.Shadows.medium.y
+                                            color: DesignSystem.Colors.secondary.opacity(0.4),
+                                            radius: 8,
+                                            x: 0,
+                                            y: 4
                                         )
                                 }
                                 .transition(.scale.combined(with: .opacity))
                                 
-                                // Add button with enhanced design
+                                // Add button with vibrant design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
@@ -134,24 +124,20 @@ struct ContentView: View {
                                         .foregroundColor(.white)
                                         .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                         .background(
-                                            LinearGradient(
-                                                colors: [DesignSystem.Colors.primary, DesignSystem.Colors.primary.opacity(0.8)],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
+                                            DesignSystem.Colors.primaryButtonGradient
                                         )
                                         .clipShape(Circle())
                                         .shadow(
-                                            color: DesignSystem.Colors.primary.opacity(0.3),
-                                            radius: DesignSystem.Shadows.medium.radius,
-                                            x: DesignSystem.Shadows.medium.x,
-                                            y: DesignSystem.Shadows.medium.y
+                                            color: DesignSystem.Colors.primary.opacity(0.4),
+                                            radius: 8,
+                                            x: 0,
+                                            y: 4
                                         )
                                 }
                                 .transition(.scale.combined(with: .opacity))
                             }
                             
-                            // Enhanced toggle button
+                            // Enhanced toggle button with vibrant design
                             Button {
                                 withAnimation(DesignSystem.Animations.spring) {
                                     isExpanded.toggle()
@@ -168,18 +154,14 @@ struct ContentView: View {
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
-                                        LinearGradient(
-                                            colors: [DesignSystem.Colors.primary, DesignSystem.Colors.primary.opacity(0.8)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                                        DesignSystem.Colors.accentButtonGradient
                                     )
                                     .clipShape(Circle())
                                     .shadow(
-                                        color: DesignSystem.Colors.primary.opacity(0.3),
-                                        radius: DesignSystem.Shadows.medium.radius,
-                                        x: DesignSystem.Shadows.medium.x,
-                                        y: DesignSystem.Shadows.medium.y
+                                        color: DesignSystem.Colors.accent1.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
                                     )
                             }
                         }
@@ -200,12 +182,12 @@ struct ContentView: View {
                                 Image(systemName: "location.fill")
                                     .foregroundColor(DesignSystem.Colors.info)
                                 Text("Search restricted to local area")
-                                    .font(DesignSystem.Typography.caption1)
+                                    .font(.caption)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                 Spacer()
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.lg)
-                            .padding(.bottom, DesignSystem.Spacing.sm)
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
                         }
                     }
                 }

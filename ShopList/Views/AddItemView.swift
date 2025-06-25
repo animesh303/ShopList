@@ -42,6 +42,11 @@ extension ItemCategory {
         case .other: return DesignSystem.Colors.categoryOther
         }
     }
+    
+    // Enhanced gradient for categories
+    var gradient: LinearGradient {
+        return DesignSystem.Colors.categoryGradient(for: self)
+    }
 }
 
 // View for displaying item suggestions
@@ -54,11 +59,11 @@ private struct SuggestionsListView: View {
             if suggestions.isEmpty {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                         .font(.caption)
                     Text("No suggestions found")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -66,12 +71,12 @@ private struct SuggestionsListView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack {
                         Image(systemName: "lightbulb.fill")
-                            .foregroundColor(.yellow)
+                            .foregroundColor(DesignSystem.Colors.warning)
                             .font(.caption)
                         Text("SUGGESTIONS")
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
@@ -81,7 +86,7 @@ private struct SuggestionsListView: View {
                         Button(action: { onSelect(suggestion) }) {
                             HStack(spacing: 12) {
                                 Image(systemName: "arrow.up.left.circle.fill")
-                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(DesignSystem.Colors.primary)
                                     .font(.caption)
                                 
                                 VStack(alignment: .leading, spacing: 2) {
@@ -101,13 +106,15 @@ private struct SuggestionsListView: View {
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
                                     .background(
-                                        LinearGradient(
-                                            colors: [suggestion.category.color, suggestion.category.color.opacity(0.8)],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                                        suggestion.category.gradient
                                     )
                                     .cornerRadius(8)
+                                    .shadow(
+                                        color: suggestion.category.color.opacity(0.3),
+                                        radius: 3,
+                                        x: 0,
+                                        y: 1
+                                    )
                             }
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
@@ -125,8 +132,8 @@ private struct SuggestionsListView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                .fill(DesignSystem.Colors.cardGradient)
+                .shadow(color: DesignSystem.Shadows.colorfulSmall.color, radius: 8, x: 0, y: 4)
         )
         .padding(.horizontal, 4)
         .padding(.top, 8)
@@ -214,11 +221,18 @@ struct AddItemView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                imageSection
-                itemDetailsSection
-                additionalInfoSection
-                notesSection
+            ZStack {
+                // Enhanced background with vibrant gradient
+                DesignSystem.Colors.backgroundGradient
+                    .ignoresSafeArea()
+                
+                Form {
+                    imageSection
+                    itemDetailsSection
+                    additionalInfoSection
+                    notesSection
+                }
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle("Add Item")
             .navigationBarTitleDisplayMode(.inline)
@@ -227,7 +241,7 @@ struct AddItemView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.red)
+                    .foregroundColor(DesignSystem.Colors.error)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
@@ -235,6 +249,7 @@ struct AddItemView: View {
                     }
                     .disabled(name.isEmpty)
                     .fontWeight(.semibold)
+                    .foregroundColor(DesignSystem.Colors.primary)
                 }
             }
             .alert("Error", isPresented: $showingError) {
@@ -257,25 +272,31 @@ struct AddItemView: View {
                         .scaledToFill()
                         .frame(width: 120, height: 120)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                        .shadow(color: DesignSystem.Shadows.colorfulMedium.color, radius: 8, x: 0, y: 4)
                 } else {
                     VStack(spacing: 12) {
                         Image(systemName: "photo.badge.plus")
                             .font(.title)
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.white)
                         Text("Add Photo")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.white)
                     }
                     .frame(width: 120, height: 120)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color(.systemGray6))
+                            .fill(DesignSystem.Colors.primaryButtonGradient)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.accentColor.opacity(0.3), lineWidth: 2)
+                                    .stroke(DesignSystem.Colors.primary.opacity(0.3), lineWidth: 2)
                             )
+                    )
+                    .shadow(
+                        color: DesignSystem.Colors.primary.opacity(0.3),
+                        radius: 6,
+                        x: 0,
+                        y: 3
                     )
                 }
             }
@@ -306,11 +327,11 @@ struct AddItemView: View {
         } header: {
             Text("Item Photo")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(DesignSystem.Colors.primaryText)
         } footer: {
             Text("Add a photo to help identify the item")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
         }
     }
     
@@ -322,7 +343,7 @@ struct AddItemView: View {
                     Text("Item Name")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     TextField("Enter item name", text: $name)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .textContentType(.name)
@@ -349,7 +370,7 @@ struct AddItemView: View {
                     Text("Brand")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     TextField("Enter brand name", text: $brand)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .textContentType(.organizationName)
@@ -361,7 +382,7 @@ struct AddItemView: View {
                         Text("Quantity")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.primary)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                         TextField("0", value: $quantity, format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.decimalPad)
@@ -371,7 +392,7 @@ struct AddItemView: View {
                         Text("Unit")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.primary)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                         Picker("Unit", selection: $unit) {
                             ForEach(Unit.allUnits, id: \.self) { unit in
                                 Text(unit.displayName).tag(unit.rawValue)
@@ -381,7 +402,7 @@ struct AddItemView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
-                        .background(Color(.systemGray6))
+                        .background(DesignSystem.Colors.secondaryBackground)
                         .cornerRadius(8)
                     }
                 }
@@ -389,7 +410,7 @@ struct AddItemView: View {
         } header: {
             Text("Item Details")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(DesignSystem.Colors.primaryText)
         } footer: {
             Text("Enter the basic information about your item")
                 .font(.caption)
