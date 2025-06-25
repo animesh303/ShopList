@@ -160,7 +160,7 @@ struct ItemRow: View {
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                .fill(DesignSystem.Colors.cardGradient)
+                .fill(DesignSystem.Colors.cardBackground(for: item.category))
                 .shadow(
                     color: DesignSystem.Shadows.colorfulSmall.color,
                     radius: DesignSystem.Shadows.colorfulSmall.radius,
@@ -348,7 +348,7 @@ struct ItemRow: View {
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .fill(DesignSystem.Colors.cardGradient)
+                .fill(DesignSystem.Colors.cardBackground(for: item.category))
                 .shadow(
                     color: DesignSystem.Shadows.colorfulSmall.color,
                     radius: DesignSystem.Shadows.colorfulSmall.radius,

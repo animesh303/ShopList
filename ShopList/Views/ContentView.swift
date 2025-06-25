@@ -264,15 +264,7 @@ struct GridListCard: View {
     }
     
     private var cardGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                list.category.color.opacity(0.1),
-                list.category.color.opacity(0.05),
-                Color.white
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        DesignSystem.Colors.cardBackground(for: list.category)
     }
     
     private var progressGradient: LinearGradient {
@@ -298,7 +290,7 @@ struct GridListCard: View {
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
                     .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                 
-                // Enhanced Category Badge with gradient
+                // Enhanced Category Badge with gradient and more prominence
                 HStack(spacing: DesignSystem.Spacing.xs) {
                     Image(systemName: list.category.icon)
                         .font(.caption2)
@@ -308,23 +300,23 @@ struct GridListCard: View {
                         .fontWeight(.medium)
                         .foregroundColor(.white)
                 }
-                .padding(.horizontal, DesignSystem.Spacing.sm)
-                .padding(.vertical, DesignSystem.Spacing.xs)
+                .padding(.horizontal, DesignSystem.Spacing.md)  // Increased padding
+                .padding(.vertical, DesignSystem.Spacing.sm)    // Increased padding
                 .background(
                     DesignSystem.Colors.categoryGradient(for: list.category)
                 )
-                .cornerRadius(DesignSystem.CornerRadius.sm)
+                .cornerRadius(DesignSystem.CornerRadius.md)  // Increased corner radius
                 .shadow(
-                    color: list.category.color.opacity(0.3),
-                    radius: 3,
+                    color: list.category.color.opacity(0.4),  // Increased shadow opacity
+                    radius: 4,  // Increased shadow radius
                     x: 0,
-                    y: 1
+                    y: 2
                 )
             }
             
             Spacer(minLength: DesignSystem.Spacing.xs)
             
-            // Enhanced progress bar with gradient
+            // Enhanced progress bar with gradient and more distinct colors
             if !list.items.isEmpty {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     HStack {
@@ -340,38 +332,44 @@ struct GridListCard: View {
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            // Enhanced background track
+                            // Enhanced background track with more contrast
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                 .fill(DesignSystem.Colors.tertiaryBackground)
-                                .frame(height: 8)
+                                .frame(height: 10)  // Increased height
                             
-                            // Enhanced progress fill with gradient
+                            // Enhanced progress fill with gradient and more distinct colors
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                 .fill(progressGradient)
-                                .frame(width: geometry.size.width * completionPercentage, height: 8)
+                                .frame(width: geometry.size.width * completionPercentage, height: 10)
                                 .animation(DesignSystem.Animations.standard, value: completionPercentage)
                                 .shadow(
-                                    color: list.category.color.opacity(0.3),
-                                    radius: 2,
+                                    color: list.category.color.opacity(0.5),  // Increased shadow opacity
+                                    radius: 3,  // Increased shadow radius
                                     x: 0,
-                                    y: 1
+                                    y: 2
                                 )
                         }
                     }
-                    .frame(height: 8)
+                    .frame(height: 10)
                 }
             }
             
-            // Enhanced footer with colorful icons
+            // Enhanced footer with more colorful and distinct icons
             HStack(spacing: DesignSystem.Spacing.sm) {
                 HStack(spacing: DesignSystem.Spacing.xs) {
                     Image(systemName: "cart.fill")
                         .font(.caption)
                         .foregroundColor(.white)
-                        .padding(DesignSystem.Spacing.xs)
+                        .padding(5)  // Increased padding
                         .background(
                             Circle()
                                 .fill(DesignSystem.Colors.info)
+                        )
+                        .shadow(
+                            color: DesignSystem.Colors.info.opacity(0.4),
+                            radius: 2,
+                            x: 0,
+                            y: 1
                         )
                     Text("\(list.pendingItems.count)")
                         .font(DesignSystem.Typography.caption1)
@@ -386,10 +384,16 @@ struct GridListCard: View {
                         Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
                             .foregroundColor(.white)
-                            .padding(DesignSystem.Spacing.xs)
+                            .padding(5)  // Increased padding
                             .background(
                                 Circle()
                                     .fill(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success)
+                            )
+                            .shadow(
+                                color: (isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success).opacity(0.4),
+                                radius: 2,
+                                x: 0,
+                                y: 1
                             )
                         Text(settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost))
                             .font(DesignSystem.Typography.caption1)
@@ -399,9 +403,9 @@ struct GridListCard: View {
                 }
             }
         }
-        .padding(DesignSystem.Spacing.md)
+        .padding(DesignSystem.Spacing.lg)  // Increased padding
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)  // Increased corner radius
                 .fill(cardGradient)
                 .shadow(
                     color: DesignSystem.Shadows.colorfulMedium.color,
@@ -411,8 +415,8 @@ struct GridListCard: View {
                 )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
-                .stroke(list.category.color.opacity(0.2), lineWidth: 1)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                .stroke(list.category.color.opacity(0.25), lineWidth: 1.5)  // Increased border opacity and width
         )
     }
 }

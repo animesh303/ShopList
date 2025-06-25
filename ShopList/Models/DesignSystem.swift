@@ -33,11 +33,11 @@ struct DesignSystem {
         static let secondaryBackground = Color(.secondarySystemBackground)
         static let tertiaryBackground = Color(.tertiarySystemBackground)
         
-        // Enhanced Background Gradients
+        // Enhanced Background Gradients with dark mode support
         static let backgroundGradient = LinearGradient(
             colors: [
-                Color(red: 0.95, green: 0.98, blue: 1.0), // Very light blue tint
-                Color(red: 1.0, green: 0.98, blue: 0.95)  // Very light orange tint
+                Color(.systemBackground),
+                Color(.secondarySystemBackground).opacity(0.3)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -45,18 +45,22 @@ struct DesignSystem {
         
         static let cardBackgroundGradient = LinearGradient(
             colors: [
-                Color.white,
-                Color(red: 0.98, green: 0.99, blue: 1.0)
+                Color(.systemBackground),
+                Color(.secondarySystemBackground).opacity(0.5)
             ],
             startPoint: .top,
             endPoint: .bottom
         )
         
-        // Text Colors
+        // Text Colors - Enhanced for better contrast
         static let primaryText = Color(.label)
         static let secondaryText = Color(.secondaryLabel)
         static let tertiaryText = Color(.tertiaryLabel)
         static let quaternaryText = Color(.quaternaryLabel)
+        
+        // Enhanced text colors for better dark mode contrast
+        static let textOnLight = Color(.label)
+        static let textOnDark = Color.white
         
         // Border Colors - Enhanced
         static let border = Color(.separator)
@@ -141,11 +145,11 @@ struct DesignSystem {
             endPoint: .bottomTrailing
         )
         
-        // Card Gradients
+        // Card Gradients with dark mode support
         static let cardGradient = LinearGradient(
             colors: [
-                Color.white,
-                Color(red: 0.98, green: 0.99, blue: 1.0)
+                Color(.systemBackground),
+                Color(.secondarySystemBackground).opacity(0.3)
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -153,12 +157,60 @@ struct DesignSystem {
         
         static let cardGradientColored = LinearGradient(
             colors: [
-                Color(red: 0.98, green: 0.99, blue: 1.0),
-                Color(red: 0.95, green: 0.98, blue: 1.0)
+                Color(.systemBackground),
+                Color(.secondarySystemBackground).opacity(0.2)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
+        
+        // Helper function to get appropriate text color for any background
+        static func textColor(for backgroundColor: Color) -> Color {
+            // For now, we'll use the system label color which adapts to light/dark mode
+            return Color(.label)
+        }
+        
+        // Helper function to get card background with proper contrast
+        static func cardBackground(for category: ItemCategory) -> LinearGradient {
+            return LinearGradient(
+                colors: [
+                    Color(.systemBackground),
+                    category.color.opacity(0.15),  // Increased from 0.05 for more distinct colors
+                    category.color.opacity(0.08),  // Added middle layer for depth
+                    Color(.secondarySystemBackground).opacity(0.3)  // Increased for better contrast
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        
+        static func cardBackground(for category: ListCategory) -> LinearGradient {
+            return LinearGradient(
+                colors: [
+                    Color(.systemBackground),
+                    category.color.opacity(0.15),  // Increased from 0.05 for more distinct colors
+                    category.color.opacity(0.08),  // Added middle layer for depth
+                    Color(.secondarySystemBackground).opacity(0.3)  // Increased for better contrast
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        
+        // Helper function to ensure text has proper contrast
+        static func adaptiveTextColor() -> Color {
+            return Color(.label)
+        }
+        
+        // Helper function to get secondary text with proper contrast
+        static func adaptiveSecondaryTextColor() -> Color {
+            return Color(.secondaryLabel)
+        }
+        
+        // Helper function to get tertiary text with proper contrast
+        static func adaptiveTertiaryTextColor() -> Color {
+            return Color(.tertiaryLabel)
+        }
     }
     
     // MARK: - Typography
@@ -406,5 +458,18 @@ extension View {
     // Background gradient modifier
     func colorfulBackground() -> some View {
         self.background(DesignSystem.Colors.backgroundGradient)
+    }
+    
+    // Adaptive text color modifiers
+    func adaptiveTextColor() -> some View {
+        self.foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+    }
+    
+    func adaptiveSecondaryTextColor() -> some View {
+        self.foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+    }
+    
+    func adaptiveTertiaryTextColor() -> some View {
+        self.foregroundColor(DesignSystem.Colors.adaptiveTertiaryTextColor())
     }
 } 

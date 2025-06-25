@@ -152,15 +152,7 @@ struct ListRow: View {
     }
     
     private var cardGradient: LinearGradient {
-        LinearGradient(
-            colors: [
-                list.category.color.opacity(0.08),
-                list.category.color.opacity(0.04),
-                Color.white
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        DesignSystem.Colors.cardBackground(for: list.category)
     }
     
     private var progressGradient: LinearGradient {
@@ -196,7 +188,7 @@ struct ListRow: View {
                 
                 Spacer()
                 
-                // Enhanced Category Badge with gradient
+                // Enhanced Category Badge with gradient and more prominence
                 HStack(spacing: 6) {
                     Image(systemName: list.category.icon)
                         .font(.caption2)
@@ -206,21 +198,21 @@ struct ListRow: View {
                         .fontWeight(.medium)
                         .foregroundColor(.white)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 12)  // Increased padding for more prominence
+                .padding(.vertical, 8)     // Increased padding for more prominence
                 .background(
                     DesignSystem.Colors.categoryGradient(for: list.category)
                 )
-                .cornerRadius(10)
+                .cornerRadius(12)  // Increased corner radius
                 .shadow(
-                    color: list.category.color.opacity(0.3),
-                    radius: 3,
+                    color: list.category.color.opacity(0.4),  // Increased shadow opacity
+                    radius: 4,  // Increased shadow radius
                     x: 0,
-                    y: 1
+                    y: 2
                 )
             }
             
-            // Enhanced progress bar for completion
+            // Enhanced progress bar for completion with more distinct colors
             if !list.items.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
@@ -236,39 +228,45 @@ struct ListRow: View {
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            // Enhanced background track
+                            // Enhanced background track with more contrast
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(DesignSystem.Colors.tertiaryBackground)
-                                .frame(height: 10)
+                                .frame(height: 12)  // Increased height
                             
-                            // Enhanced progress fill with gradient
+                            // Enhanced progress fill with gradient and more distinct colors
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(progressGradient)
-                                .frame(width: geometry.size.width * completionPercentage, height: 10)
+                                .frame(width: geometry.size.width * completionPercentage, height: 12)
                                 .animation(.easeInOut(duration: 0.3), value: completionPercentage)
                                 .shadow(
-                                    color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : list.category.color).opacity(0.3),
-                                    radius: 2,
+                                    color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : list.category.color).opacity(0.5),  // Increased shadow opacity
+                                    radius: 3,  // Increased shadow radius
                                     x: 0,
-                                    y: 1
+                                    y: 2
                                 )
                         }
                     }
-                    .frame(height: 10)
+                    .frame(height: 12)
                 }
             }
             
-            // Enhanced details row with colorful icons
+            // Enhanced details row with more colorful and distinct icons
             HStack(spacing: 16) {
-                // Items count with enhanced styling
+                // Items count with enhanced styling and more distinct colors
                 HStack(spacing: 6) {
                     Image(systemName: "cart.fill")
                         .font(.caption)
                         .foregroundColor(.white)
-                        .padding(4)
+                        .padding(6)  // Increased padding
                         .background(
                             Circle()
                                 .fill(DesignSystem.Colors.info)
+                        )
+                        .shadow(
+                            color: DesignSystem.Colors.info.opacity(0.4),
+                            radius: 2,
+                            x: 0,
+                            y: 1
                         )
                     Text("\(list.items.count)")
                         .font(.caption)
@@ -276,16 +274,22 @@ struct ListRow: View {
                 }
                 .foregroundColor(DesignSystem.Colors.secondaryText)
                 
-                // Completion status with enhanced styling
+                // Completion status with enhanced styling and more distinct colors
                 if !list.items.isEmpty {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.caption)
                             .foregroundColor(.white)
-                            .padding(4)
+                            .padding(6)  // Increased padding
                             .background(
                                 Circle()
                                     .fill(completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
+                            )
+                            .shadow(
+                                color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText).opacity(0.4),
+                                radius: 2,
+                                x: 0,
+                                y: 1
                             )
                         Text("\(Int(completionPercentage * 100))%")
                             .font(.caption)
@@ -294,16 +298,22 @@ struct ListRow: View {
                     .foregroundColor(completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
                 }
                 
-                // Budget status with enhanced styling
+                // Budget status with enhanced styling and more distinct colors
                 if list.budget != nil {
                     HStack(spacing: 6) {
                         Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
                             .foregroundColor(.white)
-                            .padding(4)
+                            .padding(6)  // Increased padding
                             .background(
                                 Circle()
                                     .fill(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success)
+                            )
+                            .shadow(
+                                color: (isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success).opacity(0.4),
+                                radius: 2,
+                                x: 0,
+                                y: 1
                             )
                         Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
                             .font(.caption)
@@ -321,24 +331,24 @@ struct ListRow: View {
                     .foregroundColor(DesignSystem.Colors.secondaryText)
             }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 8)
+        .padding(.vertical, 16)  // Increased padding
+        .padding(.horizontal, 12)  // Increased padding
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)  // Increased corner radius
                 .fill(cardGradient)
                 .shadow(
-                    color: DesignSystem.Shadows.colorfulSmall.color,
-                    radius: DesignSystem.Shadows.colorfulSmall.radius,
-                    x: DesignSystem.Shadows.colorfulSmall.x,
-                    y: DesignSystem.Shadows.colorfulSmall.y
+                    color: DesignSystem.Shadows.colorfulMedium.color,
+                    radius: DesignSystem.Shadows.colorfulMedium.radius,
+                    x: DesignSystem.Shadows.colorfulMedium.x,
+                    y: DesignSystem.Shadows.colorfulMedium.y
                 )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(list.category.color.opacity(0.25), lineWidth: 1.5)  // Increased border opacity and width
         )
         .padding(.horizontal, 8)
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)  // Increased vertical padding for better separation
     }
 }
 
