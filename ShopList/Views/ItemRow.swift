@@ -60,7 +60,7 @@ struct ItemRow: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
                 .shadow(
-                    color: item.category.color.opacity(0.3),
+                    color: item.category.color.opacity(0.4),
                     radius: 4,
                     x: 0,
                     y: 2
@@ -86,13 +86,18 @@ struct ItemRow: View {
                     }
                 }
                 
-                // Quantity and Price with enhanced styling
+                // Enhanced Quantity and Price with colorful icons
                 HStack(spacing: DesignSystem.Spacing.sm) {
                     if item.quantity > 0 {
                         HStack(spacing: DesignSystem.Spacing.xs) {
                             Image(systemName: "number.circle.fill")
                                 .font(.caption2)
-                                .foregroundColor(DesignSystem.Colors.info)
+                                .foregroundColor(.white)
+                                .padding(2)
+                                .background(
+                                    Circle()
+                                        .fill(DesignSystem.Colors.info)
+                                )
                             Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                                 .font(DesignSystem.Typography.caption2)
                                 .fontWeight(.medium)
@@ -109,7 +114,12 @@ struct ItemRow: View {
                         HStack(spacing: DesignSystem.Spacing.xs) {
                             Image(systemName: "dollarsign.circle.fill")
                                 .font(.caption2)
-                                .foregroundColor(DesignSystem.Colors.success)
+                                .foregroundColor(.white)
+                                .padding(2)
+                                .background(
+                                    Circle()
+                                        .fill(DesignSystem.Colors.success)
+                                )
                             Text(price, format: .currency(code: settingsManager.currency.rawValue))
                                 .font(DesignSystem.Typography.caption2)
                                 .fontWeight(.medium)
@@ -139,7 +149,7 @@ struct ItemRow: View {
                     )
                     .clipShape(Circle())
                     .shadow(
-                        color: priorityColor.opacity(0.3),
+                        color: priorityColor.opacity(0.4),
                         radius: 3,
                         x: 0,
                         y: 1
@@ -157,6 +167,10 @@ struct ItemRow: View {
                     x: DesignSystem.Shadows.colorfulSmall.x,
                     y: DesignSystem.Shadows.colorfulSmall.y
                 )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .stroke(item.category.color.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal, DesignSystem.Spacing.sm)
         .padding(.vertical, DesignSystem.Spacing.xs)
@@ -194,14 +208,29 @@ struct ItemRow: View {
                 
                 Spacer()
                 
-                // Priority indicator
+                // Enhanced Priority indicator with gradient
                 if item.priority != .normal {
                     Image(systemName: priorityIcon)
-                        .foregroundColor(priorityColor)
+                        .foregroundColor(.white)
                         .font(.title3)
                         .padding(DesignSystem.Spacing.sm)
-                        .background(priorityColor.opacity(0.1))
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    priorityColor,
+                                    priorityColor.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                         .clipShape(Circle())
+                        .shadow(
+                            color: priorityColor.opacity(0.3),
+                            radius: 3,
+                            x: 0,
+                            y: 1
+                        )
                 }
             }
             
@@ -214,40 +243,63 @@ struct ItemRow: View {
                     .padding(.leading, DesignSystem.Spacing.xxxl)
             }
             
-            // Category and priority badges
+            // Enhanced Category and priority badges with gradients
             HStack(spacing: DesignSystem.Spacing.xs) {
-                // Category badge with icon
+                // Enhanced Category badge with gradient
                 HStack(spacing: DesignSystem.Spacing.xs) {
                     Image(systemName: item.category.icon)
                         .font(.caption2)
-                        .foregroundColor(item.category.color)
+                        .foregroundColor(.white)
                     Text(item.category.rawValue)
                         .font(DesignSystem.Typography.caption1)
                         .fontWeight(.medium)
-                        .foregroundColor(item.category.color)
+                        .foregroundColor(.white)
                 }
-                .padding(.horizontal, DesignSystem.Spacing.xs)
+                .padding(.horizontal, DesignSystem.Spacing.sm)
                 .padding(.vertical, DesignSystem.Spacing.xs)
-                .background(item.category.color.opacity(0.15))
-                .cornerRadius(DesignSystem.CornerRadius.xs)
+                .background(
+                    DesignSystem.Colors.categoryGradient(for: item.category)
+                )
+                .cornerRadius(DesignSystem.CornerRadius.sm)
+                .shadow(
+                    color: item.category.color.opacity(0.3),
+                    radius: 3,
+                    x: 0,
+                    y: 1
+                )
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
                 
-                // Priority badge
+                // Enhanced Priority badge with gradient
                 if item.priority != .normal {
                     HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: priorityIcon)
                             .font(.caption2)
-                            .foregroundColor(priorityColor)
+                            .foregroundColor(.white)
                         Text(item.priority.displayName)
                             .font(DesignSystem.Typography.caption1)
                             .fontWeight(.medium)
-                            .foregroundColor(priorityColor)
+                            .foregroundColor(.white)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.xs)
+                    .padding(.horizontal, DesignSystem.Spacing.sm)
                     .padding(.vertical, DesignSystem.Spacing.xs)
-                    .background(priorityColor.opacity(0.15))
-                    .cornerRadius(DesignSystem.CornerRadius.xs)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                priorityColor,
+                                priorityColor.opacity(0.8)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(DesignSystem.CornerRadius.sm)
+                    .shadow(
+                        color: priorityColor.opacity(0.3),
+                        radius: 3,
+                        x: 0,
+                        y: 1
+                    )
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
                 }
@@ -255,13 +307,18 @@ struct ItemRow: View {
                 Spacer()
             }
             
-            // Quantity and price info
+            // Enhanced Quantity and price info with colorful icons
             HStack(spacing: DesignSystem.Spacing.md) {
                 if item.quantity > 0 {
                     HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: "number.circle.fill")
                             .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.info)
+                            .foregroundColor(.white)
+                            .padding(4)
+                            .background(
+                                Circle()
+                                    .fill(DesignSystem.Colors.info)
+                            )
                         Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                             .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -272,7 +329,12 @@ struct ItemRow: View {
                     HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: "dollarsign.circle.fill")
                             .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.success)
+                            .foregroundColor(.white)
+                            .padding(4)
+                            .background(
+                                Circle()
+                                    .fill(DesignSystem.Colors.success)
+                            )
                         Text(price, format: .currency(code: settingsManager.currency.rawValue))
                             .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -286,13 +348,17 @@ struct ItemRow: View {
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .fill(DesignSystem.Colors.background)
+                .fill(DesignSystem.Colors.cardGradient)
                 .shadow(
-                    color: DesignSystem.Shadows.small.color,
-                    radius: DesignSystem.Shadows.small.radius,
-                    x: DesignSystem.Shadows.small.x,
-                    y: DesignSystem.Shadows.small.y
+                    color: DesignSystem.Shadows.colorfulSmall.color,
+                    radius: DesignSystem.Shadows.colorfulSmall.radius,
+                    x: DesignSystem.Shadows.colorfulSmall.x,
+                    y: DesignSystem.Shadows.colorfulSmall.y
                 )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .stroke(item.category.color.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .padding(.vertical, DesignSystem.Spacing.xs)

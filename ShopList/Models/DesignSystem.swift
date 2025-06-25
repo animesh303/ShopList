@@ -100,6 +100,19 @@ struct DesignSystem {
             )
         }
         
+        static func categoryGradient(for category: ListCategory) -> LinearGradient {
+            let baseColor = category.color
+            return LinearGradient(
+                colors: [
+                    baseColor,
+                    baseColor.opacity(0.8),
+                    baseColor.opacity(0.6)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        
         // Button Gradients
         static let primaryButtonGradient = LinearGradient(
             colors: [

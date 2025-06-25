@@ -151,38 +151,73 @@ struct ListRow: View {
         return list.totalEstimatedCost > budget
     }
     
+    private var cardGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                list.category.color.opacity(0.08),
+                list.category.color.opacity(0.04),
+                Color.white
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
+    private var progressGradient: LinearGradient {
+        if completionPercentage == 1.0 {
+            return LinearGradient(
+                colors: [DesignSystem.Colors.success, DesignSystem.Colors.accent2],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    list.category.color,
+                    list.category.color.opacity(0.8),
+                    list.category.color.opacity(0.6)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header with name and category
+            // Enhanced Header with colorful category badge
             HStack(alignment: .center) {
                 Text(list.name)
                     .font(.headline)
                     .fontWeight(.semibold)
                     .lineLimit(1)
                     .strikethrough(list.items.allSatisfy { $0.isCompleted })
-                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? .gray : .primary)
+                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                 
                 Spacer()
                 
+                // Enhanced Category Badge with gradient
                 HStack(spacing: 6) {
                     Image(systemName: list.category.icon)
                         .font(.caption2)
-                        .foregroundColor(list.category.color)
+                        .foregroundColor(.white)
                     Text(list.category.rawValue)
                         .font(.caption)
                         .fontWeight(.medium)
-                        .foregroundColor(list.category.color)
+                        .foregroundColor(.white)
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(
-                    LinearGradient(
-                        colors: [list.category.color.opacity(0.2), list.category.color.opacity(0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    DesignSystem.Colors.categoryGradient(for: list.category)
                 )
                 .cornerRadius(10)
+                .shadow(
+                    color: list.category.color.opacity(0.3),
+                    radius: 3,
+                    x: 0,
+                    y: 1
+                )
             }
             
             // Enhanced progress bar for completion
@@ -192,64 +227,71 @@ struct ListRow: View {
                         Text("\(Int(completionPercentage * 100))%")
                             .font(.caption)
                             .fontWeight(.medium)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                         Spacer()
                         Text("\(list.completedItems.count)/\(list.items.count)")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            // Background track
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(.systemGray5))
-                                .frame(height: 8)
+                            // Enhanced background track
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(DesignSystem.Colors.tertiaryBackground)
+                                .frame(height: 10)
                             
-                            // Progress fill with gradient
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            completionPercentage == 1.0 ? Color.green : list.category.color,
-                                            completionPercentage == 1.0 ? Color.green.opacity(0.8) : list.category.color.opacity(0.8)
-                                        ],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: geometry.size.width * completionPercentage, height: 8)
+                            // Enhanced progress fill with gradient
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(progressGradient)
+                                .frame(width: geometry.size.width * completionPercentage, height: 10)
                                 .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                                .shadow(
+                                    color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : list.category.color).opacity(0.3),
+                                    radius: 2,
+                                    x: 0,
+                                    y: 1
+                                )
                         }
                     }
-                    .frame(height: 8)
+                    .frame(height: 10)
                 }
             }
             
-            // Enhanced details row
+            // Enhanced details row with colorful icons
             HStack(spacing: 16) {
                 // Items count with enhanced styling
                 HStack(spacing: 6) {
                     Image(systemName: "cart.fill")
                         .font(.caption)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.white)
+                        .padding(4)
+                        .background(
+                            Circle()
+                                .fill(DesignSystem.Colors.info)
+                        )
                     Text("\(list.items.count)")
                         .font(.caption)
                         .fontWeight(.medium)
                 }
-                .foregroundColor(.secondary)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
                 
                 // Completion status with enhanced styling
                 if !list.items.isEmpty {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.caption)
-                            .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
+                            .foregroundColor(.white)
+                            .padding(4)
+                            .background(
+                                Circle()
+                                    .fill(completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
+                            )
                         Text("\(Int(completionPercentage * 100))%")
                             .font(.caption)
                             .fontWeight(.medium)
                     }
-                    .foregroundColor(completionPercentage == 1.0 ? .green : .secondary)
+                    .foregroundColor(completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
                 }
                 
                 // Budget status with enhanced styling
@@ -257,12 +299,17 @@ struct ListRow: View {
                     HStack(spacing: 6) {
                         Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
                             .font(.caption)
-                            .foregroundColor(isOverBudget ? .red : .green)
+                            .foregroundColor(.white)
+                            .padding(4)
+                            .background(
+                                Circle()
+                                    .fill(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success)
+                            )
                         Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
                             .font(.caption)
                             .fontWeight(.medium)
                     }
-                    .foregroundColor(isOverBudget ? .red : .secondary)
+                    .foregroundColor(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.secondaryText)
                 }
                 
                 Spacer()
@@ -271,15 +318,24 @@ struct ListRow: View {
                 Text(list.lastModified, style: .relative)
                     .font(.caption2)
                     .fontWeight(.medium)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
             }
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.03), radius: 2, x: 0, y: 1)
+                .fill(cardGradient)
+                .shadow(
+                    color: DesignSystem.Shadows.colorfulSmall.color,
+                    radius: DesignSystem.Shadows.colorfulSmall.radius,
+                    x: DesignSystem.Shadows.colorfulSmall.x,
+                    y: DesignSystem.Shadows.colorfulSmall.y
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
         )
         .padding(.horizontal, 8)
         .padding(.vertical, 2)
