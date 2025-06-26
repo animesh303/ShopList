@@ -74,6 +74,22 @@ struct BackButtonFAB: View {
 - **Condition**: Always visible
 - **Action**: Dismisses the add list sheet
 - **Position**: Bottom left corner
+- **Additional FAB**: Add button at bottom right corner
+
+## FAB Layout Summary
+
+### Views with Single FAB (Back Button)
+
+- **ContentView**: Back FAB at bottom left (conditional)
+- **ListDetailView**: Back FAB at bottom left
+- **ItemDetailView**: Back FAB at bottom left
+- **SettingsView**: Back FAB at bottom left
+
+### Views with Dual FABs
+
+- **AddListView**:
+  - Back FAB at bottom left
+  - Add FAB at bottom right (with form validation)
 
 ## Benefits
 

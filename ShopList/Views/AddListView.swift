@@ -120,13 +120,52 @@ struct AddListView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        BackButtonFAB {
-                            dismiss()
+                        VStack {
+                            Spacer()
+                            BackButtonFAB {
+                                dismiss()
+                            }
                         }
                         .padding(.leading, DesignSystem.Spacing.lg)
                         .padding(.bottom, DesignSystem.Spacing.lg)
                         
                         Spacer()
+                        
+                        // Add Button FAB at bottom right
+                        VStack {
+                            Spacer()
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                addList()
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        isFormValid ? DesignSystem.Colors.primaryButtonGradient : LinearGradient(
+                                            colors: [
+                                                DesignSystem.Colors.tertiaryText.opacity(0.6),
+                                                DesignSystem.Colors.tertiaryText.opacity(0.4)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: isFormValid ? DesignSystem.Colors.primary.opacity(0.4) : DesignSystem.Colors.tertiaryText.opacity(0.2),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .disabled(!isFormValid)
+                        }
+                        .padding(.trailing, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
                     }
                 }
             }
@@ -137,15 +176,6 @@ struct AddListView: View {
                 style: .primary,
                 showBanner: true
             )
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        addList()
-                    }
-                    .disabled(!isFormValid)
-                    .foregroundColor(isFormValid ? DesignSystem.Colors.primary : DesignSystem.Colors.tertiaryText)
-                }
-            }
             .alert("Error", isPresented: $showingAlert) {
                 Button("OK") { }
             } message: {
