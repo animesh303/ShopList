@@ -52,61 +52,82 @@ struct AddListView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section {
-                    TextField("List Name", text: $listName)
-                        .font(DesignSystem.Typography.body)
-                    
-                    Picker("Category", selection: $category) {
-                        ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
-                            HStack {
-                                Image(systemName: category.icon)
-                                    .foregroundColor(category.color)
-                                    .font(.title3)
-                                Text(category.rawValue)
-                                    .font(DesignSystem.Typography.body)
-                            }
-                            .tag(category)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    
-                    budgetRow
-                } header: {
-                    Text("List Details")
-                        .font(DesignSystem.Typography.subheadlineBold)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                }
+            ZStack {
+                // Enhanced background with vibrant gradient
+                DesignSystem.Colors.backgroundGradient
+                    .ignoresSafeArea()
                 
-                Section {
-                    HStack {
-                        Image(systemName: category.icon)
-                            .foregroundColor(category.color)
-                            .font(.title2)
+                Form {
+                    Section {
+                        TextField("List Name", text: $listName)
+                            .font(DesignSystem.Typography.body)
                         
-                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                            Text("Preview")
-                                .font(DesignSystem.Typography.subheadlineBold)
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                            Text("Category: \(category.rawValue)")
-                                .font(DesignSystem.Typography.caption1)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                            if let budget = budget {
-                                Text("Budget: \(budget, format: .currency(code: settingsManager.currency.rawValue))")
+                        Picker("Category", selection: $category) {
+                            ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
+                                HStack {
+                                    Image(systemName: category.icon)
+                                        .foregroundColor(category.color)
+                                        .font(.title3)
+                                    Text(category.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(category)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        
+                        budgetRow
+                    } header: {
+                        Text("List Details")
+                            .font(DesignSystem.Typography.subheadlineBold)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                    }
+                    
+                    Section {
+                        HStack {
+                            Image(systemName: category.icon)
+                                .foregroundColor(category.color)
+                                .font(.title2)
+                            
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                                Text("Preview")
+                                    .font(DesignSystem.Typography.subheadlineBold)
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                Text("Category: \(category.rawValue)")
                                     .font(DesignSystem.Typography.caption1)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
+                                if let budget = budget {
+                                    Text("Budget: \(budget, format: .currency(code: settingsManager.currency.rawValue))")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
                             }
+                            
+                            Spacer()
                         }
+                        .padding(DesignSystem.Spacing.sm)
+                        .background(category.color.opacity(0.1))
+                        .cornerRadius(DesignSystem.CornerRadius.sm)
+                    } header: {
+                        Text("Preview")
+                            .font(DesignSystem.Typography.subheadlineBold)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                
+                // Back Button FAB at bottom left
+                VStack {
+                    Spacer()
+                    HStack {
+                        BackButtonFAB {
+                            dismiss()
+                        }
+                        .padding(.leading, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
                         
                         Spacer()
                     }
-                    .padding(DesignSystem.Spacing.sm)
-                    .background(category.color.opacity(0.1))
-                    .cornerRadius(DesignSystem.CornerRadius.sm)
-                } header: {
-                    Text("Preview")
-                        .font(DesignSystem.Typography.subheadlineBold)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
                 }
             }
             .enhancedNavigation(
@@ -117,12 +138,6 @@ struct AddListView: View {
                 showBanner: true
             )
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignSystem.Colors.primary)
-                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
                         addList()

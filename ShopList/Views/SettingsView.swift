@@ -2,6 +2,7 @@ import SwiftUI
 import CoreLocation
 
 struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var locationManager = LocationManager.shared
@@ -209,6 +210,20 @@ struct SettingsView: View {
                     }
                 }
                 .scrollContentBackground(.hidden)
+                
+                // Back Button FAB at bottom left
+                VStack {
+                    Spacer()
+                    HStack {
+                        BackButtonFAB {
+                            dismiss()
+                        }
+                        .padding(.leading, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
+                        
+                        Spacer()
+                    }
+                }
             }
             .enhancedNavigation(
                 title: "Settings",

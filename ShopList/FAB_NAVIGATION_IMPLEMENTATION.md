@@ -39,7 +39,41 @@ struct BackButtonFAB: View {
 - **ContentView**: Shows back FAB when navigation stack has items
 - **ListDetailView**: Always shows back FAB for list details
 - **ItemDetailView**: Shows back FAB for item editing
+- **SettingsView**: Shows back FAB for settings screen
+- **AddListView**: Shows back FAB for creating new lists
 - **Default Back Button**: Hidden to prevent duplication
+
+## Views with Back Button FAB
+
+### 1. ContentView
+
+- **Condition**: Shows when `navigationPath` is not empty
+- **Action**: Removes last item from navigation stack
+- **Position**: Bottom left corner
+
+### 2. ListDetailView
+
+- **Condition**: Always visible
+- **Action**: Dismisses the detail view
+- **Position**: Bottom left corner
+
+### 3. ItemDetailView
+
+- **Condition**: Always visible
+- **Action**: Dismisses the item editing view
+- **Position**: Bottom left corner
+
+### 4. SettingsView
+
+- **Condition**: Always visible
+- **Action**: Dismisses the settings sheet
+- **Position**: Bottom left corner
+
+### 5. AddListView
+
+- **Condition**: Always visible
+- **Action**: Dismisses the add list sheet
+- **Position**: Bottom left corner
 
 ## Benefits
 
@@ -56,5 +90,6 @@ The back button FAB automatically appears when:
 - User navigates to detail views
 - Navigation stack contains items
 - Detail views are presented modally
+- Settings or add screens are opened
 
 Users can tap the FAB to return to the previous screen with smooth animations and haptic feedback.
