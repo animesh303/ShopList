@@ -169,8 +169,13 @@ struct LocationSearchSettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Location Search")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "Location Search",
+                subtitle: "Configure location-based search",
+                icon: "magnifyingglass.circle",
+                style: .info,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
@@ -274,8 +279,13 @@ struct LocationSearchMapView: View {
                     }
                 }
             }
-            .navigationTitle("Search Area")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "Search Area",
+                subtitle: "View your search radius",
+                icon: "map",
+                style: .info,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {

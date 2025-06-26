@@ -109,8 +109,13 @@ struct AddListView: View {
                         .foregroundColor(DesignSystem.Colors.primaryText)
                 }
             }
-            .navigationTitle("New List")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "New List",
+                subtitle: "Create a new shopping list",
+                icon: "plus.square",
+                style: .primary,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

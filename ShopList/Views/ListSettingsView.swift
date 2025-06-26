@@ -65,8 +65,13 @@ struct ListSettingsView: View {
                     Text("Templates can be used to quickly create new lists with predefined items")
                 }
             }
-            .navigationTitle("List Settings")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "List Settings",
+                subtitle: "Configure list preferences",
+                icon: "slider.horizontal.3",
+                style: .secondary,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

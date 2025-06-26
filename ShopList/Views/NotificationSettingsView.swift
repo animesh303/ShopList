@@ -84,7 +84,13 @@ struct NotificationSettingsView: View {
                     }
                 }
             }
-            .navigationTitle("Notification Settings")
+            .enhancedNavigation(
+                title: "Notifications",
+                subtitle: "Manage notification preferences",
+                icon: "bell.circle",
+                style: .warning,
+                showBanner: true
+            )
             .refreshable {
                 await notificationManager.getPendingNotifications()
             }

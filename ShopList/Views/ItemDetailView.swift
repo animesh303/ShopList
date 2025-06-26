@@ -123,8 +123,13 @@ struct ItemDetailView: View {
                     Text("Add a photo of the item for easy identification")
                 }
             }
-            .navigationTitle("Edit Item")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "Edit Item",
+                subtitle: "Modify item details",
+                icon: "pencil.circle",
+                style: .info,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {

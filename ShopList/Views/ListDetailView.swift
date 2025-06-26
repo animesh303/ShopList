@@ -194,8 +194,15 @@ struct ListDetailView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .navigationTitle(list.name)
-            .searchable(text: $searchText, prompt: "Search items")
+            .enhancedNavigation(
+                title: list.name,
+                subtitle: "\(list.items.count) items • \(list.category.rawValue)",
+                icon: list.category.icon,
+                style: .custom(DesignSystem.Colors.categoryGradient(for: list.category)),
+                showBanner: true,
+                searchText: $searchText,
+                searchPrompt: "Search items"
+            )
             .overlay(
                 Group {
                     if settingsManager.restrictSearchToLocality && !searchText.isEmpty {

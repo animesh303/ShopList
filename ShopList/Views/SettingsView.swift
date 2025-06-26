@@ -210,8 +210,13 @@ struct SettingsView: View {
                 }
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
+            .enhancedNavigation(
+                title: "Settings",
+                subtitle: "Customize your app experience",
+                icon: "gear",
+                style: .secondary,
+                showBanner: true
+            )
         }
     }
     

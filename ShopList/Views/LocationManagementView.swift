@@ -75,7 +75,13 @@ struct LocationManagementView: View {
                     }
                 }
             }
-            .navigationTitle("Location Reminders")
+            .enhancedNavigation(
+                title: "Location",
+                subtitle: "Manage location permissions",
+                icon: "location.circle",
+                style: .info,
+                showBanner: true
+            )
             .refreshable {
                 // Refresh location reminders
                 locationManager.loadReminders()

@@ -170,9 +170,15 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("Shopping Lists")
-            .navigationBarTitleDisplayMode(.large)
-            .searchable(text: $searchText, prompt: "Search lists")
+            .enhancedNavigation(
+                title: "Shopping Lists",
+                subtitle: "Manage your shopping lists",
+                icon: "list.bullet",
+                style: .primary,
+                showBanner: true,
+                searchText: $searchText,
+                searchPrompt: "Search lists"
+            )
             .overlay(
                 Group {
                     if settingsManager.restrictSearchToLocality && !searchText.isEmpty {

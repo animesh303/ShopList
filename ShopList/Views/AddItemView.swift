@@ -234,8 +234,13 @@ struct AddItemView: View {
                 }
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle("Add Item")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "Add Item",
+                subtitle: "Add a new item to your list",
+                icon: "plus.circle",
+                style: .success,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

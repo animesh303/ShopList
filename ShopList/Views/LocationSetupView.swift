@@ -174,8 +174,13 @@ struct LocationSetupView: View {
                     }
                 }
             }
-            .navigationTitle("Location Reminder")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "Location Reminder",
+                subtitle: "Set up location-based notifications",
+                icon: "location.circle",
+                style: .info,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -448,8 +453,13 @@ struct LocationMapView: View {
                     }
                 }
             }
-            .navigationTitle("Location Preview")
-            .navigationBarTitleDisplayMode(.inline)
+            .enhancedNavigation(
+                title: "Location Preview",
+                subtitle: "Preview your reminder area",
+                icon: "map",
+                style: .info,
+                showBanner: true
+            )
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
