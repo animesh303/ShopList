@@ -233,83 +233,27 @@ struct ListDetailView: View {
                     Spacer()
                     VStack(spacing: DesignSystem.Spacing.md) {
                         if isFabExpanded {
-                            // Add Item button
+                            // Delete List button
                             Button {
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                 generator.impactOccurred()
-                                showingAddItem = true
+                                showingDeleteConfirmation = true
                                 withAnimation(DesignSystem.Animations.spring) {
                                     isFabExpanded = false
                                 }
                                 stopFabTimer()
                             } label: {
-                                Image(systemName: "plus")
+                                Image(systemName: "trash")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
-                                        DesignSystem.Colors.primaryButtonGradient
+                                        DesignSystem.Colors.error.opacity(0.8)
                                     )
                                     .clipShape(Circle())
                                     .shadow(
-                                        color: DesignSystem.Colors.primary.opacity(0.4),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 4
-                                    )
-                            }
-                            .transition(.scale.combined(with: .opacity))
-                            
-                            // Sort button
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                showingSortPicker = true
-                                withAnimation(DesignSystem.Animations.spring) {
-                                    isFabExpanded = false
-                                }
-                                stopFabTimer()
-                            } label: {
-                                Image(systemName: "arrow.up.arrow.down")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
-                                    .background(
-                                        DesignSystem.Colors.info.opacity(0.8)
-                                    )
-                                    .clipShape(Circle())
-                                    .shadow(
-                                        color: DesignSystem.Colors.info.opacity(0.4),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 4
-                                    )
-                            }
-                            .transition(.scale.combined(with: .opacity))
-                            
-                            // Edit List button
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                showingEditSheet = true
-                                withAnimation(DesignSystem.Animations.spring) {
-                                    isFabExpanded = false
-                                }
-                                stopFabTimer()
-                            } label: {
-                                Image(systemName: "pencil")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
-                                    .background(
-                                        DesignSystem.Colors.warning.opacity(0.8)
-                                    )
-                                    .clipShape(Circle())
-                                    .shadow(
-                                        color: DesignSystem.Colors.warning.opacity(0.4),
+                                        color: DesignSystem.Colors.error.opacity(0.4),
                                         radius: 8,
                                         x: 0,
                                         y: 4
@@ -347,27 +291,83 @@ struct ListDetailView: View {
                                 .transition(.scale.combined(with: .opacity))
                             }
                             
-                            // Delete List button
+                            // Edit List button
                             Button {
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                 generator.impactOccurred()
-                                showingDeleteConfirmation = true
+                                showingEditSheet = true
                                 withAnimation(DesignSystem.Animations.spring) {
                                     isFabExpanded = false
                                 }
                                 stopFabTimer()
                             } label: {
-                                Image(systemName: "trash")
+                                Image(systemName: "pencil")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
-                                        DesignSystem.Colors.error.opacity(0.8)
+                                        DesignSystem.Colors.warning.opacity(0.8)
                                     )
                                     .clipShape(Circle())
                                     .shadow(
-                                        color: DesignSystem.Colors.error.opacity(0.4),
+                                        color: DesignSystem.Colors.warning.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                            
+                            // Sort button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingSortPicker = true
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "arrow.up.arrow.down")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.info.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.info.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                            
+                            // Add Item button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingAddItem = true
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.primaryButtonGradient
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.primary.opacity(0.4),
                                         radius: 8,
                                         x: 0,
                                         y: 4
