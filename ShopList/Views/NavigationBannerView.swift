@@ -270,6 +270,7 @@ struct EnhancedNavigationModifier: ViewModifier {
             content
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 if !showBanner {
@@ -335,5 +336,44 @@ struct NavigationBannerView_Previews: PreviewProvider {
         }
         .padding()
         .background(Color(.systemBackground))
+    }
+}
+
+// MARK: - Reusable Back Button FAB
+struct BackButtonFAB: View {
+    let action: () -> Void
+    let isVisible: Bool
+    
+    init(isVisible: Bool = true, action: @escaping () -> Void) {
+        self.isVisible = isVisible
+        self.action = action
+    }
+    
+    var body: some View {
+        if isVisible {
+            Button {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+                action()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                    .background(
+                        DesignSystem.Colors.secondaryButtonGradient
+                    )
+                    .clipShape(Circle())
+                    .shadow(
+                        color: DesignSystem.Colors.secondary.opacity(0.4),
+                        radius: 8,
+                        x: 0,
+                        y: 4
+                    )
+            }
+            .transition(.scale.combined(with: .opacity))
+            .animation(DesignSystem.Animations.spring, value: isVisible)
+        }
     }
 } 

@@ -34,93 +34,114 @@ struct ItemDetailView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section {
-                    VStack(spacing: 16) {
-                        TextField("Name", text: $name)
-                            .textContentType(.name)
-                        
-                        TextField("Brand", text: $brand)
-                            .textContentType(.organizationName)
-                        
+            ZStack {
+                // Enhanced background with vibrant gradient
+                DesignSystem.Colors.backgroundGradient
+                    .ignoresSafeArea()
+                
+                Form {
+                    Section {
+                        VStack(spacing: 16) {
+                            TextField("Name", text: $name)
+                                .textContentType(.name)
+                            
+                            TextField("Brand", text: $brand)
+                                .textContentType(.organizationName)
+                            
+                            HStack {
+                                Text("Quantity")
+                                Spacer()
+                                TextField("Quantity", value: $quantity, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 100)
+                            }
+                            
+                            Picker("Unit", selection: $unit) {
+                                ForEach(Unit.allUnits, id: \.self) { unit in
+                                    Text(unit.displayName).tag(unit)
+                                }
+                            }
+                            
+                            Picker("Category", selection: $category) {
+                                ForEach(ItemCategory.allCases, id: \.self) { category in
+                                    HStack {
+                                        Image(systemName: category.icon)
+                                            .foregroundColor(category.color)
+                                        Text(category.rawValue)
+                                    }
+                                    .tag(category)
+                                }
+                            }
+                            
+                            Picker("Priority", selection: $priority) {
+                                ForEach(ItemPriority.allCases, id: \.self) { priority in
+                                    Text(priority.displayName).tag(priority)
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Item Details")
+                    } footer: {
+                        Text("Basic information about your item")
+                    }
+                    
+                    Section {
                         HStack {
-                            Text("Quantity")
+                            Text("Estimated Price")
                             Spacer()
-                            TextField("Quantity", value: $quantity, format: .number)
+                            TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
                                 .frame(width: 100)
                         }
-                        
-                        Picker("Unit", selection: $unit) {
-                            ForEach(Unit.allUnits, id: \.self) { unit in
-                                Text(unit.displayName).tag(unit)
-                            }
-                        }
-                        
-                        Picker("Category", selection: $category) {
-                            ForEach(ItemCategory.allCases, id: \.self) { category in
-                                HStack {
-                                    Image(systemName: category.icon)
-                                        .foregroundColor(category.color)
-                                    Text(category.rawValue)
-                                }
-                                .tag(category)
-                            }
-                        }
-                        
-                        Picker("Priority", selection: $priority) {
-                            ForEach(ItemPriority.allCases, id: \.self) { priority in
-                                Text(priority.displayName).tag(priority)
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Item Details")
-                } footer: {
-                    Text("Basic information about your item")
-                }
-                
-                Section {
-                    HStack {
-                        Text("Estimated Price")
-                        Spacer()
-                        TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 100)
-                    }
-                } header: {
-                    Text("Price")
-                } footer: {
-                    Text("Set an estimated price for this item")
-                }
-                
-                Section {
-                    TextEditor(text: $notes)
-                        .frame(minHeight: 100)
-                } header: {
-                    Text("Notes")
-                } footer: {
-                    Text("Add any additional notes or reminders about this item")
-                }
-                
-                Section {
-                    if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } header: {
+                        Text("Price")
+                    } footer: {
+                        Text("Set an estimated price for this item")
                     }
                     
-                    PhotosPicker(selection: $selectedImage, matching: .images) {
-                        Label("Select Image", systemImage: "photo")
+                    Section {
+                        TextEditor(text: $notes)
+                            .frame(minHeight: 100)
+                    } header: {
+                        Text("Notes")
+                    } footer: {
+                        Text("Add any additional notes or reminders about this item")
                     }
-                } header: {
-                    Text("Image")
-                } footer: {
-                    Text("Add a photo of the item for easy identification")
+                    
+                    Section {
+                        if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxHeight: 200)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                        
+                        PhotosPicker(selection: $selectedImage, matching: .images) {
+                            Label("Select Image", systemImage: "photo")
+                        }
+                    } header: {
+                        Text("Image")
+                    } footer: {
+                        Text("Add a photo of the item for easy identification")
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                
+                // Back Button FAB at bottom left
+                VStack {
+                    Spacer()
+                    HStack {
+                        BackButtonFAB {
+                            dismiss()
+                        }
+                        .padding(.leading, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
+                        
+                        Spacer()
+                    }
                 }
             }
             .enhancedNavigation(
@@ -131,11 +152,6 @@ struct ItemDetailView: View {
                 showBanner: true
             )
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveChanges()

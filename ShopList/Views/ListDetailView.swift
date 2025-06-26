@@ -230,8 +230,22 @@ struct ListDetailView: View {
             VStack {
                 Spacer()
                 HStack {
+                    // Back Button FAB at bottom left
+                    VStack {
+                        Spacer()
+                        BackButtonFAB {
+                            dismiss()
+                        }
+                    }
+                    .padding(.leading, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
+                    
                     Spacer()
+                    
+                    // Right FAB at bottom right
                     VStack(spacing: DesignSystem.Spacing.md) {
+                        Spacer() // Push FAB to bottom
+                        
                         if isFabExpanded {
                             // Delete List button
                             Button {
