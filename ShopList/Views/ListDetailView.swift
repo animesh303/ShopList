@@ -15,6 +15,9 @@ struct ListDetailView: View {
     @State private var showingEditSheet = false
     @State private var showingReminderSheet = false
     @State private var showingLocationSetup = false
+    @State private var showingSortPicker = false
+    @State private var isFabExpanded = false
+    @State private var fabTimer: Timer?
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
@@ -222,82 +225,187 @@ struct ListDetailView: View {
                     }
                 }
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        // Sort & Filter Options
-                        Label("Sort Items", systemImage: "arrow.up.arrow.down")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Picker("Sort By", selection: $sortOrder) {
-                            ForEach(ListSortOrder.allCases, id: \.self) { order in
-                                Text(order.rawValue).tag(order)
-                            }
-                        }
-                        
-                        Toggle("Show Completed Items", isOn: $settingsManager.showCompletedItemsByDefault)
-                        
-                        Divider()
-                        
-                        // List Management Options
-                        Label("List Actions", systemImage: "list.bullet")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Button(action: { 
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.impactOccurred()
-                            showingEditSheet = true 
-                        }) {
-                            Label("Edit List", systemImage: "pencil")
-                        }
-                        
-                        if settingsManager.notificationsEnabled && notificationManager.isAuthorized {
-                            Button(action: {
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                showingReminderSheet = true
-                            }) {
-                                Label("Set Reminder", systemImage: "bell")
-                            }
-                        }
-                        
-                        Button(role: .destructive, action: { 
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.impactOccurred()
-                            showingDeleteConfirmation = true 
-                        }) {
-                            Label("Delete List", systemImage: "trash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .font(.title2)
-                    }
-                }
-            }
             
-            // Floating Action Button for adding items
+            // Enhanced Floating Action Buttons with vibrant design
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    Button {
-                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                        generator.impactOccurred()
-                        showingAddItem = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 60)
-                            .background(Color.accentColor)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        if isFabExpanded {
+                            // Add Item button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingAddItem = true
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "plus")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.primaryButtonGradient
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.primary.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                            
+                            // Sort button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingSortPicker = true
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "arrow.up.arrow.down")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.info.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.info.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                            
+                            // Edit List button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingEditSheet = true
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "pencil")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.warning.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.warning.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                            
+                            // Reminder button (if notifications enabled)
+                            if settingsManager.notificationsEnabled && notificationManager.isAuthorized {
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingReminderSheet = true
+                                    withAnimation(DesignSystem.Animations.spring) {
+                                        isFabExpanded = false
+                                    }
+                                    stopFabTimer()
+                                } label: {
+                                    Image(systemName: "bell")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                        .background(
+                                            DesignSystem.Colors.secondary.opacity(0.8)
+                                        )
+                                        .clipShape(Circle())
+                                        .shadow(
+                                            color: DesignSystem.Colors.secondary.opacity(0.4),
+                                            radius: 8,
+                                            x: 0,
+                                            y: 4
+                                        )
+                                }
+                                .transition(.scale.combined(with: .opacity))
+                            }
+                            
+                            // Delete List button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                showingDeleteConfirmation = true
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "trash")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.error.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.error.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                        }
+                        
+                        // Enhanced toggle button with vibrant design
+                        Button {
+                            withAnimation(DesignSystem.Animations.spring) {
+                                isFabExpanded.toggle()
+                            }
+                            if isFabExpanded {
+                                startFabTimer()
+                            } else {
+                                stopFabTimer()
+                            }
+                        } label: {
+                            Image(systemName: isFabExpanded ? "chevron.down" : "ellipsis")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                .background(
+                                    DesignSystem.Colors.accentButtonGradient
+                                )
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: DesignSystem.Colors.accent1.opacity(0.4),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                        }
                     }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 20)
+                    .padding(.trailing, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
                 }
             }
         }
@@ -312,6 +420,9 @@ struct ListDetailView: View {
         }
         .sheet(isPresented: $showingLocationSetup) {
             LocationSetupView(list: list)
+        }
+        .sheet(isPresented: $showingSortPicker) {
+            ItemSortPickerView(sortOrder: $sortOrder)
         }
         .navigationDestination(for: Item.self) { item in
             ItemDetailView(item: item)
@@ -331,6 +442,22 @@ struct ListDetailView: View {
     private func deleteList() {
         modelContext.delete(list)
         dismiss()
+    }
+    
+    // MARK: - FAB Timer Functions
+    
+    private func startFabTimer() {
+        stopFabTimer() // Cancel any existing timer
+        fabTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+            withAnimation {
+                isFabExpanded = false
+            }
+        }
+    }
+    
+    private func stopFabTimer() {
+        fabTimer?.invalidate()
+        fabTimer = nil
     }
 }
 
