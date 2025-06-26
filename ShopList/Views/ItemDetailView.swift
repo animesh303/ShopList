@@ -134,13 +134,44 @@ struct ItemDetailView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        BackButtonFAB {
-                            dismiss()
+                        VStack {
+                            Spacer()
+                            BackButtonFAB {
+                                dismiss()
+                            }
                         }
                         .padding(.leading, DesignSystem.Spacing.lg)
                         .padding(.bottom, DesignSystem.Spacing.lg)
                         
                         Spacer()
+                        
+                        // Save Button FAB at bottom right
+                        VStack {
+                            Spacer()
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                saveChanges()
+                            } label: {
+                                Image(systemName: "checkmark")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.success.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.success.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                        }
+                        .padding(.trailing, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
                     }
                 }
             }
@@ -151,13 +182,6 @@ struct ItemDetailView: View {
                 style: .info,
                 showBanner: true
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveChanges()
-                    }
-                }
-            }
             .alert("Error", isPresented: $showingError) {
                 Button("OK", role: .cancel) { }
             } message: {

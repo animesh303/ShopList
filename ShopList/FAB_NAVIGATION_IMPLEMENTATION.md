@@ -82,7 +82,6 @@ struct BackButtonFAB: View {
 
 - **ContentView**: Back FAB at bottom left (conditional)
 - **ListDetailView**: Back FAB at bottom left
-- **ItemDetailView**: Back FAB at bottom left
 - **SettingsView**: Back FAB at bottom left
 
 ### Views with Dual FABs
@@ -93,6 +92,9 @@ struct BackButtonFAB: View {
 - **AddItemView**:
   - Cancel FAB at bottom left (red color)
   - Add FAB at bottom right (green color, with form validation)
+- **ItemDetailView**:
+  - Back FAB at bottom left
+  - Save FAB at bottom right (green color)
 
 ## Benefits
 
