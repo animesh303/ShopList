@@ -90,6 +90,9 @@ struct BackButtonFAB: View {
 - **AddListView**:
   - Back FAB at bottom left
   - Add FAB at bottom right (with form validation)
+- **AddItemView**:
+  - Cancel FAB at bottom left (red color)
+  - Add FAB at bottom right (green color, with form validation)
 
 ## Benefits
 
