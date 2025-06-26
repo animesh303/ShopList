@@ -8,6 +8,7 @@ struct ContentView: View {
     @StateObject private var notificationManager = NotificationManager.shared
     @State private var showingAddList = false
     @State private var showingSettings = false
+    @State private var showingSortPicker = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var isExpanded = false
@@ -80,6 +81,34 @@ struct ContentView: View {
                         Spacer()
                         VStack(spacing: DesignSystem.Spacing.md) {
                             if isExpanded {
+                                // Sort button with vibrant design
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingSortPicker = true
+                                    withAnimation(DesignSystem.Animations.spring) {
+                                        isExpanded = false
+                                    }
+                                    stopFabTimer()
+                                } label: {
+                                    Image(systemName: "arrow.up.arrow.down")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                        .background(
+                                            DesignSystem.Colors.info.opacity(0.8)
+                                        )
+                                        .clipShape(Circle())
+                                        .shadow(
+                                            color: DesignSystem.Colors.info.opacity(0.4),
+                                            radius: 8,
+                                            x: 0,
+                                            y: 4
+                                        )
+                                }
+                                .transition(.scale.combined(with: .opacity))
+                                
                                 // Settings button with vibrant design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -198,25 +227,14 @@ struct ContentView: View {
                     }
                 }
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        Picker("Sort Order", selection: $sortOrder) {
-                            ForEach(ListSortOrder.allCases) { order in
-                                Text(order.displayName).tag(order)
-                            }
-                        }
-                    } label: {
-                        Label("Sort", systemImage: "arrow.up.arrow.down")
-                            .foregroundColor(DesignSystem.Colors.primary)
-                    }
-                }
-            }
             .sheet(isPresented: $showingAddList) {
                 AddListView()
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showingSortPicker) {
+                SortPickerView(sortOrder: $sortOrder)
             }
             .navigationDestination(for: ShoppingList.self) { list in
                 ListDetailView(list: list)
