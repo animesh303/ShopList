@@ -182,12 +182,14 @@ struct ItemDetailView: View {
                 style: .info,
                 showBanner: true
             )
+            .navigationBarBackButtonHidden(true)
             .alert("Error", isPresented: $showingError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(errorMessage)
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
     
     private func saveChanges() {
