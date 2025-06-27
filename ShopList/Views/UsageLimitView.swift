@@ -25,6 +25,12 @@ struct UsageLimitView: View {
         )
         .sheet(isPresented: $showingPremiumUpgrade) {
             PremiumUpgradeView()
+                .onAppear {
+                    print("PremiumUpgradeView appeared")
+                }
+        }
+        .onChange(of: showingPremiumUpgrade) { _, newValue in
+            print("showingPremiumUpgrade changed to: \(newValue)")
         }
     }
     
@@ -52,14 +58,16 @@ struct UsageLimitView: View {
             
             // Quick upgrade button
             Button {
+                print("Upgrade button tapped - showingPremiumUpgrade: \(showingPremiumUpgrade)")
                 showingPremiumUpgrade = true
+                print("After setting showingPremiumUpgrade: \(showingPremiumUpgrade)")
             } label: {
                 Text("Upgrade")
-                    .font(.caption)
+                    .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
                     .background(
                         LinearGradient(
                             colors: [.orange, .red],
@@ -67,8 +75,10 @@ struct UsageLimitView: View {
                             endPoint: .trailing
                         )
                     )
-                    .cornerRadius(8)
+                    .cornerRadius(10)
+                    .shadow(color: .orange.opacity(0.3), radius: 4, x: 0, y: 2)
             }
+            .buttonStyle(PlainButtonStyle())
             
             // Expand button
             Button {
@@ -161,7 +171,9 @@ struct UsageLimitView: View {
     
     private var upgradeButtonSection: some View {
         Button {
+            print("Expanded upgrade button tapped - showingPremiumUpgrade: \(showingPremiumUpgrade)")
             showingPremiumUpgrade = true
+            print("After setting showingPremiumUpgrade: \(showingPremiumUpgrade)")
         } label: {
             HStack {
                 Image(systemName: "crown.fill")

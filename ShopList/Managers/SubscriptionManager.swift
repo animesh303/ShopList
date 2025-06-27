@@ -3,6 +3,23 @@ import StoreKit
 import SwiftUI
 import SwiftData
 
+enum SubscriptionError: Error, LocalizedError {
+    case userCancelled
+    case pending
+    case unknown
+    
+    var errorDescription: String? {
+        switch self {
+        case .userCancelled:
+            return "Purchase was cancelled"
+        case .pending:
+            return "Purchase is pending approval"
+        case .unknown:
+            return "An unknown error occurred"
+        }
+    }
+}
+
 @MainActor
 class SubscriptionManager: NSObject, ObservableObject {
     static let shared = SubscriptionManager()
@@ -42,8 +59,12 @@ class SubscriptionManager: NSObject, ObservableObject {
     // MARK: - Product Management
     
     func loadProducts() async {
+        print("SubscriptionManager: Starting to load products")
         isLoading = true
-        defer { isLoading = false }
+        defer { 
+            isLoading = false
+            print("SubscriptionManager: Finished loading products. Count: \(subscriptionProducts.count)")
+        }
         
         do {
             let productIdentifiers = Set([
@@ -51,28 +72,73 @@ class SubscriptionManager: NSObject, ObservableObject {
                 "com.shoplist.premium.yearly"
             ])
             
+            print("SubscriptionManager: Requesting products for identifiers: \(productIdentifiers)")
             let products = try await Product.products(for: productIdentifiers)
+            print("SubscriptionManager: Received \(products.count) products from StoreKit")
+            
             subscriptionProducts = products.sorted { $0.price < $1.price }
+            
+            // If no products were loaded, create mock products for testing
+            if subscriptionProducts.isEmpty {
+                print("SubscriptionManager: No products loaded, creating mock products for testing")
+                subscriptionProducts = createMockProducts()
+            }
+            
         } catch {
+            print("SubscriptionManager: Failed to load products: \(error.localizedDescription)")
             errorMessage = "Failed to load products: \(error.localizedDescription)"
+            
+            // Create mock products for testing when real products fail
+            print("SubscriptionManager: Creating mock products for testing")
+            subscriptionProducts = createMockProducts()
         }
     }
     
+    private func createMockProducts() -> [Product] {
+        // Create mock products for testing
+        // In a real app, these would be replaced with actual StoreKit products
+        let mockProducts: [Product] = []
+        
+        // Note: We can't create actual Product instances without StoreKit configuration
+        // Instead, we'll show a message that products are not available
+        print("SubscriptionManager: Mock products created (empty for now)")
+        
+        return mockProducts
+    }
+    
     func purchase(_ product: Product) async throws {
+        print("SubscriptionManager: Starting purchase for product: \(product.id)")
         isLoading = true
-        defer { isLoading = false }
+        defer { 
+            isLoading = false
+            print("SubscriptionManager: Purchase process completed")
+        }
         
-        let result = try await product.purchase()
-        
-        switch result {
-        case .success(_):
-            await updateSubscriptionStatus()
-        case .userCancelled:
-            break
-        case .pending:
-            errorMessage = "Purchase is pending"
-        @unknown default:
-            errorMessage = "Unknown purchase result"
+        do {
+            print("SubscriptionManager: Attempting to purchase product")
+            let result = try await product.purchase()
+            print("SubscriptionManager: Purchase result received: \(result)")
+            
+            switch result {
+            case .success(_):
+                print("SubscriptionManager: Purchase successful")
+                await updateSubscriptionStatus()
+            case .userCancelled:
+                print("SubscriptionManager: Purchase cancelled by user")
+                throw SubscriptionError.userCancelled
+            case .pending:
+                print("SubscriptionManager: Purchase is pending")
+                errorMessage = "Purchase is pending"
+                throw SubscriptionError.pending
+            @unknown default:
+                print("SubscriptionManager: Unknown purchase result")
+                errorMessage = "Unknown purchase result"
+                throw SubscriptionError.unknown
+            }
+        } catch {
+            print("SubscriptionManager: Purchase failed with error: \(error.localizedDescription)")
+            errorMessage = "Failed to purchase: \(error.localizedDescription)"
+            throw error
         }
     }
     
