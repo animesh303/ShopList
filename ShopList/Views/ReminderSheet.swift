@@ -76,14 +76,21 @@ struct ReminderSheet: View {
     
     private func scheduleReminder() {
         Task {
+            let success: Bool
+            
             if isRecurring {
-                await notificationManager.scheduleRecurringReminder(for: list, at: reminderDate)
+                success = await notificationManager.scheduleRecurringReminder(for: list, at: reminderDate, frequency: .daily)
             } else {
-                await notificationManager.scheduleShoppingListReminder(for: list, at: reminderDate)
+                success = await notificationManager.scheduleShoppingReminder(for: list, at: reminderDate)
             }
             
             await MainActor.run {
-                showingSuccess = true
+                if success {
+                    showingSuccess = true
+                } else {
+                    errorMessage = "Failed to schedule reminder. Please check your notification settings."
+                    showingError = true
+                }
             }
         }
     }

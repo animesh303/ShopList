@@ -2,6 +2,7 @@ import Foundation
 import UserNotifications
 import SwiftUI
 import SwiftData
+import CoreLocation
 
 @MainActor
 class NotificationManager: NSObject, ObservableObject {
@@ -52,138 +53,214 @@ class NotificationManager: NSObject, ObservableObject {
     
     // MARK: - Notification Scheduling
     
-    func scheduleShoppingListReminder(for list: ShoppingList, at date: Date) async {
+    func scheduleShoppingReminder(for list: ShoppingList, at date: Date) async -> Bool {
+        // Check subscription limits
+        let subscriptionManager = SubscriptionManager.shared
+        if !subscriptionManager.canSendNotification() {
+            print("Notification limit reached for free user")
+            return false
+        }
+        
         guard isAuthorized else {
             print("Notifications not authorized")
-            return
+            return false
         }
         
         let content = UNMutableNotificationContent()
         content.title = "Shopping Reminder"
-        content.body = "Don't forget to shop for: \(list.name)"
+        content.body = "Don't forget to check your '\(list.name)' list!"
         content.sound = getNotificationSound()
-        content.badge = 1
         content.categoryIdentifier = "SHOPPING_REMINDER"
+        content.userInfo = ["listId": list.id.uuidString]
         
-        // Add list information to user info
-        content.userInfo = [
-            "listId": list.id.uuidString,
-            "listName": list.name,
-            "notificationType": "shopping_reminder"
-        ]
-        
-        // Create date components for the reminder
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: date)
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date),
+            repeats: false
+        )
         
         let request = UNNotificationRequest(
-            identifier: "shopping_reminder_\(list.id.uuidString)",
+            identifier: "shopping_reminder_\(list.id.uuidString)_\(date.timeIntervalSince1970)",
             content: content,
             trigger: trigger
         )
         
         do {
             try await notificationCenter.add(request)
-            print("Scheduled notification for list: \(list.name)")
+            
+            // Increment notification count for free users
+            subscriptionManager.incrementNotificationCount()
+            
+            print("Shopping reminder scheduled for \(date)")
+            return true
         } catch {
-            print("Error scheduling notification: \(error)")
+            print("Failed to schedule shopping reminder: \(error)")
+            return false
         }
     }
     
-    func scheduleRecurringReminder(for list: ShoppingList, at time: Date, repeats: Bool = true) async {
+    func scheduleRecurringReminder(for list: ShoppingList, at time: Date, frequency: RecurringFrequency) async -> Bool {
+        // Check subscription limits
+        let subscriptionManager = SubscriptionManager.shared
+        if !subscriptionManager.canSendNotification() {
+            print("Notification limit reached for free user")
+            return false
+        }
+        
         guard isAuthorized else {
             print("Notifications not authorized")
-            return
+            return false
         }
         
         let content = UNMutableNotificationContent()
-        content.title = "Shopping List Reminder"
-        content.body = "Time to review your shopping list: \(list.name)"
+        content.title = "Shopping Reminder"
+        content.body = "Time to check your '\(list.name)' list!"
         content.sound = getNotificationSound()
-        content.badge = 1
         content.categoryIdentifier = "RECURRING_REMINDER"
+        content.userInfo = ["listId": list.id.uuidString]
         
-        // Add list information to user info
-        content.userInfo = [
-            "listId": list.id.uuidString,
-            "listName": list.name,
-            "notificationType": "recurring_reminder"
-        ]
-        
-        // Create date components for daily reminder
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.hour, .minute], from: time)
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: repeats)
+        let timeComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: timeComponents, repeats: true)
         
         let request = UNNotificationRequest(
-            identifier: "recurring_reminder_\(list.id.uuidString)",
+            identifier: "recurring_reminder_\(list.id.uuidString)_\(frequency.rawValue)",
             content: content,
             trigger: trigger
         )
         
         do {
             try await notificationCenter.add(request)
-            print("Scheduled recurring notification for list: \(list.name)")
+            
+            // Increment notification count for free users
+            subscriptionManager.incrementNotificationCount()
+            
+            print("Recurring reminder scheduled for \(time)")
+            return true
         } catch {
-            print("Error scheduling recurring notification: \(error)")
+            print("Failed to schedule recurring reminder: \(error)")
+            return false
         }
     }
     
-    func scheduleItemReminder(for item: Item, in list: ShoppingList, at date: Date) async {
+    func scheduleItemReminder(for item: Item, in list: ShoppingList, at date: Date) async -> Bool {
+        // Check subscription limits
+        let subscriptionManager = SubscriptionManager.shared
+        if !subscriptionManager.canSendNotification() {
+            print("Notification limit reached for free user")
+            return false
+        }
+        
         guard isAuthorized else {
             print("Notifications not authorized")
-            return
+            return false
         }
         
         let content = UNMutableNotificationContent()
         content.title = "Item Reminder"
-        content.body = "Don't forget to buy: \(item.name) for \(list.name)"
+        content.body = "Don't forget to buy '\(item.name)' for your '\(list.name)' list!"
         content.sound = getNotificationSound()
-        content.badge = 1
         content.categoryIdentifier = "ITEM_REMINDER"
+        content.userInfo = ["listId": list.id.uuidString, "itemId": item.id.uuidString]
         
-        // Add list and item information to user info
-        content.userInfo = [
-            "listId": list.id.uuidString,
-            "listName": list.name,
-            "itemId": item.id.uuidString,
-            "itemName": item.name,
-            "notificationType": "item_reminder"
-        ]
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: date.timeIntervalSinceNow, repeats: false)
+        let trigger = UNCalendarNotificationTrigger(
+            dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date),
+            repeats: false
+        )
         
         let request = UNNotificationRequest(
-            identifier: "item_reminder_\(item.id.uuidString)",
+            identifier: "item_reminder_\(item.id.uuidString)_\(date.timeIntervalSince1970)",
             content: content,
             trigger: trigger
         )
         
         do {
             try await notificationCenter.add(request)
-            print("Scheduled item notification: \(item.name)")
+            
+            // Increment notification count for free users
+            subscriptionManager.incrementNotificationCount()
+            
+            print("Item reminder scheduled for \(date)")
+            return true
         } catch {
-            print("Error scheduling item notification: \(error)")
+            print("Failed to schedule item reminder: \(error)")
+            return false
+        }
+    }
+    
+    func scheduleLocationReminder(for list: ShoppingList, at location: CLLocationCoordinate2D, radius: Double, message: String) async -> Bool {
+        // Check subscription limits
+        let subscriptionManager = SubscriptionManager.shared
+        if !subscriptionManager.canUseLocationReminders() {
+            print("Location reminders require Premium subscription")
+            return false
+        }
+        
+        if !subscriptionManager.canSendNotification() {
+            print("Notification limit reached for free user")
+            return false
+        }
+        
+        guard isAuthorized else {
+            print("Notifications not authorized")
+            return false
+        }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Location Reminder"
+        content.body = message.isEmpty ? "You're near a store for your '\(list.name)' list!" : message
+        content.sound = getNotificationSound()
+        content.categoryIdentifier = "LOCATION_REMINDER"
+        content.userInfo = ["listId": list.id.uuidString]
+        
+        let region = CLCircularRegion(
+            center: location,
+            radius: radius,
+            identifier: "location_reminder_\(list.id.uuidString)"
+        )
+        region.notifyOnEntry = true
+        region.notifyOnExit = false
+        
+        let trigger = UNLocationNotificationTrigger(region: region, repeats: true)
+        
+        let request = UNNotificationRequest(
+            identifier: "location_reminder_\(list.id.uuidString)",
+            content: content,
+            trigger: trigger
+        )
+        
+        do {
+            try await notificationCenter.add(request)
+            
+            // Increment notification count for free users
+            subscriptionManager.incrementNotificationCount()
+            
+            print("Location reminder scheduled for \(location)")
+            return true
+        } catch {
+            print("Failed to schedule location reminder: \(error)")
+            return false
         }
     }
     
     // MARK: - Notification Management
     
-    func cancelNotification(withIdentifier identifier: String) {
-        notificationCenter.removePendingNotificationRequests(withIdentifiers: [identifier])
-    }
-    
-    func cancelAllNotifications() {
-        notificationCenter.removeAllPendingNotificationRequests()
-    }
-    
     func getPendingNotifications() async {
         let requests = await notificationCenter.pendingNotificationRequests()
         await MainActor.run {
             self.pendingNotifications = requests
+        }
+    }
+    
+    func cancelNotification(withIdentifier identifier: String) {
+        notificationCenter.removePendingNotificationRequests(withIdentifiers: [identifier])
+        Task {
+            await getPendingNotifications()
+        }
+    }
+    
+    func cancelAllNotifications() {
+        notificationCenter.removeAllPendingNotificationRequests()
+        Task {
+            await getPendingNotifications()
         }
     }
     
@@ -327,41 +404,30 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
-        let identifier = response.actionIdentifier
         
-        // Handle notification tap to open list
-        if identifier == UNNotificationDefaultActionIdentifier {
+        if let listIdString = userInfo["listId"] as? String,
+           let listId = UUID(uuidString: listIdString) {
             Task { @MainActor in
-                await self.handleNotificationTap(userInfo: userInfo)
+                await self.findAndSetListToOpen(listId: listId)
             }
-        }
-        
-        switch identifier {
-        case "VIEW_LIST":
-            Task { @MainActor in
-                await self.handleNotificationTap(userInfo: userInfo)
-            }
-        case "MARK_COMPLETE":
-            // Handle mark complete action
-            print("User tapped Mark Complete")
-        case "SNOOZE":
-            // Handle snooze action
-            print("User tapped Snooze")
-        default:
-            break
         }
         
         completionHandler()
     }
+}
+
+// MARK: - Supporting Types
+
+enum RecurringFrequency: String, CaseIterable {
+    case daily = "Daily"
+    case weekly = "Weekly"
+    case monthly = "Monthly"
     
-    private func handleNotificationTap(userInfo: [AnyHashable: Any]) async {
-        guard let listIdString = userInfo["listId"] as? String,
-              let listId = UUID(uuidString: listIdString) else {
-            print("Invalid list ID in notification")
-            return
+    var calendarComponent: Calendar.Component {
+        switch self {
+        case .daily: return .day
+        case .weekly: return .weekOfYear
+        case .monthly: return .month
         }
-        
-        // Find the list and set it to open
-        await findAndSetListToOpen(listId: listId)
     }
 } 

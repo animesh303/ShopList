@@ -6,6 +6,7 @@ struct ContentView: View {
     @Query private var lists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     @State private var showingAddList = false
     @State private var showingSettings = false
     @State private var showingSortPicker = false
@@ -14,6 +15,8 @@ struct ContentView: View {
     @State private var isExpanded = false
     @State private var fabTimer: Timer?
     @State private var navigationPath = NavigationPath()
+    @State private var showingUpgradePrompt = false
+    @State private var upgradePromptMessage = ""
     
     private var filteredLists: [ShoppingList] {
         if searchText.isEmpty {
@@ -48,30 +51,39 @@ struct ContentView: View {
                 DesignSystem.Colors.backgroundGradient
                     .ignoresSafeArea()
                 
-                if settingsManager.defaultListViewStyle == .grid {
-                    ScrollView {
-                        LazyVGrid(columns: [
-                            GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
-                        ], spacing: DesignSystem.Spacing.lg) {
-                            ForEach(sortedLists) { list in
-                                NavigationLink(value: list) {
-                                    GridListCard(list: list)
+                VStack(spacing: 0) {
+                    // Show usage limit view for free users
+                    if subscriptionManager.shouldShowUpgradePrompt() {
+                        UsageLimitView()
+                            .padding(.horizontal, 16)
+                            .padding(.top, 16)
+                    }
+                    
+                    if settingsManager.defaultListViewStyle == .grid {
+                        ScrollView {
+                            LazyVGrid(columns: [
+                                GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
+                            ], spacing: DesignSystem.Spacing.lg) {
+                                ForEach(sortedLists) { list in
+                                    NavigationLink(value: list) {
+                                        GridListCard(list: list)
+                                    }
                                 }
                             }
+                            .padding(DesignSystem.Spacing.lg)
                         }
-                        .padding(DesignSystem.Spacing.lg)
-                    }
-                } else {
-                    List {
-                        ForEach(sortedLists) { list in
-                            NavigationLink(value: list) {
-                                ListRow(list: list)
+                    } else {
+                        List {
+                            ForEach(sortedLists) { list in
+                                NavigationLink(value: list) {
+                                    ListRow(list: list)
+                                }
                             }
+                            .onDelete(perform: deleteLists)
                         }
-                        .onDelete(perform: deleteLists)
+                        .listStyle(PlainListStyle())
+                        .scrollContentBackground(.hidden)
                     }
-                    .listStyle(PlainListStyle())
-                    .scrollContentBackground(.hidden)
                 }
                 
                 // Enhanced Floating Action Buttons with vibrant design
@@ -155,7 +167,15 @@ struct ContentView: View {
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
-                                    showingAddList = true
+                                    
+                                    // Check if user can create a new list
+                                    if subscriptionManager.canCreateList() {
+                                        showingAddList = true
+                                    } else {
+                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .unlimitedLists)
+                                        showingUpgradePrompt = true
+                                    }
+                                    
                                     withAnimation(DesignSystem.Animations.spring) {
                                         isExpanded = false
                                     }
@@ -249,6 +269,14 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSortPicker) {
                 SortPickerView(sortOrder: $sortOrder)
+            }
+            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+                Button("Upgrade") {
+                    // Show premium upgrade view
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(upgradePromptMessage)
             }
             .navigationDestination(for: ShoppingList.self) { list in
                 ListDetailView(list: list)

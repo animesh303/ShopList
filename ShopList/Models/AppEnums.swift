@@ -160,4 +160,135 @@ enum Unit: String, CaseIterable, Identifiable {
     static var allUnits: [Unit] {
         [.none] + allCases.filter { $0 != .none }
     }
+}
+
+// MARK: - Subscription Enums
+
+enum SubscriptionTier: String, CaseIterable, Identifiable {
+    case free = "Free"
+    case premium = "Premium"
+    
+    var id: String { rawValue }
+    
+    var displayName: String {
+        switch self {
+        case .free: return "Free"
+        case .premium: return "Premium"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .free: return .gray
+        case .premium: return .orange
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .free: return "person.circle"
+        case .premium: return "crown.fill"
+        }
+    }
+}
+
+enum SubscriptionPeriod: String, CaseIterable, Identifiable {
+    case monthly = "monthly"
+    case yearly = "yearly"
+    
+    var id: String { rawValue }
+    
+    var displayName: String {
+        switch self {
+        case .monthly: return "Monthly"
+        case .yearly: return "Yearly"
+        }
+    }
+    
+    var savings: String? {
+        switch self {
+        case .monthly: return nil
+        case .yearly: return "Save 33%"
+        }
+    }
+}
+
+enum PremiumFeature: String, CaseIterable, Identifiable {
+    case unlimitedLists = "Unlimited Lists"
+    case allCategories = "All Categories"
+    case locationReminders = "Location Reminders"
+    case unlimitedNotifications = "Unlimited Notifications"
+    case widgets = "iOS Widgets"
+    case appShortcuts = "Siri Shortcuts"
+    case templates = "List Templates"
+    case budgetTracking = "Budget Tracking"
+    case itemImages = "Item Images"
+    case barcodeScanning = "Barcode Scanning"
+    case exportImport = "Export/Import"
+    case prioritySupport = "Priority Support"
+    
+    var id: String { rawValue }
+    
+    var description: String {
+        switch self {
+        case .unlimitedLists:
+            return "Create unlimited shopping lists"
+        case .allCategories:
+            return "Access to all 20+ categories"
+        case .locationReminders:
+            return "Get notified when near stores"
+        case .unlimitedNotifications:
+            return "Unlimited daily notifications"
+        case .widgets:
+            return "Home screen widgets"
+        case .appShortcuts:
+            return "Siri voice commands"
+        case .templates:
+            return "Save and reuse list templates"
+        case .budgetTracking:
+            return "Track spending with budgets"
+        case .itemImages:
+            return "Add photos to items"
+        case .barcodeScanning:
+            return "Scan product barcodes"
+        case .exportImport:
+            return "Backup and restore data"
+        case .prioritySupport:
+            return "Priority customer support"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .unlimitedLists: return "list.bullet"
+        case .allCategories: return "folder.fill"
+        case .locationReminders: return "location.circle.fill"
+        case .unlimitedNotifications: return "bell.fill"
+        case .widgets: return "rectangle.3.group.fill"
+        case .appShortcuts: return "mic.fill"
+        case .templates: return "doc.on.doc.fill"
+        case .budgetTracking: return "chart.line.uptrend.xyaxis"
+        case .itemImages: return "photo.fill"
+        case .barcodeScanning: return "barcode.viewfinder"
+        case .exportImport: return "square.and.arrow.up"
+        case .prioritySupport: return "person.crop.circle.badge.questionmark"
+        }
+    }
+    
+    var isAvailableInFree: Bool {
+        switch self {
+        case .unlimitedLists: return false
+        case .allCategories: return false
+        case .locationReminders: return false
+        case .unlimitedNotifications: return false
+        case .widgets: return false
+        case .appShortcuts: return false
+        case .templates: return false
+        case .budgetTracking: return false
+        case .itemImages: return false
+        case .barcodeScanning: return false
+        case .exportImport: return false
+        case .prioritySupport: return false
+        }
+    }
 } 

@@ -16,6 +16,7 @@ struct ShopListApp: App {
     @StateObject private var viewModel: ShoppingListViewModel
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     init() {
         do {
@@ -45,12 +46,15 @@ struct ShopListApp: App {
                 ContentView()
                     .modifier(iOSVersionCheck())
                     .environmentObject(viewModel)
+                    .environmentObject(subscriptionManager)
                     .preferredColorScheme(settingsManager.appearance.colorScheme)
                     .onAppear {
                         // Set up notification categories
                         notificationManager.setupNotificationCategories()
                         // Set up model context for notification handling
                         notificationManager.setModelContext(container.mainContext)
+                        // Set up model context for subscription manager
+                        subscriptionManager.setModelContext(container.mainContext)
                     }
                     .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
                         if hasChanges {

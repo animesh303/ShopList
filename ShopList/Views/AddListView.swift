@@ -5,12 +5,14 @@ struct AddListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     @State private var listName = ""
     @State private var category: ListCategory = .groceries
     @State private var budgetString = ""
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @State private var showingUpgradePrompt = false
     
     private var budget: Double? {
         guard !budgetString.isEmpty else { return nil }
@@ -19,6 +21,10 @@ struct AddListView: View {
     
     private var isFormValid: Bool {
         !listName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    private var availableCategories: [ListCategory] {
+        subscriptionManager.getAvailableCategories()
     }
     
     private func validateBudgetString(_ input: String) -> String {
@@ -31,22 +37,37 @@ struct AddListView: View {
     }
     
     private var budgetRow: some View {
-        HStack {
-            Text(settingsManager.currency.symbol)
-                .font(DesignSystem.Typography.body)
-                .foregroundColor(DesignSystem.Colors.primaryText)
-            TextField("Budget", text: Binding(
-                get: { budgetString },
-                set: { newValue in
-                    if budgetString == "0.00" && newValue == "0.00" {
-                        budgetString = ""
-                    } else {
-                        budgetString = validateBudgetString(newValue)
+        VStack(spacing: 8) {
+            HStack {
+                Text(settingsManager.currency.symbol)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.primaryText)
+                TextField("Budget", text: Binding(
+                    get: { budgetString },
+                    set: { newValue in
+                        if budgetString == "0.00" && newValue == "0.00" {
+                            budgetString = ""
+                        } else {
+                            budgetString = validateBudgetString(newValue)
+                        }
                     }
+                ))
+                .keyboardType(.decimalPad)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .disabled(!subscriptionManager.canUseBudgetTracking())
+            }
+            
+            if !subscriptionManager.canUseBudgetTracking() {
+                HStack {
+                    Image(systemName: "crown.fill")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text("Upgrade to Premium for budget tracking")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                    Spacer()
                 }
-            ))
-            .keyboardType(.decimalPad)
-            .textFieldStyle(RoundedBorderTextFieldStyle())
+            }
         }
     }
     
@@ -63,7 +84,7 @@ struct AddListView: View {
                             .font(DesignSystem.Typography.body)
                         
                         Picker("Category", selection: $category) {
-                            ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
+                            ForEach(availableCategories.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
                                 HStack {
                                     Image(systemName: category.icon)
                                         .foregroundColor(category.color)
@@ -81,6 +102,12 @@ struct AddListView: View {
                         Text("List Details")
                             .font(DesignSystem.Typography.subheadlineBold)
                             .foregroundColor(DesignSystem.Colors.primaryText)
+                    } footer: {
+                        if !subscriptionManager.isPremium {
+                            Text("Free users can only use basic categories. Upgrade to Premium for all 20+ categories.")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
                     }
                     
                     Section {
@@ -96,7 +123,7 @@ struct AddListView: View {
                                 Text("Category: \(category.rawValue)")
                                     .font(DesignSystem.Typography.caption1)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
-                                if let budget = budget {
+                                if let budget = budget, subscriptionManager.canUseBudgetTracking() {
                                     Text("Budget: \(budget, format: .currency(code: settingsManager.currency.rawValue))")
                                         .font(DesignSystem.Typography.caption1)
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -181,6 +208,14 @@ struct AddListView: View {
             } message: {
                 Text(alertMessage)
             }
+            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+                Button("Upgrade") {
+                    // Show premium upgrade view
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("This feature requires a Premium subscription.")
+            }
         }
     }
     
@@ -193,10 +228,28 @@ struct AddListView: View {
             return
         }
         
+        // Check if user can create a list
+        guard subscriptionManager.canCreateList() else {
+            showingUpgradePrompt = true
+            return
+        }
+        
+        // Check if user can use the selected category
+        guard subscriptionManager.canUseCategory(category) else {
+            showingUpgradePrompt = true
+            return
+        }
+        
+        // Check if user can use budget tracking
+        if budget != nil && !subscriptionManager.canUseBudgetTracking() {
+            showingUpgradePrompt = true
+            return
+        }
+        
         let newList = ShoppingList(
             name: trimmedName,
             category: category,
-            budget: budget
+            budget: subscriptionManager.canUseBudgetTracking() ? budget : nil
         )
         
         modelContext.insert(newList)
