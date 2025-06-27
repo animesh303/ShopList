@@ -3,9 +3,90 @@ import SwiftUI
 struct UsageLimitView: View {
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @State private var showingPremiumUpgrade = false
+    @State private var isExpanded = false
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 0) {
+            if isExpanded {
+                // Expanded view with full details
+                expandedView
+            } else {
+                // Compact view
+                compactView
+            }
+        }
+        .background(DesignSystem.Colors.cardGradient)
+        .cornerRadius(12)
+        .shadow(
+            color: DesignSystem.Shadows.colorfulSmall.color,
+            radius: DesignSystem.Shadows.colorfulSmall.radius,
+            x: DesignSystem.Shadows.colorfulSmall.x,
+            y: DesignSystem.Shadows.colorfulSmall.y
+        )
+        .sheet(isPresented: $showingPremiumUpgrade) {
+            PremiumUpgradeView()
+        }
+    }
+    
+    private var compactView: some View {
+        HStack(spacing: 12) {
+            // Icon and title
+            HStack(spacing: 8) {
+                Image(systemName: "chart.bar.fill")
+                    .font(.title3)
+                    .foregroundColor(DesignSystem.Colors.warning)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Free Plan")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    
+                    Text("\(subscriptionManager.getFreeTierUsage().lists)/\(subscriptionManager.getFreeTierUsage().maxLists) lists used")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
+            }
+            
+            Spacer()
+            
+            // Quick upgrade button
+            Button {
+                showingPremiumUpgrade = true
+            } label: {
+                Text("Upgrade")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        LinearGradient(
+                            colors: [.orange, .red],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(8)
+            }
+            
+            // Expand button
+            Button {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isExpanded.toggle()
+                }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.caption)
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+            }
+        }
+        .padding(12)
+    }
+    
+    private var expandedView: some View {
+        VStack(spacing: 16) {
             // Header
             headerSection
             
@@ -18,18 +99,7 @@ struct UsageLimitView: View {
             // Feature comparison
             featureComparisonSection
         }
-        .padding(20)
-        .background(DesignSystem.Colors.cardGradient)
-        .cornerRadius(16)
-        .shadow(
-            color: DesignSystem.Shadows.colorfulMedium.color,
-            radius: DesignSystem.Shadows.colorfulMedium.radius,
-            x: DesignSystem.Shadows.colorfulMedium.x,
-            y: DesignSystem.Shadows.colorfulMedium.y
-        )
-        .sheet(isPresented: $showingPremiumUpgrade) {
-            PremiumUpgradeView()
-        }
+        .padding(16)
     }
     
     private var headerSection: some View {
@@ -45,6 +115,17 @@ struct UsageLimitView: View {
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 
                 Spacer()
+                
+                // Collapse button
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        isExpanded = false
+                    }
+                } label: {
+                    Image(systemName: "chevron.up")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
             }
             
             Text("You're using the free version of ShopList. Upgrade to Premium for unlimited features!")
