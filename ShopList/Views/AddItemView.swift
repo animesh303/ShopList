@@ -151,6 +151,7 @@ struct AddItemView: View {
     @Bindable var list: ShoppingList
     @Query private var allLists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     @State private var name = ""
     @State private var quantity = 1.0
@@ -170,6 +171,8 @@ struct AddItemView: View {
     @State private var itemImage: Image?
     @State private var imageData: Data?
     @State private var showingImageOptions = false
+    @State private var showingBarcodeScanner = false
+    @State private var barcode: String?
     
     @FocusState private var focusedField: Field?
     
@@ -368,6 +371,21 @@ struct AddItemView: View {
             .sheet(isPresented: $showingCamera) {
                 CameraView(image: $itemImage, imageData: $imageData)
             }
+            .sheet(isPresented: $showingBarcodeScanner) {
+                BarcodeScannerView { product in
+                    // Handle scanned product
+                    name = product.name
+                    brand = product.brand ?? ""
+                    estimatedPrice = product.price
+                    unit = product.unit ?? ""
+                    barcode = product.barcode
+                    
+                    // Try to determine category from product name
+                    if let detectedCategory = detectCategory(from: product.name) {
+                        category = detectedCategory
+                    }
+                }
+            }
             .onChange(of: selectedImage) { _, newValue in
                 Task {
                     if let data = try? await newValue?.loadTransferable(type: Data.self) {
@@ -394,10 +412,47 @@ struct AddItemView: View {
             VStack(spacing: 20) {
                 // Enhanced Item Name field
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Item Name")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    HStack {
+                        Text("Item Name")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        Spacer()
+                        
+                        // Barcode scanning button (Premium feature)
+                        if subscriptionManager.canUseBarcodeScanning() {
+                            Button {
+                                showingBarcodeScanner = true
+                            } label: {
+                                Image(systemName: "barcode.viewfinder")
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .background(
+                                        Circle()
+                                            .fill(DesignSystem.Colors.accent1)
+                                    )
+                                    .shadow(color: DesignSystem.Colors.accent1.opacity(0.3), radius: 4, x: 0, y: 2)
+                            }
+                        } else {
+                            Button {
+                                // Show upgrade prompt
+                                errorMessage = subscriptionManager.getUpgradePrompt(for: .barcodeScanning)
+                                showingError = true
+                            } label: {
+                                Image(systemName: "crown.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.orange)
+                                    .padding(8)
+                                    .background(
+                                        Circle()
+                                            .fill(.orange.opacity(0.1))
+                                    )
+                            }
+                        }
+                    }
+                    
                     TextField("Enter item name", text: $name)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .textContentType(.name)
@@ -408,6 +463,25 @@ struct AddItemView: View {
                                 showingSuggestions = false
                             }
                         }
+                    
+                    // Show barcode if available
+                    if let barcode = barcode {
+                        HStack {
+                            Image(systemName: "barcode")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            Text("Barcode: \(barcode)")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            Spacer()
+                            Button("Clear") {
+                                self.barcode = nil
+                            }
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.accent1)
+                        }
+                        .padding(.top, 4)
+                    }
                 }
                 
                 if showingSuggestions {
@@ -617,45 +691,27 @@ struct AddItemView: View {
                 category: category,
                 isCompleted: false,
                 notes: notes.isEmpty ? nil : notes,
-                dateAdded: Date(),
                 estimatedPrice: estimatedPrice.map { Decimal($0) },
+                barcode: barcode,
                 brand: brand.isEmpty ? nil : brand,
                 unit: unit.isEmpty ? nil : unit,
-                priority: priority
+                imageData: imageData,
+                priority: priority,
+                productId: nil,
+                lastScanned: nil
             )
             
-            if let imageData = imageData {
-                // Save image data to the item
-                item.imageData = imageData
-            }
+            list.items.append(item)
             
-            // Add item to list
-            list.addItem(item)
-            
-            // Update item history
-            let lowercaseName = name.lowercased()
-            let descriptor = FetchDescriptor<ItemHistory>(
-                predicate: #Predicate { $0.lowercaseName == lowercaseName }
+            // Add to item history for suggestions
+            let history = ItemHistory(
+                name: name,
+                category: item.category,
+                brand: item.brand,
+                unit: item.unit,
+                estimatedPrice: item.estimatedPrice
             )
-            
-            if let existingHistory = try modelContext.fetch(descriptor).first {
-                // Update existing history
-                existingHistory.usageCount += 1
-                existingHistory.lastUsedDate = Date()
-                existingHistory.brand = item.brand
-                existingHistory.unit = item.unit
-                existingHistory.estimatedPrice = item.estimatedPrice
-            } else {
-                // Create new history entry
-                let history = ItemHistory(
-                    name: name,
-                    category: item.category,
-                    brand: item.brand,
-                    unit: item.unit,
-                    estimatedPrice: item.estimatedPrice
-                )
-                modelContext.insert(history)
-            }
+            modelContext.insert(history)
             
             try modelContext.save()
             dismiss()
@@ -663,6 +719,36 @@ struct AddItemView: View {
             errorMessage = error.localizedDescription
             showingError = true
         }
+    }
+    
+    private func detectCategory(from productName: String) -> ItemCategory? {
+        let lowercasedName = productName.lowercased()
+        
+        // Food categories
+        if lowercasedName.contains("banana") || lowercasedName.contains("apple") || lowercasedName.contains("fruit") {
+            return .produce
+        }
+        if lowercasedName.contains("bread") || lowercasedName.contains("cake") || lowercasedName.contains("pastry") {
+            return .bakery
+        }
+        if lowercasedName.contains("milk") || lowercasedName.contains("cheese") || lowercasedName.contains("yogurt") {
+            return .dairy
+        }
+        if lowercasedName.contains("meat") || lowercasedName.contains("chicken") || lowercasedName.contains("beef") {
+            return .meat
+        }
+        if lowercasedName.contains("frozen") || lowercasedName.contains("ice cream") {
+            return .frozenFoods
+        }
+        if lowercasedName.contains("drink") || lowercasedName.contains("soda") || lowercasedName.contains("juice") {
+            return .beverages
+        }
+        if lowercasedName.contains("snack") || lowercasedName.contains("chips") || lowercasedName.contains("candy") {
+            return .snacks
+        }
+        
+        // Default to groceries for food items
+        return .groceries
     }
     
     private func onSuggestionSelected(_ suggestion: (name: String, category: ItemCategory)) {
@@ -692,74 +778,6 @@ struct AddItemView: View {
         }
         
         showingSuggestions = false
-    }
-    
-    struct BarcodeScannerView: UIViewControllerRepresentable {
-        @Binding var barcode: String?
-        @Environment(\.dismiss) private var dismiss
-        
-        func makeUIViewController(context: Context) -> UIViewController {
-            let viewController = UIViewController()
-            let captureSession = AVCaptureSession()
-            
-            guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return viewController }
-            let videoInput: AVCaptureDeviceInput
-            
-            do {
-                videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
-            } catch {
-                return viewController
-            }
-            
-            if captureSession.canAddInput(videoInput) {
-                captureSession.addInput(videoInput)
-            } else {
-                return viewController
-            }
-            
-            let metadataOutput = AVCaptureMetadataOutput()
-            
-            if captureSession.canAddOutput(metadataOutput) {
-                captureSession.addOutput(metadataOutput)
-                
-                metadataOutput.setMetadataObjectsDelegate(context.coordinator, queue: DispatchQueue.main)
-                metadataOutput.metadataObjectTypes = [.ean8, .ean13, .pdf417, .qr]
-            } else {
-                return viewController
-            }
-            
-            let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-            previewLayer.frame = viewController.view.layer.bounds
-            previewLayer.videoGravity = .resizeAspectFill
-            viewController.view.layer.addSublayer(previewLayer)
-            
-            captureSession.startRunning()
-            
-            return viewController
-        }
-        
-        func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
-        
-        func makeCoordinator() -> Coordinator {
-            Coordinator(self)
-        }
-        
-        class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
-            let parent: BarcodeScannerView
-            
-            init(_ parent: BarcodeScannerView) {
-                self.parent = parent
-            }
-            
-            func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-                if let metadataObject = metadataObjects.first {
-                    guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
-                    guard let stringValue = readableObject.stringValue else { return }
-                    parent.barcode = stringValue
-                    parent.dismiss()
-                }
-            }
-        }
     }
     
     struct ImagePicker: UIViewControllerRepresentable {

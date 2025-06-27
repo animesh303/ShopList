@@ -19,6 +19,8 @@ final class Item {
     var lastPurchasedDate: Date?
     var imageData: Data?
     var priority: ItemPriority
+    var productId: String?
+    var lastScanned: Date?
     
     init(id: UUID = UUID(), 
          name: String, 
@@ -34,7 +36,9 @@ final class Item {
          lastPurchasedPrice: Decimal? = nil,
          lastPurchasedDate: Date? = nil,
          imageData: Data? = nil,
-         priority: ItemPriority = .normal) {
+         priority: ItemPriority = .normal,
+         productId: String? = nil,
+         lastScanned: Date? = nil) {
         self.id = id
         self.name = name
         self.quantity = quantity
@@ -43,7 +47,6 @@ final class Item {
         self.notes = notes
         self.dateAdded = dateAdded
         self.estimatedPrice = estimatedPrice
-        self.lastPurchasedPrice = lastPurchasedPrice
         self.barcode = barcode
         self.brand = brand
         self.unit = unit
@@ -51,6 +54,8 @@ final class Item {
         self.lastPurchasedDate = lastPurchasedDate
         self.imageData = imageData
         self.priority = priority
+        self.productId = productId
+        self.lastScanned = lastScanned
     }
 }
 
