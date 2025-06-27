@@ -208,6 +208,34 @@ struct PremiumUpgradeView: View {
             .disabled(selectedProduct == nil || subscriptionManager.isLoading)
             .opacity(selectedProduct == nil ? 0.6 : 1.0)
             
+            // Mock Subscribe Button for Testing
+            Button {
+                print("Mock subscribe button tapped")
+                subscriptionManager.mockSubscribe()
+                dismiss()
+            } label: {
+                HStack {
+                    Image(systemName: "wand.and.stars")
+                        .font(.title3)
+                    
+                    Text("Mock Subscribe (Testing)")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(
+                    LinearGradient(
+                        colors: [.purple, .blue],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(16)
+                .shadow(color: .purple.opacity(0.3), radius: 8, x: 0, y: 4)
+            }
+            
             // Show message if no product is selected
             if selectedProduct == nil && !subscriptionManager.subscriptionProducts.isEmpty {
                 Text("Please select a subscription plan above")

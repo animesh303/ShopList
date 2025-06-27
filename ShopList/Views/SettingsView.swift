@@ -102,6 +102,44 @@ struct SettingsView: View {
                             .foregroundColor(DesignSystem.Colors.primaryText)
                     }
                     
+                    // Mock Subscription Testing Section (Development Only)
+                    #if DEBUG
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Testing Controls")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            HStack {
+                                Text("Mock Premium Subscription")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                
+                                Spacer()
+                                
+                                Button(subscriptionManager.isPremium ? "Disable" : "Enable") {
+                                    if subscriptionManager.isPremium {
+                                        subscriptionManager.mockUnsubscribe()
+                                    } else {
+                                        subscriptionManager.mockSubscribe()
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(subscriptionManager.isPremium ? .red : .green)
+                                .font(.caption)
+                            }
+                            
+                            Text("Use this to test premium features without real purchases")
+                                .font(.caption2)
+                                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                        }
+                    } header: {
+                        Text("Development Testing")
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                    }
+                    #endif
+                    
                     Section(header: Text("Appearance").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Picker("Theme", selection: $settingsManager.appearance) {
                             ForEach(Appearance.allCases) { appearance in

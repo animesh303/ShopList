@@ -376,6 +376,26 @@ class SubscriptionManager: NSObject, ObservableObject {
     func checkExportAccess() -> Bool {
         return canUseExportImport()
     }
+    
+    // MARK: - Mock Subscription for Testing
+    
+    func mockSubscribe() {
+        print("SubscriptionManager: Mock subscription activated")
+        currentTier = .premium
+        isPremium = true
+        print("SubscriptionManager: User is now premium (mock)")
+    }
+    
+    func mockUnsubscribe() {
+        print("SubscriptionManager: Mock subscription deactivated")
+        currentTier = .free
+        isPremium = false
+        print("SubscriptionManager: User is now free (mock)")
+    }
+    
+    func isMockSubscribed() -> Bool {
+        return isPremium
+    }
 }
 
 // MARK: - Product Extensions
