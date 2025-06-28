@@ -17,7 +17,7 @@ struct SettingsView: View {
                     .ignoresSafeArea()
                 
                 Form {
-                    // Subscription Section
+                    // Subscription Section - Premium Gold Gradient
                     Section {
                         HStack {
                             Image(systemName: subscriptionManager.currentTier.icon)
@@ -99,8 +99,18 @@ struct SettingsView: View {
                         Text("Subscription")
                             .foregroundColor(DesignSystem.Colors.primaryText)
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.premium.opacity(0.1),
+                                DesignSystem.Colors.premiumLight.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
-                    // Mock Subscription Testing Section (Development Only)
+                    // Mock Subscription Testing Section (Development Only) - Debug Purple
                     #if DEBUG
                     Section {
                         VStack(alignment: .leading, spacing: 8) {
@@ -135,8 +145,19 @@ struct SettingsView: View {
                         Text("Development Testing")
                             .foregroundColor(DesignSystem.Colors.primaryText)
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.accent3.opacity(0.1),
+                                DesignSystem.Colors.accent3.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     #endif
                     
+                    // Appearance Section - Blue Gradient
                     Section(header: Text("Appearance").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Picker("Theme", selection: $settingsManager.appearance) {
                             ForEach(Appearance.allCases) { appearance in
@@ -154,7 +175,18 @@ struct SettingsView: View {
                         
                         Toggle("Show Completed Items", isOn: $settingsManager.showCompletedItemsByDefault)
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.primary.opacity(0.1),
+                                DesignSystem.Colors.primaryLight.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Currency Section - Green Gradient
                     Section(header: Text("Currency").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Picker("Currency", selection: $settingsManager.currency) {
                             ForEach(Currency.allCases) { currency in
@@ -163,7 +195,18 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.accent2.opacity(0.1),
+                                DesignSystem.Colors.accent2.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Number Format Section - Teal Gradient
                     Section(header: Text("Number Format").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Picker("Decimal Separator", selection: $settingsManager.numberFormat) {
                             ForEach(NumberFormat.allCases) { format in
@@ -172,7 +215,18 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.accent4.opacity(0.1),
+                                DesignSystem.Colors.accent4.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Item Display Section - Orange Gradient
                     Section(header: Text("Item Display").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Toggle("Show Item Images", isOn: $settingsManager.showItemImagesByDefault)
                             .disabled(!subscriptionManager.canUseItemImages())
@@ -196,7 +250,18 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.accent1.opacity(0.1),
+                                DesignSystem.Colors.accent1.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Defaults Section - Purple Gradient
                     Section(header: Text("Defaults").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Picker("Default List Category", selection: $settingsManager.defaultListCategory) {
                             ForEach(subscriptionManager.getAvailableCategories().sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
@@ -225,7 +290,18 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.secondary.opacity(0.1),
+                                DesignSystem.Colors.secondaryLight.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Notifications Section - Blue Info Gradient
                     Section(header: Text("Notifications").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Toggle("Enable Notifications", isOn: $settingsManager.notificationsEnabled)
                         
@@ -244,8 +320,8 @@ struct SettingsView: View {
                                 ForEach(NotificationSound.allCases) { sound in
                                     Text(sound.rawValue)
                                         .tag(sound)
-                                    }
                                 }
+                            }
                             
                             NavigationLink("Manage Notifications") {
                                 NotificationSettingsView()
@@ -269,7 +345,18 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.info.opacity(0.1),
+                                DesignSystem.Colors.info.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Location Reminders Section - Success Green Gradient
                     Section(header: Text("Location Reminders").foregroundColor(DesignSystem.Colors.primaryText)) {
                         if !subscriptionManager.canUseLocationReminders() {
                             HStack {
@@ -336,7 +423,18 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.success.opacity(0.1),
+                                DesignSystem.Colors.success.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     
+                    // Location Search Section - Warning Yellow Gradient
                     Section(header: Text("Location Search").foregroundColor(DesignSystem.Colors.primaryText)) {
                         HStack {
                             Image(systemName: settingsManager.restrictSearchToLocality ? "location.fill" : "location.slash")
@@ -367,6 +465,16 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.warning.opacity(0.1),
+                                DesignSystem.Colors.warning.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                 }
                 .scrollContentBackground(.hidden)
                 
