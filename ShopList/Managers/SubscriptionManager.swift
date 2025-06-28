@@ -182,6 +182,8 @@ class SubscriptionManager: NSObject, ObservableObject {
         await MainActor.run {
             self.currentTier = .free
             self.isPremium = false
+            // Reset premium-only settings when subscription is lost
+            UserSettingsManager.shared.resetPremiumOnlySettings()
         }
     }
     
@@ -380,6 +382,8 @@ class SubscriptionManager: NSObject, ObservableObject {
         print("SubscriptionManager: Mock subscription deactivated")
         currentTier = .free
         isPremium = false
+        // Reset premium-only settings when mock subscription is lost
+        UserSettingsManager.shared.resetPremiumOnlySettings()
         print("SubscriptionManager: User is now free (mock)")
     }
     

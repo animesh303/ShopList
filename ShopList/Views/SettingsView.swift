@@ -228,8 +228,23 @@ struct SettingsView: View {
                     
                     // Item Display Section - Orange Gradient
                     Section(header: Text("Item Display").foregroundColor(DesignSystem.Colors.primaryText)) {
-                        Toggle("Show Item Images", isOn: $settingsManager.showItemImagesByDefault)
-                            .disabled(!subscriptionManager.canUseItemImages())
+                        HStack {
+                            Toggle("Show Item Images", isOn: Binding(
+                                get: { settingsManager.showItemImagesByDefault },
+                                set: { newValue in
+                                    if !settingsManager.setPremiumSetting(.itemImages, value: newValue) {
+                                        // Show upgrade prompt if setting couldn't be enabled
+                                        showingPremiumUpgrade = true
+                                    }
+                                }
+                            ))
+                            
+                            if !subscriptionManager.canUseItemImages() {
+                                Image(systemName: "crown.fill")
+                                    .foregroundColor(.orange)
+                                    .font(DesignSystem.Typography.caption1)
+                            }
+                        }
                         
                         if !subscriptionManager.canUseItemImages() {
                             HStack {

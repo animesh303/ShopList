@@ -2,9 +2,20 @@ import Foundation
 import SwiftUI
 import CoreLocation
 
+// MARK: - UserSettingsManager
+/// Manages user preferences and settings with premium feature validation
+/// 
+/// FIXED: Premium-only settings (like showItemImagesByDefault) now properly respect
+/// subscription status and are automatically reset when premium access is lost.
+/// This prevents non-premium users from having premium features enabled by default.
+///
+/// FIXED: Added @MainActor to resolve Swift 6 concurrency issues when accessing
+/// SubscriptionManager.shared and other main actor-isolated properties.
+
 // Remove all @_exported imports since they're not needed
 // The enums are already available in the module
 
+@MainActor
 class UserSettingsManager: ObservableObject {
     static let shared = UserSettingsManager()
     
@@ -64,6 +75,12 @@ class UserSettingsManager: ObservableObject {
     
     @Published var showItemImagesByDefault: Bool {
         didSet {
+            // Only allow setting to true if user has premium access
+            if showItemImagesByDefault && !SubscriptionManager.shared.canUseItemImages() {
+                // Revert the change if user doesn't have premium
+                showItemImagesByDefault = false
+                return
+            }
             UserDefaults.standard.set(showItemImagesByDefault, forKey: "showItemImagesByDefault")
         }
     }
@@ -175,7 +192,10 @@ class UserSettingsManager: ObservableObject {
         self.showCompletedItemsByDefault = UserDefaults.standard.bool(forKey: "showCompletedItemsByDefault")
         
         // New Item Display Preferences initialization
-        self.showItemImagesByDefault = UserDefaults.standard.bool(forKey: "showItemImagesByDefault")
+        // Check premium access for showItemImagesByDefault
+        let savedShowItemImages = UserDefaults.standard.bool(forKey: "showItemImagesByDefault")
+        self.showItemImagesByDefault = savedShowItemImages && SubscriptionManager.shared.canUseItemImages()
+        
         self.showItemNotesByDefault = UserDefaults.standard.bool(forKey: "showItemNotesByDefault")
         
         let savedItemViewStyle = UserDefaults.standard.string(forKey: "defaultItemViewStyle") ?? ItemViewStyle.compact.rawValue
@@ -214,4 +234,90 @@ class UserSettingsManager: ObservableObject {
             self.savedSearchLocation = nil
         }
     }
+    
+    // MARK: - Premium Settings Management
+    
+    /// Resets premium-only settings when subscription status changes
+    func resetPremiumOnlySettings() {
+        // Reset showItemImagesByDefault if user doesn't have premium access
+        if !SubscriptionManager.shared.canUseItemImages() && showItemImagesByDefault {
+            showItemImagesByDefault = false
+        }
+    }
+    
+    /// Safely sets a premium-only setting with validation
+    /// Returns true if the setting was successfully set, false if user doesn't have premium access
+    func setPremiumSetting(_ setting: PremiumSetting, value: Bool) -> Bool {
+        guard isSettingAvailable(setting) else {
+            return false
+        }
+        
+        switch setting {
+        case .itemImages:
+            showItemImagesByDefault = value
+        case .locationReminders:
+            // This would be handled by LocationManager
+            break
+        case .unlimitedNotifications:
+            // This would be handled by NotificationManager
+            break
+        case .budgetTracking:
+            // This would be handled by BudgetManager
+            break
+        case .widgets:
+            // This would be handled by WidgetManager
+            break
+        case .appShortcuts:
+            // This would be handled by ShortcutManager
+            break
+        case .templates:
+            // This would be handled by TemplateManager
+            break
+        case .exportImport:
+            // This would be handled by ExportManager
+            break
+        case .prioritySupport:
+            // This would be handled by SupportManager
+            break
+        }
+        
+        return true
+    }
+    
+    /// Checks if a setting is available based on current subscription status
+    func isSettingAvailable(_ setting: PremiumSetting) -> Bool {
+        switch setting {
+        case .itemImages:
+            return SubscriptionManager.shared.canUseItemImages()
+        case .locationReminders:
+            return SubscriptionManager.shared.canUseLocationReminders()
+        case .unlimitedNotifications:
+            return SubscriptionManager.shared.canUseUnlimitedNotifications()
+        case .budgetTracking:
+            return SubscriptionManager.shared.canUseBudgetTracking()
+        case .widgets:
+            return SubscriptionManager.shared.canUseWidgets()
+        case .appShortcuts:
+            return SubscriptionManager.shared.canUseAppShortcuts()
+        case .templates:
+            return SubscriptionManager.shared.canUseTemplates()
+        case .exportImport:
+            return SubscriptionManager.shared.canUseExportImport()
+        case .prioritySupport:
+            return SubscriptionManager.shared.canUsePrioritySupport()
+        }
+    }
+}
+
+// MARK: - Premium Setting Types
+enum PremiumSetting {
+    case itemImages
+    case locationReminders
+    case unlimitedNotifications
+    case budgetTracking
+    case widgets
+    case appShortcuts
+    case templates
+    case exportImport
+    case prioritySupport
 } 

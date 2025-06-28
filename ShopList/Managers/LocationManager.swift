@@ -3,6 +3,13 @@ import CoreLocation
 import UserNotifications
 import MapKit
 
+// MARK: - LocationManager
+/// Manages location services, location reminders, and location-based search functionality
+///
+/// FIXED: Added @MainActor to resolve Swift 6 concurrency issues when accessing
+/// UserSettingsManager.shared and other main actor-isolated properties.
+
+@MainActor
 class LocationManager: NSObject, ObservableObject {
     static let shared = LocationManager()
     private let locationManager = CLLocationManager()
