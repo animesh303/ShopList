@@ -345,7 +345,7 @@ struct AddItemView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         .shadow(color: DesignSystem.Shadows.colorfulMedium.color, radius: 8, x: 0, y: 4)
                 } else {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 16) {
                         Image(systemName: subscriptionManager.canUseItemImages() ? "photo.badge.plus" : "crown.fill")
                             .font(.title)
                             .foregroundColor(.white)
@@ -361,6 +361,8 @@ struct AddItemView: View {
                         }
                     }
                     .frame(width: 120, height: 120)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(subscriptionManager.canUseItemImages() ? DesignSystem.Colors.primaryButtonGradient : DesignSystem.Colors.premiumGradient)
