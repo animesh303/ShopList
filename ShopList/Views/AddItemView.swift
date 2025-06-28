@@ -170,6 +170,8 @@ struct AddItemView: View {
     @State private var itemImage: Image?
     @State private var imageData: Data?
     @State private var showingImageOptions = false
+    @State private var showingUpgradePrompt = false
+    @State private var upgradePromptMessage = ""
     
     @FocusState private var focusedField: Field?
     
@@ -311,6 +313,14 @@ struct AddItemView: View {
             } message: {
                 Text(errorMessage)
             }
+            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+                Button("Upgrade") {
+                    // Show premium upgrade view
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(upgradePromptMessage)
+            }
         }
     }
     
@@ -319,7 +329,14 @@ struct AddItemView: View {
     private var imageSection: some View {
         Section {
             // Enhanced Image Picker Button
-            Button(action: { showingImageOptions = true }) {
+            Button(action: { 
+                if subscriptionManager.canUseItemImages() {
+                    showingImageOptions = true
+                } else {
+                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .itemImages)
+                    showingUpgradePrompt = true
+                }
+            }) {
                 if let itemImage = itemImage {
                     itemImage
                         .resizable()
@@ -329,25 +346,31 @@ struct AddItemView: View {
                         .shadow(color: DesignSystem.Shadows.colorfulMedium.color, radius: 8, x: 0, y: 4)
                 } else {
                     VStack(spacing: 12) {
-                        Image(systemName: "photo.badge.plus")
+                        Image(systemName: subscriptionManager.canUseItemImages() ? "photo.badge.plus" : "crown.fill")
                             .font(.title)
                             .foregroundColor(.white)
-                        Text("Add Photo")
+                        Text(subscriptionManager.canUseItemImages() ? "Add Photo" : "Premium Feature")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.white)
+                        
+                        if !subscriptionManager.canUseItemImages() {
+                            Text("Upgrade to add photos")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
                     }
                     .frame(width: 120, height: 120)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(DesignSystem.Colors.primaryButtonGradient)
+                            .fill(subscriptionManager.canUseItemImages() ? DesignSystem.Colors.primaryButtonGradient : DesignSystem.Colors.premiumGradient)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(DesignSystem.Colors.primary.opacity(0.3), lineWidth: 2)
+                                    .stroke(subscriptionManager.canUseItemImages() ? DesignSystem.Colors.primary.opacity(0.3) : DesignSystem.Colors.premium.opacity(0.3), lineWidth: 2)
                             )
                     )
                     .shadow(
-                        color: DesignSystem.Colors.primary.opacity(0.3),
+                        color: subscriptionManager.canUseItemImages() ? DesignSystem.Colors.primary.opacity(0.3) : DesignSystem.Colors.premium.opacity(0.3),
                         radius: 6,
                         x: 0,
                         y: 3
@@ -379,13 +402,27 @@ struct AddItemView: View {
                 }
             }
         } header: {
-            Text("Item Photo")
-                .font(.headline)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+            HStack {
+                Text("Item Photo")
+                    .font(.headline)
+                    .foregroundColor(DesignSystem.Colors.primaryText)
+                
+                if !subscriptionManager.canUseItemImages() {
+                    Image(systemName: "crown.fill")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.premium)
+                }
+            }
         } footer: {
-            Text("Add a photo to help identify the item")
-                .font(.caption)
-                .foregroundColor(DesignSystem.Colors.secondaryText)
+            if subscriptionManager.canUseItemImages() {
+                Text("Add a photo to help identify the item")
+                    .font(.caption)
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+            } else {
+                Text("Upgrade to Premium to add photos to your items")
+                    .font(.caption)
+                    .foregroundColor(DesignSystem.Colors.secondaryText)
+            }
         }
     }
     

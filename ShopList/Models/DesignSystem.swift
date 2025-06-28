@@ -145,6 +145,20 @@ struct DesignSystem {
             endPoint: .bottomTrailing
         )
         
+        // Premium Colors and Gradients
+        static let premium = Color(red: 1.0, green: 0.6, blue: 0.0) // Orange
+        static let premiumLight = Color(red: 1.0, green: 0.7, blue: 0.2) // Light orange
+        static let premiumDark = Color(red: 0.8, green: 0.4, blue: 0.0) // Dark orange
+        
+        static let premiumGradient = LinearGradient(
+            colors: [
+                Color(red: 1.0, green: 0.6, blue: 0.0), // Orange
+                Color(red: 0.9, green: 0.3, blue: 0.1)  // Red-orange
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        
         // Card Gradients with dark mode support
         static let cardGradient = LinearGradient(
             colors: [

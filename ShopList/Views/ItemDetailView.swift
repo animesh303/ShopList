@@ -7,6 +7,7 @@ struct ItemDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var item: Item
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     @State private var name: String
     @State private var brand: String
     @State private var quantity: Double
@@ -19,6 +20,8 @@ struct ItemDetailView: View {
     @State private var showingImagePicker = false
     @State private var showingError = false
     @State private var errorMessage = ""
+    @State private var showingUpgradePrompt = false
+    @State private var upgradePromptMessage = ""
     
     init(item: Item) {
         self.item = item
@@ -119,13 +122,39 @@ struct ItemDetailView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                         
-                        PhotosPicker(selection: $selectedImage, matching: .images) {
-                            Label("Select Image", systemImage: "photo")
+                        if subscriptionManager.canUseItemImages() {
+                            PhotosPicker(selection: $selectedImage, matching: .images) {
+                                Label("Select Image", systemImage: "photo")
+                            }
+                        } else {
+                            Button {
+                                upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .itemImages)
+                                showingUpgradePrompt = true
+                            } label: {
+                                HStack {
+                                    Image(systemName: "crown.fill")
+                                        .foregroundColor(DesignSystem.Colors.premium)
+                                    Text("Upgrade to add photos")
+                                        .foregroundColor(DesignSystem.Colors.premium)
+                                }
+                            }
                         }
                     } header: {
-                        Text("Image")
+                        HStack {
+                            Text("Image")
+                            
+                            if !subscriptionManager.canUseItemImages() {
+                                Image(systemName: "crown.fill")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.premium)
+                            }
+                        }
                     } footer: {
-                        Text("Add a photo of the item for easy identification")
+                        if subscriptionManager.canUseItemImages() {
+                            Text("Add a photo of the item for easy identification")
+                        } else {
+                            Text("Upgrade to Premium to add photos to your items")
+                        }
                     }
                 }
                 .scrollContentBackground(.hidden)
@@ -187,6 +216,14 @@ struct ItemDetailView: View {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(errorMessage)
+            }
+            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+                Button("Upgrade") {
+                    // Show premium upgrade view
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(upgradePromptMessage)
             }
         }
         .navigationBarBackButtonHidden(true)

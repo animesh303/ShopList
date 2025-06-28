@@ -75,7 +75,7 @@ struct PremiumUpgradeView: View {
                     .fontWeight(.bold)
                     .foregroundColor(DesignSystem.Colors.primaryText)
                 
-                Text("Get unlimited lists, location reminders, widgets, and much more!")
+                Text("Get unlimited lists, location reminders, widgets, item images, and much more!")
                     .font(.body)
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .multilineTextAlignment(.center)
@@ -91,12 +91,39 @@ struct PremiumUpgradeView: View {
                 .fontWeight(.semibold)
                 .foregroundColor(DesignSystem.Colors.primaryText)
             
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 16) {
-                ForEach(PremiumFeature.allCases) { feature in
-                    FeatureCard(feature: feature)
+            // Custom grid layout to center the last item when alone
+            let features = Array(PremiumFeature.allCases)
+        
+            
+            VStack(spacing: 16) {
+                ForEach(0..<(features.count + 1) / 2, id: \.self) { row in
+                    let startIndex = row * 2
+                    let endIndex = min(startIndex + 2, features.count)
+                    let rowFeatures = Array(features[startIndex..<endIndex])
+                    
+                    if rowFeatures.count == 1 && row == (features.count + 1) / 2 - 1 {
+                        // Last row with only one item - center it
+                        HStack {
+                            Spacer()
+                            FeatureCard(feature: rowFeatures[0])
+                                .frame(maxWidth: .infinity)
+                            Spacer()
+                        }
+                    } else {
+                        // Normal row with two items
+                        HStack(spacing: 16) {
+                            ForEach(rowFeatures, id: \.self) { feature in
+                                FeatureCard(feature: feature)
+                                    .frame(maxWidth: .infinity)
+                            }
+                            
+                            // Add empty space if only one item in this row
+                            if rowFeatures.count == 1 {
+                                Color.clear
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -375,6 +402,7 @@ struct FeatureCard: View {
                     .lineLimit(2)
             }
         }
+        .frame(width: 140, height: 120)
         .padding(16)
         .background(DesignSystem.Colors.cardGradient)
         .cornerRadius(12)

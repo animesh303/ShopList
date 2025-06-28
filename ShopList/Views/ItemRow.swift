@@ -5,6 +5,7 @@ struct ItemRow: View {
     @Environment(\.modelContext) private var modelContext
     let item: Item
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     private var priorityIcon: String {
         switch item.priority {
@@ -49,6 +50,33 @@ struct ItemRow: View {
                     .animation(DesignSystem.Animations.spring, value: item.isCompleted)
             }
             .buttonStyle(.plain)
+            
+            // Item Image (Premium Feature)
+            if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
+                if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 40, height: 40)
+                        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
+                        .shadow(
+                            color: DesignSystem.Shadows.colorfulSmall.color,
+                            radius: DesignSystem.Shadows.colorfulSmall.radius,
+                            x: DesignSystem.Shadows.colorfulSmall.x,
+                            y: DesignSystem.Shadows.colorfulSmall.y
+                        )
+                } else {
+                    // Placeholder for items without images
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(DesignSystem.Colors.tertiaryBackground)
+                        .frame(width: 40, height: 40)
+                        .overlay(
+                            Image(systemName: "photo")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                        )
+                }
+            }
             
             // Enhanced Category Icon with vibrant gradient
             Image(systemName: item.category.icon)
@@ -189,6 +217,33 @@ struct ItemRow: View {
                         .animation(DesignSystem.Animations.spring, value: item.isCompleted)
                 }
                 .buttonStyle(.plain)
+                
+                // Item Image (Premium Feature)
+                if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
+                    if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 50, height: 50)
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
+                            .shadow(
+                                color: DesignSystem.Shadows.colorfulSmall.color,
+                                radius: DesignSystem.Shadows.colorfulSmall.radius,
+                                x: DesignSystem.Shadows.colorfulSmall.x,
+                                y: DesignSystem.Shadows.colorfulSmall.y
+                            )
+                    } else {
+                        // Placeholder for items without images
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                            .fill(DesignSystem.Colors.tertiaryBackground)
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.tertiaryText)
+                            )
+                    }
+                }
                 
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text(item.name)
