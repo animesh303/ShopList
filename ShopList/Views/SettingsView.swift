@@ -26,10 +26,10 @@ struct SettingsView: View {
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Current Plan")
-                                    .font(.headline)
+                                    .headlineStyle()
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                 Text(subscriptionManager.currentTier.displayName)
-                                    .font(.subheadline)
+                                    .subheadlineStyle()
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                             
@@ -47,8 +47,7 @@ struct SettingsView: View {
                         if !subscriptionManager.isPremium {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Free Plan Limits:")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
+                                    .subheadlineBoldStyle()
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                 
                                 let usage = subscriptionManager.getFreeTierUsage()
@@ -57,7 +56,7 @@ struct SettingsView: View {
                                     Image(systemName: "list.bullet")
                                         .foregroundColor(DesignSystem.Colors.primary)
                                     Text("\(usage.lists)/\(usage.maxLists) lists")
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                                 
@@ -65,7 +64,7 @@ struct SettingsView: View {
                                     Image(systemName: "bell.fill")
                                         .foregroundColor(DesignSystem.Colors.accent1)
                                     Text("\(usage.notifications)/\(usage.maxNotifications) daily notifications")
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                                 
@@ -73,7 +72,7 @@ struct SettingsView: View {
                                     Image(systemName: "folder.fill")
                                         .foregroundColor(DesignSystem.Colors.accent2)
                                     Text("3 basic categories only")
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                             }
@@ -81,8 +80,7 @@ struct SettingsView: View {
                         } else {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Premium Features:")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
+                                    .subheadlineBoldStyle()
                                     .foregroundColor(DesignSystem.Colors.primaryText)
                                 
                                 ForEach(Array(PremiumFeature.allCases.prefix(6))) { feature in
@@ -90,7 +88,7 @@ struct SettingsView: View {
                                         Image(systemName: feature.icon)
                                             .foregroundColor(DesignSystem.Colors.accent1)
                                         Text(feature.rawValue)
-                                            .font(.caption)
+                                            .captionStyle()
                                             .foregroundColor(DesignSystem.Colors.secondaryText)
                                     }
                                 }
@@ -107,13 +105,12 @@ struct SettingsView: View {
                     Section {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Testing Controls")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
+                                .subheadlineBoldStyle()
                                 .foregroundColor(DesignSystem.Colors.primaryText)
                             
                             HStack {
                                 Text("Mock Premium Subscription")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                                 
                                 Spacer()
@@ -127,11 +124,11 @@ struct SettingsView: View {
                                 }
                                 .buttonStyle(.bordered)
                                 .tint(subscriptionManager.isPremium ? .red : .green)
-                                .font(.caption)
+                                .captionStyle()
                             }
                             
                             Text("Use this to test premium features without real purchases")
-                                .font(.caption2)
+                                .font(DesignSystem.Typography.caption2)
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
                         }
                     } header: {
@@ -184,9 +181,9 @@ struct SettingsView: View {
                             HStack {
                                 Image(systemName: "crown.fill")
                                     .foregroundColor(.orange)
-                                    .font(.caption)
+                                    .font(DesignSystem.Typography.caption1)
                                 Text("Premium feature")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                         }
@@ -234,7 +231,7 @@ struct SettingsView: View {
                         
                         if !notificationManager.isAuthorized && settingsManager.notificationsEnabled {
                             Text("Please enable notifications in Settings to receive reminders")
-                                .font(.caption)
+                                .captionStyle()
                                 .foregroundColor(DesignSystem.Colors.warning)
                         }
                         
@@ -247,8 +244,8 @@ struct SettingsView: View {
                                 ForEach(NotificationSound.allCases) { sound in
                                     Text(sound.rawValue)
                                         .tag(sound)
+                                    }
                                 }
-                            }
                             
                             NavigationLink("Manage Notifications") {
                                 NotificationSettingsView()
@@ -256,7 +253,7 @@ struct SettingsView: View {
                             
                             if notificationManager.isAuthorized {
                                 Text("Notifications are enabled and ready")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.success)
                             }
                         }
@@ -265,9 +262,9 @@ struct SettingsView: View {
                             HStack {
                                 Image(systemName: "crown.fill")
                                     .foregroundColor(.orange)
-                                    .font(.caption)
+                                    .captionStyle()
                                 Text("Free users limited to \(subscriptionManager.getNotificationLimit()) notifications per day")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                         }
@@ -281,9 +278,9 @@ struct SettingsView: View {
                                     .font(.title3)
                                 VStack(alignment: .leading) {
                                     Text("Premium Feature")
-                                        .font(.headline)
+                                        .headlineStyle()
                                     Text("Upgrade to Premium for location-based reminders")
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                                 Spacer()
@@ -300,9 +297,9 @@ struct SettingsView: View {
                                 
                                 VStack(alignment: .leading) {
                                     Text("Location Access")
-                                        .font(.headline)
+                                        .headlineStyle()
                                     Text(getLocationPermissionStatus())
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                                 
@@ -325,16 +322,16 @@ struct SettingsView: View {
                                 let status = CLLocationManager().authorizationStatus
                                 if status == .authorizedAlways {
                                     Text("Location reminders are enabled")
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.success)
                                 } else {
                                     Text("Background monitoring requires 'Always' location access")
-                                        .font(.caption)
+                                        .captionStyle()
                                         .foregroundColor(DesignSystem.Colors.warning)
                                 }
                             } else {
                                 Text("Enable location access to set up store-based reminders")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.warning)
                             }
                         }
@@ -347,9 +344,9 @@ struct SettingsView: View {
                             
                             VStack(alignment: .leading) {
                                 Text("Search Restrictions")
-                                    .font(.headline)
+                                    .headlineStyle()
                                 Text(settingsManager.restrictSearchToLocality ? "Search limited to local area" : "Search not restricted")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                             
@@ -365,7 +362,7 @@ struct SettingsView: View {
                                 Image(systemName: "circle.dashed")
                                     .foregroundColor(DesignSystem.Colors.info)
                                 Text("Search radius: \(Int(settingsManager.searchRadius / 1000)) km")
-                                    .font(.caption)
+                                    .captionStyle()
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
                         }
