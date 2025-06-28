@@ -12,15 +12,12 @@ final class Item {
     var notes: String?
     var dateAdded: Date
     var estimatedPrice: Decimal?
-    var barcode: String?
     var brand: String?
     var unit: String?
     var lastPurchasedPrice: Decimal?
     var lastPurchasedDate: Date?
     var imageData: Data?
     var priority: ItemPriority
-    var productId: String?
-    var lastScanned: Date?
     
     init(id: UUID = UUID(), 
          name: String, 
@@ -30,15 +27,12 @@ final class Item {
          notes: String? = nil, 
          dateAdded: Date = Date(),
          estimatedPrice: Decimal? = nil,
-         barcode: String? = nil,
          brand: String? = nil,
          unit: String? = nil,
          lastPurchasedPrice: Decimal? = nil,
          lastPurchasedDate: Date? = nil,
          imageData: Data? = nil,
-         priority: ItemPriority = .normal,
-         productId: String? = nil,
-         lastScanned: Date? = nil) {
+         priority: ItemPriority = .normal) {
         self.id = id
         self.name = name
         self.quantity = quantity
@@ -47,15 +41,12 @@ final class Item {
         self.notes = notes
         self.dateAdded = dateAdded
         self.estimatedPrice = estimatedPrice
-        self.barcode = barcode
         self.brand = brand
         self.unit = unit
         self.lastPurchasedPrice = lastPurchasedPrice
         self.lastPurchasedDate = lastPurchasedDate
         self.imageData = imageData
         self.priority = priority
-        self.productId = productId
-        self.lastScanned = lastScanned
     }
 }
 

@@ -89,7 +89,6 @@ final class ShoppingListViewModel: ObservableObject {
                 notes: nil,
                 dateAdded: Date(),
                 estimatedPrice: nil,
-                barcode: nil,
                 brand: nil,
                 unit: nil,
                 lastPurchasedPrice: nil,

@@ -1,5 +1,4 @@
 import SwiftUI
-import AVFoundation
 import UIKit
 import PhotosUI
 import SwiftData
@@ -171,8 +170,6 @@ struct AddItemView: View {
     @State private var itemImage: Image?
     @State private var imageData: Data?
     @State private var showingImageOptions = false
-    @State private var showingBarcodeScanner = false
-    @State private var barcode: String?
     
     @FocusState private var focusedField: Field?
     
@@ -371,21 +368,6 @@ struct AddItemView: View {
             .sheet(isPresented: $showingCamera) {
                 CameraView(image: $itemImage, imageData: $imageData)
             }
-            .sheet(isPresented: $showingBarcodeScanner) {
-                BarcodeScannerView { product in
-                    // Handle scanned product
-                    name = product.name
-                    brand = product.brand ?? ""
-                    estimatedPrice = product.price
-                    unit = product.unit ?? ""
-                    barcode = product.barcode
-                    
-                    // Try to determine category from product name
-                    if let detectedCategory = detectCategory(from: product.name) {
-                        category = detectedCategory
-                    }
-                }
-            }
             .onChange(of: selectedImage) { _, newValue in
                 Task {
                     if let data = try? await newValue?.loadTransferable(type: Data.self) {
@@ -412,46 +394,10 @@ struct AddItemView: View {
             VStack(spacing: 20) {
                 // Enhanced Item Name field
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("Item Name")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        Spacer()
-                        
-                        // Barcode scanning button (Premium feature)
-                        if subscriptionManager.canUseBarcodeScanning() {
-                            Button {
-                                showingBarcodeScanner = true
-                            } label: {
-                                Image(systemName: "barcode.viewfinder")
-                                    .font(.title3)
-                                    .foregroundColor(.white)
-                                    .padding(8)
-                                    .background(
-                                        Circle()
-                                            .fill(DesignSystem.Colors.accent1)
-                                    )
-                                    .shadow(color: DesignSystem.Colors.accent1.opacity(0.3), radius: 4, x: 0, y: 2)
-                            }
-                        } else {
-                            Button {
-                                // Show upgrade prompt
-                                errorMessage = subscriptionManager.getUpgradePrompt(for: .barcodeScanning)
-                                showingError = true
-                            } label: {
-                                Image(systemName: "crown.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.orange)
-                                    .padding(8)
-                                    .background(
-                                        Circle()
-                                            .fill(.orange.opacity(0.1))
-                                    )
-                            }
-                        }
-                    }
+                    Text("Item Name")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     
                     TextField("Enter item name", text: $name)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -463,25 +409,6 @@ struct AddItemView: View {
                                 showingSuggestions = false
                             }
                         }
-                    
-                    // Show barcode if available
-                    if let barcode = barcode {
-                        HStack {
-                            Image(systemName: "barcode")
-                                .font(.caption)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                            Text("Barcode: \(barcode)")
-                                .font(.caption)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                            Spacer()
-                            Button("Clear") {
-                                self.barcode = nil
-                            }
-                            .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.accent1)
-                        }
-                        .padding(.top, 4)
-                    }
                 }
                 
                 if showingSuggestions {
@@ -692,13 +619,10 @@ struct AddItemView: View {
                 isCompleted: false,
                 notes: notes.isEmpty ? nil : notes,
                 estimatedPrice: estimatedPrice.map { Decimal($0) },
-                barcode: barcode,
                 brand: brand.isEmpty ? nil : brand,
                 unit: unit.isEmpty ? nil : unit,
                 imageData: imageData,
-                priority: priority,
-                productId: nil,
-                lastScanned: nil
+                priority: priority
             )
             
             list.items.append(item)

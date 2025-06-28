@@ -228,10 +228,6 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUseBarcodeScanning() -> Bool {
-        return isPremium
-    }
-    
     func canUseExportImport() -> Bool {
         return isPremium
     }
@@ -287,8 +283,6 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to track budgets"
         case .itemImages:
             return "Upgrade to Premium to add photos to items"
-        case .barcodeScanning:
-            return "Upgrade to Premium to scan barcodes"
         case .exportImport:
             return "Upgrade to Premium to export/import data"
         case .prioritySupport:
@@ -367,10 +361,6 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     func checkImageAccess() -> Bool {
         return canUseItemImages()
-    }
-    
-    func checkBarcodeAccess() -> Bool {
-        return canUseBarcodeScanning()
     }
     
     func checkExportAccess() -> Bool {

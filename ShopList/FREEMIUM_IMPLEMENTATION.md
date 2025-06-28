@@ -46,7 +46,6 @@ Defines premium features and their availability:
 - List Templates
 - Budget Tracking
 - Item Images
-- Barcode Scanning
 - Export/Import
 - Priority Support
 

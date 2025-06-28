@@ -223,7 +223,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
     case templates = "List Templates"
     case budgetTracking = "Budget Tracking"
     case itemImages = "Item Images"
-    case barcodeScanning = "Barcode Scanning"
     case exportImport = "Export/Import"
     case prioritySupport = "Priority Support"
     
@@ -249,8 +248,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Track spending with budgets"
         case .itemImages:
             return "Add photos to items"
-        case .barcodeScanning:
-            return "Scan product barcodes"
         case .exportImport:
             return "Backup and restore data"
         case .prioritySupport:
@@ -269,7 +266,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .templates: return "doc.on.doc.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
         case .itemImages: return "photo.fill"
-        case .barcodeScanning: return "barcode.viewfinder"
         case .exportImport: return "square.and.arrow.up"
         case .prioritySupport: return "person.crop.circle.badge.questionmark"
         }
@@ -286,7 +282,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .templates: return false
         case .budgetTracking: return false
         case .itemImages: return false
-        case .barcodeScanning: return false
         case .exportImport: return false
         case .prioritySupport: return false
         }
