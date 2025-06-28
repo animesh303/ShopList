@@ -236,7 +236,7 @@ struct ContentView: View {
             .enhancedNavigation(
                 title: "Shopping Lists",
                 subtitle: "Manage your shopping lists",
-                icon: "list.bullet",
+                icon: "app_icon",
                 style: .primary,
                 showBanner: true,
                 searchText: $searchText,

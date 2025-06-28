@@ -1,5 +1,52 @@
 import SwiftUI
 
+// MARK: - App Icon View
+struct AppIconView: View {
+    let size: CGFloat
+    
+    init(size: CGFloat = 64) {
+        self.size = size
+    }
+    
+    var body: some View {
+        if let appIcon = getAppIcon() {
+            Image(uiImage: appIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
+                .shadow(
+                    color: .black.opacity(0.2),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                )
+        } else {
+            // Fallback to a default icon if app icon can't be loaded
+            Image(systemName: "app.fill")
+                .font(.system(size: size * 0.6))
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .frame(width: size, height: size)
+                .background(
+                    RoundedRectangle(cornerRadius: size * 0.2)
+                        .fill(.blue)
+                )
+        }
+    }
+    
+    private func getAppIcon() -> UIImage? {
+        guard let iconFiles = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
+              let primaryIcon = iconFiles["CFBundlePrimaryIcon"] as? [String: Any],
+              let iconFilesArray = primaryIcon["CFBundleIconFiles"] as? [String],
+              let iconFileName = iconFilesArray.first else {
+            return nil
+        }
+        
+        return UIImage(named: iconFileName)
+    }
+}
+
 struct NavigationBannerView: View {
     let title: String
     let subtitle: String?
@@ -27,15 +74,19 @@ struct NavigationBannerView: View {
             VStack(spacing: DesignSystem.Spacing.sm) {
                 HStack(spacing: DesignSystem.Spacing.md) {
                     if let icon = icon {
-                        Image(systemName: icon)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(width: 32, height: 32)
-                            .background(
-                                Circle()
-                                    .fill(.white.opacity(0.2))
-                            )
+                        if icon == "app_icon" {
+                            AppIconView(size: 64)
+                        } else {
+                            Image(systemName: icon)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: 32, height: 32)
+                                .background(
+                                    Circle()
+                                        .fill(.white.opacity(0.2))
+                                )
+                        }
                     }
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
@@ -160,15 +211,19 @@ struct CustomNavigationTitleView: View {
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.sm) {
             if let icon = icon {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .frame(width: 28, height: 28)
-                    .background(
-                        Circle()
-                            .fill(.white.opacity(0.2))
-                    )
+                if icon == "app_icon" {
+                    AppIconView(size: 56)
+                } else {
+                    Image(systemName: icon)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(width: 28, height: 28)
+                        .background(
+                            Circle()
+                                .fill(.white.opacity(0.2))
+                        )
+                }
             }
             
             VStack(alignment: .leading, spacing: 2) {
@@ -316,7 +371,7 @@ struct NavigationBannerView_Previews: PreviewProvider {
             NavigationBannerView(
                 title: "Shopping Lists",
                 subtitle: "Manage your shopping lists",
-                icon: "list.bullet",
+                icon: "app_icon",
                 style: .primary
             )
             
