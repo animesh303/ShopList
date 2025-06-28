@@ -403,6 +403,28 @@ struct AddItemView: View {
                     }
                 }
             }
+            
+            // Centered footer text
+            HStack {
+                Spacer()
+                if subscriptionManager.canUseItemImages() {
+                    if itemImage != nil {
+                        Text("Tap to change the photo")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                    } else {
+                        Text("Add a photo to help identify the item")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                    }
+                } else {
+                    Text("Upgrade to Premium to add photos to your items")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
+                Spacer()
+            }
+            .padding(.top, 8)
         } header: {
             HStack {
                 Text("Item Photo")
@@ -414,16 +436,6 @@ struct AddItemView: View {
                         .font(.caption)
                         .foregroundColor(DesignSystem.Colors.premium)
                 }
-            }
-        } footer: {
-            if subscriptionManager.canUseItemImages() {
-                Text("Add a photo to help identify the item")
-                    .font(.caption)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-            } else {
-                Text("Upgrade to Premium to add photos to your items")
-                    .font(.caption)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
             }
         }
     }
