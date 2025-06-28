@@ -22,6 +22,11 @@ class LocationManager: NSObject, ObservableObject {
     
     let settingsManager = UserSettingsManager.shared
     
+    // Nonisolated properties for delegate access
+    private var nonisolatedNotificationCenter: UNUserNotificationCenter {
+        UNUserNotificationCenter.current()
+    }
+    
     override init() {
         super.init()
         locationManager.delegate = self
@@ -193,8 +198,11 @@ class LocationManager: NSObject, ObservableObject {
 }
 
 extension LocationManager: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        guard let reminder = locationReminders.first(where: { $0.id.uuidString == region.identifier }) else { return }
+    nonisolated func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        // Get reminder data from UserDefaults to avoid main actor isolation issues
+        guard let data = UserDefaults.standard.data(forKey: "LocationReminders"),
+              let reminders = try? JSONDecoder().decode([LocationReminder].self, from: data),
+              let reminder = reminders.first(where: { $0.id.uuidString == region.identifier }) else { return }
         
         let content = UNMutableNotificationContent()
         content.title = "Shopping List Reminder"
@@ -216,23 +224,24 @@ extension LocationManager: CLLocationManagerDelegate {
             trigger: nil
         )
         
-        notificationCenter.add(request) { error in
+        // Use nonisolated notification center
+        UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
                 print("Error scheduling notification: \(error)")
             }
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location manager failed with error: \(error)")
     }
     
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+    nonisolated func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
         print("Monitoring failed for region: \(error)")
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        DispatchQueue.main.async {
+    nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        Task { @MainActor in
             self.isAuthorized = status == .authorizedAlways || status == .authorizedWhenInUse
             
             // If authorization changed to 'Always', restart monitoring for existing reminders
@@ -262,9 +271,9 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.currentLocation = location.coordinate
             self.isLocationAvailable = true
         }
