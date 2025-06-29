@@ -55,6 +55,22 @@ enum Appearance: String, CaseIterable, Identifiable {
         case .system: return nil
         }
     }
+    
+    var icon: String {
+        switch self {
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        case .system: return "gear"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .light: return .orange
+        case .dark: return .purple
+        case .system: return .blue
+        }
+    }
 }
 
 enum NumberFormat: String, CaseIterable, Identifiable {

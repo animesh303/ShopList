@@ -159,12 +159,23 @@ struct SettingsView: View {
                     
                     // Appearance Section - Blue Gradient
                     Section(header: Text("Appearance").foregroundColor(DesignSystem.Colors.primaryText)) {
-                        Picker("Theme", selection: $settingsManager.appearance) {
+                        Picker(selection: $settingsManager.appearance) {
                             ForEach(Appearance.allCases) { appearance in
-                                Text(appearance.rawValue)
-                                    .tag(appearance)
+                                HStack(spacing: 8) {
+                                    Image(systemName: appearance.icon)
+                                        .foregroundColor(appearance.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(appearance.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(appearance)
                             }
+                        } label: {
+                            Text("Theme")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                         
                         Picker("List View Style", selection: $settingsManager.defaultListViewStyle) {
                             ForEach(ListViewStyle.allCases) { style in
