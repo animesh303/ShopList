@@ -71,17 +71,17 @@ struct NavigationBannerView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Banner background
-            VStack(spacing: DesignSystem.Spacing.sm) {
-                HStack(spacing: DesignSystem.Spacing.md) {
+            VStack(spacing: DesignSystem.Spacing.xs) {
+                HStack(spacing: DesignSystem.Spacing.sm) {
                     if let icon = icon {
                         if icon == "app_icon" {
-                            AppIconView(size: 64)
+                            AppIconView(size: 48)
                         } else {
                             Image(systemName: icon)
-                                .font(.title)
+                                .font(.title2)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .frame(width: 36, height: 36)
+                                .frame(width: 28, height: 28)
                                 .background(
                                     Circle()
                                         .fill(.white.opacity(0.2))
@@ -89,16 +89,16 @@ struct NavigationBannerView: View {
                         }
                     }
                     
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    VStack(alignment: .leading, spacing: 1) {
                         Text(title)
-                            .font(.custom("Bradley Hand", size: 36, relativeTo: .title2))
+                            .font(.custom("Bradley Hand", size: 28, relativeTo: .title2))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .lineLimit(1)
                         
                         if let subtitle = subtitle {
                             Text(subtitle)
-                                .font(.custom("Bradley Hand", size: 18, relativeTo: .caption))
+                                .font(.custom("Bradley Hand", size: 14, relativeTo: .caption))
                                 .foregroundColor(.white.opacity(0.9))
                                 .lineLimit(1)
                         }
@@ -106,9 +106,9 @@ struct NavigationBannerView: View {
                     
                     Spacer()
                 }
-                .padding(.horizontal, DesignSystem.Spacing.lg)
-                .padding(.top, DesignSystem.Spacing.lg)
-                .padding(.bottom, subtitle != nil ? DesignSystem.Spacing.sm : DesignSystem.Spacing.lg)
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.top, DesignSystem.Spacing.sm)
+                .padding(.bottom, subtitle != nil ? DesignSystem.Spacing.xs : DesignSystem.Spacing.sm)
             }
             .background(gradient)
             .overlay(
@@ -139,7 +139,7 @@ struct NavigationBannerView: View {
                         endPoint: .bottom
                     )
                 )
-                .frame(height: 4)
+                .frame(height: 2)
         }
     }
 }
@@ -209,16 +209,16 @@ struct CustomNavigationTitleView: View {
     let style: BannerStyle
     
     var body: some View {
-        HStack(spacing: DesignSystem.Spacing.sm) {
+        HStack(spacing: DesignSystem.Spacing.xs) {
             if let icon = icon {
                 if icon == "app_icon" {
-                    AppIconView(size: 56)
+                    AppIconView(size: 40)
                 } else {
                     Image(systemName: icon)
-                        .font(.title2)
+                        .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
-                        .frame(width: 32, height: 32)
+                        .frame(width: 24, height: 24)
                         .background(
                             Circle()
                                 .fill(.white.opacity(0.2))
@@ -226,31 +226,31 @@ struct CustomNavigationTitleView: View {
                 }
             }
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(.custom("Bradley Hand", size: 26, relativeTo: .title3))
+                    .font(.custom("Bradley Hand", size: 20, relativeTo: .title3))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(1)
                 
                 if let subtitle = subtitle {
                     Text(subtitle)
-                        .font(.custom("Bradley Hand", size: 16, relativeTo: .caption))
+                        .font(.custom("Bradley Hand", size: 12, relativeTo: .caption))
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(1)
                 }
             }
         }
-        .padding(.horizontal, DesignSystem.Spacing.md)
-        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .padding(.vertical, DesignSystem.Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                 .fill(style.defaultGradient)
                 .shadow(
                     color: .black.opacity(0.2),
-                    radius: 4,
+                    radius: 2,
                     x: 0,
-                    y: 2
+                    y: 1
                 )
         )
     }
