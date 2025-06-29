@@ -25,7 +25,7 @@ struct LocationSearchSettingsView: View {
     ]
     
     var body: some View {
-        NavigationView {
+        ZStack {
             Form {
                 Section {
                     Toggle("Restrict Search to Locality", isOn: $settingsManager.restrictSearchToLocality)
@@ -181,11 +181,43 @@ struct LocationSearchSettingsView: View {
                 style: .info,
                 showBanner: true
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+            // FABs for navigation
+            VStack {
+                Spacer()
+                HStack {
+                    // Back Button FAB at bottom left
+                    VStack {
+                        Spacer()
+                        BackButtonFAB {
+                            dismiss()
+                        }
                     }
+                    .padding(.leading, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
+                    Spacer()
+                    // Done Button FAB at bottom right
+                    VStack {
+                        Spacer()
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "checkmark")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                .background(DesignSystem.Colors.success.opacity(0.8))
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: DesignSystem.Colors.success.opacity(0.4),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                        }
+                    }
+                    .padding(.trailing, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
                 }
             }
             .alert("Location Permission Required", isPresented: $showingLocationPermissionAlert) {
