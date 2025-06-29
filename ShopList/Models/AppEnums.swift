@@ -117,6 +117,22 @@ enum NumberFormat: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
+    var icon: String {
+        switch self {
+        case .system: return "gear"
+        case .dot: return "circle.dotted"
+        case .comma: return "circle.lefthalf.filled"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .system: return .gray
+        case .dot: return .blue
+        case .comma: return .green
+        }
+    }
+    
     var decimalSeparator: String {
         switch self {
         case .system:
@@ -141,6 +157,20 @@ enum ListViewStyle: String, CaseIterable, Identifiable {
     case grid = "Grid"
     
     var id: String { rawValue }
+    
+    var icon: String {
+        switch self {
+        case .list: return "list.bullet"
+        case .grid: return "square.grid.2x2"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .list: return .blue
+        case .grid: return .purple
+        }
+    }
 }
 
 enum ItemViewStyle: String, CaseIterable, Identifiable {
@@ -148,6 +178,20 @@ enum ItemViewStyle: String, CaseIterable, Identifiable {
     case detailed = "Detailed"
     
     var id: String { rawValue }
+    
+    var icon: String {
+        switch self {
+        case .compact: return "rectangle.compress.vertical"
+        case .detailed: return "rectangle.expand.vertical"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .compact: return .teal
+        case .detailed: return .indigo
+        }
+    }
 }
 
 enum NotificationSound: String, CaseIterable, Identifiable {

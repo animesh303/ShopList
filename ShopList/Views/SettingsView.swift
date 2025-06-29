@@ -177,12 +177,23 @@ struct SettingsView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                         
-                        Picker("List View Style", selection: $settingsManager.defaultListViewStyle) {
+                        Picker(selection: $settingsManager.defaultListViewStyle) {
                             ForEach(ListViewStyle.allCases) { style in
-                                Text(style.rawValue)
-                                    .tag(style)
+                                HStack(spacing: 8) {
+                                    Image(systemName: style.icon)
+                                        .foregroundColor(style.color)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text(style.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(style)
                             }
+                        } label: {
+                            Text("List View Style")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                         
                         Toggle("Show Completed Items", isOn: $settingsManager.showCompletedItemsByDefault)
                     }
@@ -230,12 +241,23 @@ struct SettingsView: View {
                     
                     // Number Format Section - Teal Gradient
                     Section(header: Text("Number Format").foregroundColor(DesignSystem.Colors.primaryText)) {
-                        Picker("Decimal Separator", selection: $settingsManager.numberFormat) {
+                        Picker(selection: $settingsManager.numberFormat) {
                             ForEach(NumberFormat.allCases) { format in
-                                Text(format.rawValue)
-                                    .tag(format)
+                                HStack(spacing: 8) {
+                                    Image(systemName: format.icon)
+                                        .foregroundColor(format.color)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text(format.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(format)
                             }
+                        } label: {
+                            Text("Decimal Separator")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                     }
                     .listRowBackground(
                         LinearGradient(
@@ -269,12 +291,23 @@ struct SettingsView: View {
                         }
                         
                         Toggle("Show Item Notes", isOn: $settingsManager.showItemNotesByDefault)
-                        Picker("Item View Style", selection: $settingsManager.defaultItemViewStyle) {
+                        Picker(selection: $settingsManager.defaultItemViewStyle) {
                             ForEach(ItemViewStyle.allCases) { style in
-                                Text(style.rawValue)
-                                    .tag(style)
+                                HStack(spacing: 8) {
+                                    Image(systemName: style.icon)
+                                        .foregroundColor(style.color)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text(style.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(style)
                             }
+                        } label: {
+                            Text("Item View Style")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                     }
                     .listRowBackground(
                         LinearGradient(
