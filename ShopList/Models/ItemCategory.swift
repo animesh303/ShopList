@@ -86,7 +86,7 @@ enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable, Identifia
         case .office: return "doc.text.fill"
             
         // Personal Care
-        case .personalCare: return "hand.raised.fill"
+        case .personalCare: return "heart.circle.fill"
         case .beauty: return "comb.fill"
         case .health: return "cross.case.fill"
         case .babyCare: return "heart.fill"

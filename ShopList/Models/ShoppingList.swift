@@ -208,7 +208,7 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
         case .household:
             return "house.fill"
         case .personalCare:
-            return "hand.raised.fill"
+            return "heart.circle.fill"
         case .health:
             return "cross.case.fill"
         case .electronics:

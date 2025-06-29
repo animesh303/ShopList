@@ -29,18 +29,23 @@ struct ListSettingsView: View {
                     TextField("List Name", text: $listName)
                         .textContentType(.name)
                     
-                    Picker("Category", selection: $category) {
+                    Picker(selection: $category) {
                         ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
-                            HStack {
+                            HStack(spacing: 8) {
                                 Image(systemName: category.icon)
                                     .foregroundColor(category.color)
                                     .font(.title3)
+                                    .frame(width: 20)
                                 Text(category.rawValue)
                                     .font(DesignSystem.Typography.body)
                             }
                             .tag(category)
                         }
+                    } label: {
+                        Text("Category")
+                            .font(DesignSystem.Typography.body)
                     }
+                    .pickerStyle(MenuPickerStyle())
                 } header: {
                     Text("List Details")
                 } footer: {

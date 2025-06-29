@@ -278,18 +278,23 @@ struct SettingsView: View {
                     
                     // Defaults Section - Purple Gradient
                     Section(header: Text("Defaults").foregroundColor(DesignSystem.Colors.primaryText)) {
-                        Picker("Default List Category", selection: $settingsManager.defaultListCategory) {
+                        Picker(selection: $settingsManager.defaultListCategory) {
                             ForEach(subscriptionManager.getAvailableCategories().sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
-                                HStack {
+                                HStack(spacing: 8) {
                                     Image(systemName: category.icon)
                                         .foregroundColor(category.color)
                                         .font(.title3)
+                                        .frame(width: 20)
                                     Text(category.rawValue)
                                         .font(DesignSystem.Typography.body)
                                 }
                                 .tag(category)
                             }
+                        } label: {
+                            Text("Default List Category")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                         
                         Picker("Default Item Priority", selection: $settingsManager.defaultItemPriority) {
                             ForEach(ItemPriority.allCases, id: \.self) { priority in
