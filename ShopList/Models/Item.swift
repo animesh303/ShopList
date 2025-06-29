@@ -1,6 +1,7 @@
 import Foundation
 import SwiftData
 import AppIntents
+import SwiftUI
 
 @Model
 final class Item {
@@ -71,11 +72,19 @@ enum ItemPriority: Int, Codable, CaseIterable, AppEnum {
         }
     }
     
-    var color: String {
+    var icon: String {
         switch self {
-        case .low: return "gray"
-        case .normal: return "blue"
-        case .high: return "red"
+        case .high: return "exclamationmark.circle.fill"
+        case .normal: return "circle.fill"
+        case .low: return "arrow.down.circle.fill"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .high: return .red
+        case .normal: return .blue
+        case .low: return .gray
         }
     }
 }

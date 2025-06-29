@@ -318,12 +318,23 @@ struct SettingsView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                         
-                        Picker("Default Item Priority", selection: $settingsManager.defaultItemPriority) {
+                        Picker(selection: $settingsManager.defaultItemPriority) {
                             ForEach(ItemPriority.allCases, id: \.self) { priority in
-                                Text(priority.displayName)
-                                    .tag(priority)
+                                HStack(spacing: 8) {
+                                    Image(systemName: priority.icon)
+                                        .foregroundColor(priority.color)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text(priority.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(priority)
                             }
+                        } label: {
+                            Text("Default Item Priority")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                         
                         Picker("Default Unit", selection: $settingsManager.defaultUnit) {
                             ForEach(Unit.allUnits) { unit in
