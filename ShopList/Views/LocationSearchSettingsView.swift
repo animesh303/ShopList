@@ -30,9 +30,14 @@ struct LocationSearchSettingsView: View {
                 Section {
                     Toggle("Restrict Search to Locality", isOn: $settingsManager.restrictSearchToLocality)
                         .onChange(of: settingsManager.restrictSearchToLocality) { _, newValue in
-                            if newValue && !locationManager.isAuthorized {
-                                showingLocationPermissionAlert = true
-                                settingsManager.restrictSearchToLocality = false
+                            if newValue {
+                                let status = CLLocationManager().authorizationStatus
+                                if status == .notDetermined {
+                                    LocationManager.shared.requestLocationPermission()
+                                } else if !locationManager.isAuthorized {
+                                    showingLocationPermissionAlert = true
+                                    settingsManager.restrictSearchToLocality = false
+                                }
                             }
                         }
                     
