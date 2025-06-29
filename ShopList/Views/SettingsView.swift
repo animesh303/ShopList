@@ -542,8 +542,6 @@ struct SettingsView: View {
                     Section(header: Text("Location Search").foregroundColor(DesignSystem.Colors.primaryText)) {
                         NavigationLink(destination: LocationSearchSettingsView()) {
                             HStack {
-                                Image(systemName: settingsManager.restrictSearchToLocality ? "location.fill" : "location.slash")
-                                    .foregroundColor(settingsManager.restrictSearchToLocality ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Search Restrictions")
                                         .headlineStyle()
@@ -554,9 +552,15 @@ struct SettingsView: View {
                                         .foregroundColor(DesignSystem.Colors.secondaryText)
                                 }
                                 Spacer()
-                                Text("Configure")
-                                    .font(DesignSystem.Typography.body)
-                                    .foregroundColor(.accentColor)
+                                HStack(spacing: 8) {
+                                    Image(systemName: "location.viewfinder")
+                                        .foregroundColor(.accentColor)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text("Configure")
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(.accentColor)
+                                }
                             }
                             .padding(.vertical, 8)
                         }
