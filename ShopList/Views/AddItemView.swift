@@ -208,7 +208,14 @@ struct AddItemView: View {
     private var categoryPicker: some View {
         Picker("Category", selection: $category) {
             ForEach(ItemCategory.allCases, id: \.self) { category in
-                Text(category.rawValue).tag(category)
+                HStack {
+                    Image(systemName: category.icon)
+                        .foregroundColor(category.color)
+                        .font(.title3)
+                    Text(category.rawValue)
+                        .font(DesignSystem.Typography.body)
+                }
+                .tag(category)
             }
         }
     }
@@ -546,7 +553,14 @@ struct AddItemView: View {
                         .foregroundColor(.primary)
                     Picker("Category", selection: $category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
+                            HStack {
+                                Image(systemName: category.icon)
+                                    .foregroundColor(category.color)
+                                    .font(.title3)
+                                Text(category.rawValue)
+                                    .font(DesignSystem.Typography.body)
+                            }
+                            .tag(category)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())

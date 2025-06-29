@@ -280,8 +280,14 @@ struct SettingsView: View {
                     Section(header: Text("Defaults").foregroundColor(DesignSystem.Colors.primaryText)) {
                         Picker("Default List Category", selection: $settingsManager.defaultListCategory) {
                             ForEach(subscriptionManager.getAvailableCategories().sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
-                                Text(category.rawValue)
-                                    .tag(category)
+                                HStack {
+                                    Image(systemName: category.icon)
+                                        .foregroundColor(category.color)
+                                        .font(.title3)
+                                    Text(category.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(category)
                             }
                         }
                         

@@ -31,7 +31,14 @@ struct ListSettingsView: View {
                     
                     Picker("Category", selection: $category) {
                         ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
-                            Text(category.rawValue).tag(category)
+                            HStack {
+                                Image(systemName: category.icon)
+                                    .foregroundColor(category.color)
+                                    .font(.title3)
+                                Text(category.rawValue)
+                                    .font(DesignSystem.Typography.body)
+                            }
+                            .tag(category)
                         }
                     }
                 } header: {
