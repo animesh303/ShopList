@@ -48,6 +48,7 @@ struct ShopListApp: App {
                     .environmentObject(viewModel)
                     .environmentObject(subscriptionManager)
                     .preferredColorScheme(settingsManager.appearance.colorScheme)
+                    .id(settingsManager.appearance)
                     .onAppear {
                         // Set up notification categories
                         notificationManager.setupNotificationCategories()
