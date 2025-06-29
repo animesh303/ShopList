@@ -191,6 +191,47 @@ enum Unit: String, CaseIterable, Identifiable {
         }
     }
     
+    var icon: String {
+        switch self {
+        case .none: return "nosign"
+        case .kilogram: return "scalemass.fill"
+        case .gram: return "scalemass"
+        case .pound: return "scalemass"
+        case .ounce: return "scalemass"
+        case .liter: return "drop.fill"
+        case .milliliter: return "drop"
+        case .gallon: return "drop.triangle"
+        case .quart: return "drop.triangle"
+        case .pint: return "drop.triangle"
+        case .cup: return "cup.and.saucer.fill"
+        case .tablespoon: return "takeoutbag.and.cup.and.straw.fill"
+        case .teaspoon: return "takeoutbag.and.cup.and.straw"
+        case .piece: return "circle.fill"
+        case .dozen: return "circle.grid.2x2.fill"
+        case .box: return "shippingbox.fill"
+        case .pack: return "cube.box.fill"
+        case .bottle: return "wineglass.fill"
+        case .can: return "cylinder.split.1x2.fill"
+        case .jar: return "externaldrive.fill"
+        case .bag: return "bag.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .none: return .gray
+        case .kilogram, .gram, .pound, .ounce: return .orange
+        case .liter, .milliliter, .gallon, .quart, .pint: return .blue
+        case .cup, .tablespoon, .teaspoon: return .purple
+        case .piece, .dozen: return .green
+        case .box, .pack: return .brown
+        case .bottle: return .red
+        case .can: return .teal
+        case .jar: return .yellow
+        case .bag: return .mint
+        }
+    }
+    
     static var allUnits: [Unit] {
         [.none] + allCases.filter { $0 != .none }
     }

@@ -175,8 +175,8 @@ class UserSettingsManager: ObservableObject {
         let savedItemPriority = UserDefaults.standard.string(forKey: "defaultItemPriority") ?? String(ItemPriority.normal.rawValue)
         self.defaultItemPriority = ItemPriority(rawValue: Int(savedItemPriority) ?? ItemPriority.normal.rawValue) ?? .normal
         
-        // Default to empty unit
-        self.defaultUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? ""
+        // Default to kilogram unit
+        self.defaultUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue
         
         // Default to system number format
         let savedNumberFormat = UserDefaults.standard.string(forKey: "numberFormat") ?? NumberFormat.system.rawValue

@@ -336,12 +336,23 @@ struct SettingsView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                         
-                        Picker("Default Unit", selection: $settingsManager.defaultUnit) {
+                        Picker(selection: $settingsManager.defaultUnit) {
                             ForEach(Unit.allUnits) { unit in
-                                Text(unit.displayName)
-                                    .tag(unit.rawValue)
+                                HStack(spacing: 8) {
+                                    Image(systemName: unit.icon)
+                                        .foregroundColor(unit.color)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text(unit.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(unit.rawValue)
                             }
+                        } label: {
+                            Text("Default Unit")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                         
                         Picker("Default Sort Order", selection: $settingsManager.defaultListSortOrder) {
                             ForEach(ListSortOrder.allCases) { order in
