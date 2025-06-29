@@ -13,8 +13,10 @@ struct ShoppingListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var lists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     @State private var showingAddList = false
+    @State private var showingPremiumUpgrade = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     
@@ -86,7 +88,13 @@ struct ShoppingListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button(action: { showingAddList = true }) {
+                        Button(action: { 
+                            if subscriptionManager.canCreateList() {
+                                showingAddList = true
+                            } else {
+                                showingPremiumUpgrade = true
+                            }
+                        }) {
                             Label("Add List", systemImage: "plus")
                         }
                         
@@ -103,28 +111,10 @@ struct ShoppingListView: View {
                 }
             }
             .sheet(isPresented: $showingAddList) {
-                NavigationView {
-                    Form {
-                        Section {
-                            TextField("List Name", text: .constant(""))
-                        }
-                    }
-                    .navigationTitle("New List")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") {
-                                showingAddList = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Add") {
-                                // Add list logic here
-                                showingAddList = false
-                            }
-                        }
-                    }
-                }
+                AddListView()
+            }
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
             }
         }
     }

@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var fabTimer: Timer?
     @State private var navigationPath = NavigationPath()
     @State private var showingUpgradePrompt = false
+    @State private var showingPremiumUpgrade = false
     @State private var upgradePromptMessage = ""
     
     private var filteredLists: [ShoppingList] {
@@ -172,8 +173,7 @@ struct ContentView: View {
                                     if subscriptionManager.canCreateList() {
                                         showingAddList = true
                                     } else {
-                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .unlimitedLists)
-                                        showingUpgradePrompt = true
+                                        showingPremiumUpgrade = true
                                     }
                                     
                                     withAnimation(DesignSystem.Animations.spring) {
@@ -270,13 +270,8 @@ struct ContentView: View {
             .sheet(isPresented: $showingSortPicker) {
                 SortPickerView(sortOrder: $sortOrder)
             }
-            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
-                Button("Upgrade") {
-                    // Show premium upgrade view
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text(upgradePromptMessage)
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
             }
             .navigationDestination(for: ShoppingList.self) { list in
                 ListDetailView(list: list)

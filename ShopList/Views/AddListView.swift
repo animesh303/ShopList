@@ -13,6 +13,7 @@ struct AddListView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var showingUpgradePrompt = false
+    @State private var showingPremiumUpgrade = false
     
     private var budget: Double? {
         guard !budgetString.isEmpty else { return nil }
@@ -208,13 +209,8 @@ struct AddListView: View {
             } message: {
                 Text(alertMessage)
             }
-            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
-                Button("Upgrade") {
-                    // Show premium upgrade view
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text("This feature requires a Premium subscription.")
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
             }
         }
     }
@@ -230,19 +226,19 @@ struct AddListView: View {
         
         // Check if user can create a list
         guard subscriptionManager.canCreateList() else {
-            showingUpgradePrompt = true
+            showingPremiumUpgrade = true
             return
         }
         
         // Check if user can use the selected category
         guard subscriptionManager.canUseCategory(category) else {
-            showingUpgradePrompt = true
+            showingPremiumUpgrade = true
             return
         }
         
         // Check if user can use budget tracking
         if budget != nil && !subscriptionManager.canUseBudgetTracking() {
-            showingUpgradePrompt = true
+            showingPremiumUpgrade = true
             return
         }
         
