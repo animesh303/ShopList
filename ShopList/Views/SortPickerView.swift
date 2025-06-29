@@ -6,7 +6,7 @@ struct SortPickerView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
+            ZStack {
                 // Enhanced background with vibrant gradient
                 DesignSystem.Colors.backgroundGradient
                     .ignoresSafeArea()
@@ -43,6 +43,35 @@ struct SortPickerView: View {
                     
                     Spacer()
                 }
+                
+                // Done Button FAB at bottom right
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            dismiss()
+                        } label: {
+                            Image(systemName: "checkmark")
+                                .font(.title)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                .background(DesignSystem.Colors.success.opacity(0.8))
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: DesignSystem.Colors.success.opacity(0.4),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                        }
+                    }
+                    .padding(.trailing, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
+                }
             }
             .enhancedNavigation(
                 title: "Sort Lists",
@@ -51,14 +80,6 @@ struct SortPickerView: View {
                 style: .info,
                 showBanner: true
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignSystem.Colors.primary)
-                }
-            }
         }
     }
 }
