@@ -183,8 +183,7 @@ struct ListRow: View {
                     .font(.headline)
                     .fontWeight(.semibold)
                     .lineLimit(1)
-                    .strikethrough(list.items.allSatisfy { $0.isCompleted })
-                    .foregroundColor(list.items.allSatisfy { $0.isCompleted } ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                    .foregroundColor(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                 
                 Spacer()
                 
@@ -209,6 +208,25 @@ struct ListRow: View {
                     radius: 4,  // Increased shadow radius
                     x: 0,
                     y: 2
+                )
+            }
+            
+            // Show "Empty List" indicator for lists without items
+            if list.items.isEmpty {
+                HStack(spacing: 8) {
+                    Image(systemName: "tray")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.tertiaryText)
+                    Text("Empty list")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(DesignSystem.Colors.tertiaryText)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(DesignSystem.Colors.tertiaryBackground)
                 )
             }
             
@@ -260,10 +278,10 @@ struct ListRow: View {
                         .padding(6)  // Increased padding
                         .background(
                             Circle()
-                                .fill(DesignSystem.Colors.info)
+                                .fill(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info)
                         )
                         .shadow(
-                            color: DesignSystem.Colors.info.opacity(0.4),
+                            color: (list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info).opacity(0.4),
                             radius: 2,
                             x: 0,
                             y: 1
@@ -345,7 +363,7 @@ struct ListRow: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(list.category.color.opacity(0.25), lineWidth: 1.5)  // Increased border opacity and width
+                .stroke(list.category.color.opacity(list.items.isEmpty ? 0.1 : 0.25), lineWidth: 1.5)  // Reduced border opacity for empty lists
         )
         .padding(.horizontal, 8)
         .padding(.vertical, 4)  // Increased vertical padding for better separation
