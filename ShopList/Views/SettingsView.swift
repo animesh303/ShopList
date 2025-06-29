@@ -540,23 +540,25 @@ struct SettingsView: View {
                     
                     // Location Search Section - Warning Yellow Gradient
                     Section(header: Text("Location Search").foregroundColor(DesignSystem.Colors.primaryText)) {
-                        HStack {
-                            Image(systemName: settingsManager.restrictSearchToLocality ? "location.fill" : "location.slash")
-                                .foregroundColor(settingsManager.restrictSearchToLocality ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
-                            
-                            VStack(alignment: .leading) {
-                                Text("Search Restrictions")
-                                    .headlineStyle()
-                                Text(settingsManager.restrictSearchToLocality ? "Search limited to local area" : "Search not restricted")
-                                    .captionStyle()
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                        NavigationLink(destination: LocationSearchSettingsView()) {
+                            HStack {
+                                Image(systemName: settingsManager.restrictSearchToLocality ? "location.fill" : "location.slash")
+                                    .foregroundColor(settingsManager.restrictSearchToLocality ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Search Restrictions")
+                                        .headlineStyle()
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                    Text(settingsManager.restrictSearchToLocality ? "Search limited to local area" : "Search not restricted")
+                                        .captionStyle()
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                Spacer()
+                                Text("Configure")
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(.accentColor)
                             }
-                            
-                            Spacer()
-                            
-                            NavigationLink("Configure") {
-                                LocationSearchSettingsView()
-                            }
+                            .padding(.vertical, 8)
                         }
                         
                         if settingsManager.restrictSearchToLocality {
