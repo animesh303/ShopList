@@ -204,8 +204,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: currency.icon)
                                         .foregroundColor(currency.color)
-                                        .font(.title3)
-                                        .frame(width: 20)
+                                        .font(.title2)
+                                        .frame(width: 32, height: 32)
                                     Text(currency.name)
                                         .font(DesignSystem.Typography.body)
                                 }
