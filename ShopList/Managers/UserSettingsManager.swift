@@ -167,9 +167,9 @@ class UserSettingsManager: ObservableObject {
         let savedAppearance = UserDefaults.standard.string(forKey: "selectedAppearance") ?? Appearance.system.rawValue
         self.appearance = Appearance(rawValue: savedAppearance) ?? .system
         
-        // Default to personal category
-        let savedListCategory = UserDefaults.standard.string(forKey: "defaultListCategory") ?? ListCategory.personal.rawValue
-        self.defaultListCategory = ListCategory(rawValue: savedListCategory) ?? .personal
+        // Default to groceries category
+        let savedListCategory = UserDefaults.standard.string(forKey: "defaultListCategory") ?? ListCategory.groceries.rawValue
+        self.defaultListCategory = ListCategory(rawValue: savedListCategory) ?? .groceries
         
         // Default to normal priority
         let savedItemPriority = UserDefaults.standard.string(forKey: "defaultItemPriority") ?? String(ItemPriority.normal.rawValue)
