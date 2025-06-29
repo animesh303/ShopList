@@ -47,26 +47,13 @@ struct AppIconView: View {
     }
 }
 
+// MARK: - Navigation Banner View
 struct NavigationBannerView: View {
     let title: String
     let subtitle: String?
     let icon: String?
-    let gradient: LinearGradient
     let style: BannerStyle
-    
-    init(
-        title: String,
-        subtitle: String? = nil,
-        icon: String? = nil,
-        gradient: LinearGradient? = nil,
-        style: BannerStyle = .primary
-    ) {
-        self.title = title
-        self.subtitle = subtitle
-        self.icon = icon
-        self.gradient = gradient ?? style.defaultGradient
-        self.style = style
-    }
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(spacing: 0) {
@@ -110,16 +97,16 @@ struct NavigationBannerView: View {
                 .padding(.top, DesignSystem.Spacing.sm)
                 .padding(.bottom, subtitle != nil ? DesignSystem.Spacing.xs : DesignSystem.Spacing.sm)
             }
-            .background(gradient)
+            .background(themeAwareGradient)
             .overlay(
                 // Subtle pattern overlay for texture
                 Rectangle()
                     .fill(
                         LinearGradient(
                             colors: [
-                                .white.opacity(0.1),
+                                .white.opacity(colorScheme == .dark ? 0.05 : 0.1),
                                 .clear,
-                                .white.opacity(0.05)
+                                .white.opacity(colorScheme == .dark ? 0.02 : 0.05)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -132,7 +119,7 @@ struct NavigationBannerView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            .black.opacity(0.1),
+                            .black.opacity(colorScheme == .dark ? 0.2 : 0.1),
                             .clear
                         ],
                         startPoint: .top,
@@ -140,6 +127,118 @@ struct NavigationBannerView: View {
                     )
                 )
                 .frame(height: 2)
+        }
+    }
+    
+    // Theme-aware gradient based on user's appearance setting
+    private var themeAwareGradient: LinearGradient {
+        // For now, use system color scheme to avoid crashes
+        // The theme-aware functionality can be added later when UserSettingsManager is properly injected
+        let effectiveColorScheme = colorScheme
+        
+        switch style {
+        case .primary:
+            return effectiveColorScheme == .dark ? 
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.1, green: 0.3, blue: 0.5),
+                        Color(red: 0.0, green: 0.2, blue: 0.4)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                DesignSystem.Colors.primaryButtonGradient
+                
+        case .secondary:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.4, green: 0.1, blue: 0.3),
+                        Color(red: 0.3, green: 0.0, blue: 0.2)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                DesignSystem.Colors.secondaryButtonGradient
+                
+        case .success:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.0, green: 0.4, blue: 0.2),
+                        Color(red: 0.0, green: 0.3, blue: 0.1)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.success,
+                        DesignSystem.Colors.success.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .warning:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.5, green: 0.4, blue: 0.0),
+                        Color(red: 0.4, green: 0.3, blue: 0.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.warning,
+                        DesignSystem.Colors.warning.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .error:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.5, green: 0.1, blue: 0.1),
+                        Color(red: 0.4, green: 0.0, blue: 0.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.error,
+                        DesignSystem.Colors.error.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .info:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.0, green: 0.3, blue: 0.5),
+                        Color(red: 0.0, green: 0.2, blue: 0.4)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.info,
+                        DesignSystem.Colors.info.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .custom(let gradient):
+            return gradient
         }
     }
 }
@@ -207,6 +306,7 @@ struct CustomNavigationTitleView: View {
     let subtitle: String?
     let icon: String?
     let style: BannerStyle
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.xs) {
@@ -245,14 +345,126 @@ struct CustomNavigationTitleView: View {
         .padding(.vertical, DesignSystem.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .fill(style.defaultGradient)
+                .fill(themeAwareGradient)
                 .shadow(
-                    color: .black.opacity(0.2),
+                    color: .black.opacity(colorScheme == .dark ? 0.3 : 0.2),
                     radius: 2,
                     x: 0,
                     y: 1
                 )
         )
+    }
+    
+    // Theme-aware gradient based on user's appearance setting
+    private var themeAwareGradient: LinearGradient {
+        // For now, use system color scheme to avoid crashes
+        // The theme-aware functionality can be added later when UserSettingsManager is properly injected
+        let effectiveColorScheme = colorScheme
+        
+        switch style {
+        case .primary:
+            return effectiveColorScheme == .dark ? 
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.1, green: 0.3, blue: 0.5),
+                        Color(red: 0.0, green: 0.2, blue: 0.4)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                DesignSystem.Colors.primaryButtonGradient
+                
+        case .secondary:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.4, green: 0.1, blue: 0.3),
+                        Color(red: 0.3, green: 0.0, blue: 0.2)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                DesignSystem.Colors.secondaryButtonGradient
+                
+        case .success:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.0, green: 0.4, blue: 0.2),
+                        Color(red: 0.0, green: 0.3, blue: 0.1)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.success,
+                        DesignSystem.Colors.success.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .warning:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.5, green: 0.4, blue: 0.0),
+                        Color(red: 0.4, green: 0.3, blue: 0.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.warning,
+                        DesignSystem.Colors.warning.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .error:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.5, green: 0.1, blue: 0.1),
+                        Color(red: 0.4, green: 0.0, blue: 0.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.error,
+                        DesignSystem.Colors.error.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .info:
+            return effectiveColorScheme == .dark ?
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.0, green: 0.3, blue: 0.5),
+                        Color(red: 0.0, green: 0.2, blue: 0.4)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ) :
+                LinearGradient(
+                    colors: [
+                        DesignSystem.Colors.info,
+                        DesignSystem.Colors.info.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+        case .custom(let gradient):
+            return gradient
+        }
     }
 }
 
