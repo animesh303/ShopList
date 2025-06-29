@@ -182,8 +182,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: style.icon)
                                         .foregroundColor(style.color)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text(style.rawValue)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -215,8 +215,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: currency.icon)
                                         .foregroundColor(currency.color)
-                                        .font(.title2)
-                                        .frame(width: 32, height: 32)
+                                        .font(.title)
+                                        .frame(width: 36, height: 36)
                                     Text(currency.name)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -246,8 +246,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: format.icon)
                                         .foregroundColor(format.color)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text(format.rawValue)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -296,8 +296,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: style.icon)
                                         .foregroundColor(style.color)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text(style.rawValue)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -345,8 +345,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: priority.icon)
                                         .foregroundColor(priority.color)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text(priority.displayName)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -363,8 +363,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: unit.icon)
                                         .foregroundColor(unit.color)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text(unit.displayName)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -381,8 +381,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: order.icon)
                                         .foregroundColor(order.color)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text(order.displayName)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -555,8 +555,8 @@ struct SettingsView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: "location.viewfinder")
                                         .foregroundColor(.accentColor)
-                                        .font(.title2)
-                                        .frame(width: 28, height: 28)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
                                     Text("Configure")
                                         .font(DesignSystem.Typography.body)
                                         .foregroundColor(.accentColor)

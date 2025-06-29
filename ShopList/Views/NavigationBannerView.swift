@@ -78,10 +78,10 @@ struct NavigationBannerView: View {
                             AppIconView(size: 64)
                         } else {
                             Image(systemName: icon)
-                                .font(.title2)
+                                .font(.title)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .frame(width: 32, height: 32)
+                                .frame(width: 36, height: 36)
                                 .background(
                                     Circle()
                                         .fill(.white.opacity(0.2))
@@ -215,10 +215,10 @@ struct CustomNavigationTitleView: View {
                     AppIconView(size: 56)
                 } else {
                     Image(systemName: icon)
-                        .font(.title3)
+                        .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
-                        .frame(width: 28, height: 28)
+                        .frame(width: 32, height: 32)
                         .background(
                             Circle()
                                 .fill(.white.opacity(0.2))

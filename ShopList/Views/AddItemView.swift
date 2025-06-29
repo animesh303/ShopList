@@ -256,7 +256,7 @@ struct AddItemView: View {
                                 dismiss()
                             } label: {
                                 Image(systemName: "xmark")
-                                    .font(.title2)
+                                    .font(.title)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
@@ -286,7 +286,7 @@ struct AddItemView: View {
                                 addItem()
                             } label: {
                                 Image(systemName: "plus")
-                                    .font(.title2)
+                                    .font(.title)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)

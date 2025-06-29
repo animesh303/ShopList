@@ -88,7 +88,7 @@ struct AddListView: View {
                                 HStack {
                                     Image(systemName: category.icon)
                                         .foregroundColor(category.color)
-                                        .font(.title3)
+                                        .font(.title2)
                                     Text(category.rawValue)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -114,7 +114,7 @@ struct AddListView: View {
                         HStack {
                             Image(systemName: category.icon)
                                 .foregroundColor(category.color)
-                                .font(.title2)
+                                .font(.title)
                             
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                                 Text("Preview")
