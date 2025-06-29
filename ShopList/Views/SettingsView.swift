@@ -199,12 +199,23 @@ struct SettingsView: View {
                     
                     // Currency Section - Green Gradient
                     Section(header: Text("Currency").foregroundColor(DesignSystem.Colors.primaryText)) {
-                        Picker("Currency", selection: $settingsManager.currency) {
+                        Picker(selection: $settingsManager.currency) {
                             ForEach(Currency.allCases) { currency in
-                                Text("\(currency.symbol) \(currency.name)")
-                                    .tag(currency)
+                                HStack(spacing: 8) {
+                                    Image(systemName: currency.icon)
+                                        .foregroundColor(currency.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(currency.name)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(currency)
                             }
+                        } label: {
+                            Text("Currency")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                     }
                     .listRowBackground(
                         LinearGradient(

@@ -39,6 +39,24 @@ enum Currency: String, CaseIterable, Identifiable {
         case .INR: return "Indian Rupee"
         }
     }
+
+    var icon: String {
+        switch self {
+        case .USD: return "dollarsign.circle.fill"
+        case .EUR: return "eurosign.circle.fill"
+        case .GBP: return "sterlingsign.circle.fill"
+        case .INR: return "indianrupeesign.circle.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .USD: return .green
+        case .EUR: return .blue
+        case .GBP: return .purple
+        case .INR: return .orange
+        }
+    }
 }
 
 enum Appearance: String, CaseIterable, Identifiable {
