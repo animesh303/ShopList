@@ -75,13 +75,13 @@ struct NavigationBannerView: View {
                 HStack(spacing: DesignSystem.Spacing.sm) {
                     if let icon = icon {
                         if icon == "app_icon" {
-                            AppIconView(size: 48)
+                            AppIconView(size: 64)
                         } else {
                             Image(systemName: icon)
-                                .font(.title2)
+                                .font(.title)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.white)
-                                .frame(width: 28, height: 28)
+                                .frame(width: 36, height: 36)
                                 .background(
                                     Circle()
                                         .fill(.white.opacity(0.2))
@@ -91,14 +91,14 @@ struct NavigationBannerView: View {
                     
                     VStack(alignment: .leading, spacing: 1) {
                         Text(title)
-                            .font(.custom("Bradley Hand", size: 28, relativeTo: .title2))
+                            .font(.custom("Bradley Hand", size: 32, relativeTo: .title2))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .lineLimit(1)
                         
                         if let subtitle = subtitle {
                             Text(subtitle)
-                                .font(.custom("Bradley Hand", size: 14, relativeTo: .caption))
+                                .font(.custom("Bradley Hand", size: 18, relativeTo: .caption))
                                 .foregroundColor(.white.opacity(0.9))
                                 .lineLimit(1)
                         }
@@ -212,13 +212,13 @@ struct CustomNavigationTitleView: View {
         HStack(spacing: DesignSystem.Spacing.xs) {
             if let icon = icon {
                 if icon == "app_icon" {
-                    AppIconView(size: 40)
+                    AppIconView(size: 56)
                 } else {
                     Image(systemName: icon)
-                        .font(.title3)
+                        .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 32, height: 32)
                         .background(
                             Circle()
                                 .fill(.white.opacity(0.2))
@@ -228,14 +228,14 @@ struct CustomNavigationTitleView: View {
             
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(.custom("Bradley Hand", size: 20, relativeTo: .title3))
+                    .font(.custom("Bradley Hand", size: 24, relativeTo: .title3))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(1)
                 
                 if let subtitle = subtitle {
                     Text(subtitle)
-                        .font(.custom("Bradley Hand", size: 12, relativeTo: .caption))
+                        .font(.custom("Bradley Hand", size: 16, relativeTo: .caption))
                         .foregroundColor(.white.opacity(0.9))
                         .lineLimit(1)
                 }
