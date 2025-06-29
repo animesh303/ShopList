@@ -12,6 +12,25 @@ public enum ListSortOrder: String, CaseIterable, Identifiable {
     public var id: String { rawValue }
     
     public var displayName: String { rawValue }
+    
+    public var icon: String {
+        switch self {
+        case .nameAsc: return "textformat.abc"
+        case .nameDesc: return "textformat.abc.dottedunderline"
+        case .dateAsc: return "calendar"
+        case .dateDesc: return "calendar.badge.clock"
+        case .categoryAsc: return "square.grid.2x2"
+        case .categoryDesc: return "square.grid.2x2.fill"
+        }
+    }
+    
+    public var color: Color {
+        switch self {
+        case .nameAsc, .nameDesc: return .blue
+        case .dateAsc, .dateDesc: return .orange
+        case .categoryAsc, .categoryDesc: return .purple
+        }
+    }
 }
 
 enum Currency: String, CaseIterable, Identifiable {

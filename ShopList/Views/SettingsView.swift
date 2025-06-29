@@ -268,17 +268,6 @@ struct SettingsView: View {
                             }
                         }
                         
-                        if !subscriptionManager.canUseItemImages() {
-                            HStack {
-                                Image(systemName: "crown.fill")
-                                    .foregroundColor(.orange)
-                                    .font(DesignSystem.Typography.caption1)
-                                Text("Premium feature")
-                                    .captionStyle()
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                            }
-                        }
-                        
                         Toggle("Show Item Notes", isOn: $settingsManager.showItemNotesByDefault)
                         Picker("Item View Style", selection: $settingsManager.defaultItemViewStyle) {
                             ForEach(ItemViewStyle.allCases) { style in
@@ -354,11 +343,23 @@ struct SettingsView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                         
-                        Picker("Default Sort Order", selection: $settingsManager.defaultListSortOrder) {
+                        Picker(selection: $settingsManager.defaultListSortOrder) {
                             ForEach(ListSortOrder.allCases) { order in
-                                Text(order.rawValue).tag(order)
+                                HStack(spacing: 8) {
+                                    Image(systemName: order.icon)
+                                        .foregroundColor(order.color)
+                                        .font(.title2)
+                                        .frame(width: 28, height: 28)
+                                    Text(order.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(order)
                             }
+                        } label: {
+                            Text("Default Sort Order")
+                                .font(DesignSystem.Typography.body)
                         }
+                        .pickerStyle(MenuPickerStyle())
                     }
                     .listRowBackground(
                         LinearGradient(
