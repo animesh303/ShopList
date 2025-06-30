@@ -200,6 +200,8 @@ struct AddItemView: View {
     @State private var showingImageOptions = false
     @State private var showingUpgradePrompt = false
     @State private var upgradePromptMessage = ""
+    @State private var isUnitSheetPresented = false
+    @State private var unitSearchText = ""
     
     @FocusState private var focusedField: Field?
     
@@ -225,14 +227,6 @@ struct AddItemView: View {
         }
     }
     
-    private var unitPicker: some View {
-        Picker("Unit", selection: $unit) {
-            ForEach(Unit.allUnits, id: \.self) { unit in
-                Text(unit.displayName).tag(unit.rawValue)
-            }
-        }
-    }
-    
     private var categoryPicker: some View {
         Picker("Category", selection: $category) {
             ForEach(ItemCategory.allCases, id: \.self) { category in
@@ -253,6 +247,14 @@ struct AddItemView: View {
             ForEach(ItemPriority.allCases, id: \.self) { priority in
                 Text(priority.displayName).tag(priority)
             }
+        }
+    }
+    
+    private var filteredUnits: [Unit] {
+        if unitSearchText.isEmpty {
+            return Unit.allUnits
+        } else {
+            return Unit.allUnits.filter { $0.displayName.localizedCaseInsensitiveContains(unitSearchText) }
         }
     }
     
@@ -525,24 +527,80 @@ struct AddItemView: View {
                         TextField("0", value: $quantity, format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.decimalPad)
+                            .frame(width: 70)
                     }
-                    
+
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Unit")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        Picker("Unit", selection: $unit) {
-                            ForEach(Unit.allUnits, id: \.self) { unit in
-                                Text(unit.displayName).tag(unit.rawValue)
+                        Button {
+                            isUnitSheetPresented = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                let selectedUnit = Unit.allUnits.first { $0.rawValue == unit }
+                                Image(systemName: selectedUnit?.icon ?? "circle")
+                                    .foregroundColor(selectedUnit?.color ?? .gray)
+                                    .font(.title3)
+                                    .frame(width: 20)
+                                Text(selectedUnit?.displayName ?? "")
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                    .layoutPriority(1)
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 10)
+                            .background(DesignSystem.Colors.secondaryBackground)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(DesignSystem.Colors.borderLight, lineWidth: 1)
+                            )
+                            .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .sheet(isPresented: $isUnitSheetPresented) {
+                            NavigationView {
+                                VStack {
+                                    TextField("Search units...", text: $unitSearchText)
+                                        .padding(8)
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(8)
+                                        .padding()
+
+                                    List(filteredUnits, id: \.self) { unitOption in
+                                        Button {
+                                            unit = unitOption.rawValue
+                                            isUnitSheetPresented = false
+                                        } label: {
+                                            HStack {
+                                                Image(systemName: unitOption.icon)
+                                                    .foregroundColor(unitOption.color)
+                                                Text(unitOption.displayName)
+                                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                                Spacer()
+                                                if unit == unitOption.rawValue {
+                                                    Image(systemName: "checkmark")
+                                                        .foregroundColor(.accentColor)
+                                                }
+                                            }
+                                            .padding(.vertical, 4)
+                                        }
+                                    }
+                                    .listStyle(PlainListStyle())
+                                }
+                                .navigationTitle("Select Unit")
+                                .navigationBarTitleDisplayMode(.inline)
+                                .toolbar {
+                                    ToolbarItem(placement: .cancellationAction) {
+                                        Button("Cancel") { isUnitSheetPresented = false }
+                                    }
+                                }
                             }
                         }
-                        .pickerStyle(MenuPickerStyle())
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(DesignSystem.Colors.secondaryBackground)
-                        .cornerRadius(8)
                     }
                 }
             }
