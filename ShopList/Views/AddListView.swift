@@ -56,6 +56,38 @@ struct AddListView: View {
                 .keyboardType(.decimalPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disabled(!subscriptionManager.canUseBudgetTracking())
+                
+                if !subscriptionManager.canUseBudgetTracking() {
+                    Button(action: {
+                        showingPremiumUpgrade = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "crown.fill")
+                                .font(.caption)
+                            Text("Upgrade")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            LinearGradient(
+                                colors: [DesignSystem.Colors.warning, DesignSystem.Colors.warning.opacity(0.8)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .shadow(
+                            color: DesignSystem.Colors.warning.opacity(0.3),
+                            radius: 2,
+                            x: 0,
+                            y: 1
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
             }
             
             if !subscriptionManager.canUseBudgetTracking() {
