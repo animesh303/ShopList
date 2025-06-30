@@ -12,7 +12,7 @@ final class Item {
     var isCompleted: Bool
     var notes: String?
     var dateAdded: Date
-    var estimatedPrice: Decimal?
+    var pricePerUnit: Decimal?
     var brand: String?
     var unit: String?
     var lastPurchasedPrice: Decimal?
@@ -27,7 +27,7 @@ final class Item {
          isCompleted: Bool = false, 
          notes: String? = nil, 
          dateAdded: Date = Date(),
-         estimatedPrice: Decimal? = nil,
+         pricePerUnit: Decimal? = nil,
          brand: String? = nil,
          unit: String? = nil,
          lastPurchasedPrice: Decimal? = nil,
@@ -41,7 +41,7 @@ final class Item {
         self.isCompleted = isCompleted
         self.notes = notes
         self.dateAdded = dateAdded
-        self.estimatedPrice = estimatedPrice
+        self.pricePerUnit = pricePerUnit
         self.brand = brand
         self.unit = unit
         self.lastPurchasedPrice = lastPurchasedPrice
@@ -99,7 +99,7 @@ final class ItemHistory {
     var unit: String?
     var lastUsedDate: Date
     var usageCount: Int
-    var estimatedPrice: Decimal?
+    var pricePerUnit: Decimal?
     
     init(id: UUID = UUID(),
          name: String,
@@ -108,7 +108,7 @@ final class ItemHistory {
          unit: String? = nil,
          lastUsedDate: Date = Date(),
          usageCount: Int = 1,
-         estimatedPrice: Decimal? = nil) {
+         pricePerUnit: Decimal? = nil) {
         self.id = id
         self.name = name
         self.lowercaseName = name.lowercased()
@@ -117,6 +117,6 @@ final class ItemHistory {
         self.unit = unit
         self.lastUsedDate = lastUsedDate
         self.usageCount = usageCount
-        self.estimatedPrice = estimatedPrice
+        self.pricePerUnit = pricePerUnit
     }
 } 

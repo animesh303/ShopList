@@ -184,7 +184,7 @@ struct AddItemView: View {
     @State private var quantity = 1.0
     @State private var unit = ""
     @State private var brand = ""
-    @State private var estimatedPrice: Double?
+    @State private var pricePerUnit: Double?
     @State private var category: ItemCategory = .other
     @State private var notes = ""
     @State private var priority: ItemPriority = .normal
@@ -218,9 +218,9 @@ struct AddItemView: View {
     
     private var priceField: some View {
         HStack {
-            Text("Estimated Price")
+            Text("Price per unit")
             Spacer()
-            TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+            TextField("Price", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 100)
@@ -585,13 +585,13 @@ struct AddItemView: View {
             VStack(spacing: 20) {
                 // Price Field - Settings Style
                 HStack {
-                    Text("Estimated Price")
+                    Text("Price per unit")
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
                     Spacer()
                     
-                    TextField("0.00", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                    TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 120)
@@ -732,7 +732,7 @@ struct AddItemView: View {
                 category: category,
                 isCompleted: false,
                 notes: notes.isEmpty ? nil : notes,
-                estimatedPrice: estimatedPrice.map { Decimal($0) },
+                pricePerUnit: pricePerUnit.map { Decimal($0) },
                 brand: brand.isEmpty ? nil : brand,
                 unit: unit.isEmpty ? nil : unit,
                 imageData: imageData,
@@ -747,7 +747,7 @@ struct AddItemView: View {
                 category: item.category,
                 brand: item.brand,
                 unit: item.unit,
-                estimatedPrice: item.estimatedPrice
+                pricePerUnit: item.pricePerUnit
             )
             modelContext.insert(history)
             
@@ -807,8 +807,8 @@ struct AddItemView: View {
                 // Populate fields from the history
                 brand = recentItem.brand ?? ""
                 unit = recentItem.unit ?? ""
-                if let price = recentItem.estimatedPrice {
-                    estimatedPrice = Double(truncating: price as NSDecimalNumber)
+                if let price = recentItem.pricePerUnit {
+                    pricePerUnit = Double(truncating: price as NSDecimalNumber)
                 }
             }
         } catch {

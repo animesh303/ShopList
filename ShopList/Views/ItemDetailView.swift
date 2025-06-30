@@ -14,7 +14,7 @@ struct ItemDetailView: View {
     @State private var unit: Unit
     @State private var category: ItemCategory
     @State private var priority: ItemPriority
-    @State private var estimatedPrice: Double?
+    @State private var pricePerUnit: Double?
     @State private var notes: String
     @State private var selectedImage: PhotosPickerItem?
     @State private var showingImagePicker = false
@@ -31,7 +31,7 @@ struct ItemDetailView: View {
         _unit = State(initialValue: Unit(rawValue: item.unit ?? "") ?? .none)
         _category = State(initialValue: item.category)
         _priority = State(initialValue: item.priority)
-        _estimatedPrice = State(initialValue: item.estimatedPrice.map { Double(truncating: $0 as NSDecimalNumber) })
+        _pricePerUnit = State(initialValue: item.pricePerUnit.map { Double(truncating: $0 as NSDecimalNumber) })
         _notes = State(initialValue: item.notes ?? "")
     }
     
@@ -91,9 +91,9 @@ struct ItemDetailView: View {
                     
                     Section {
                         HStack {
-                            Text("Estimated Price")
+                            Text("Price per unit")
                             Spacer()
-                            TextField("Price", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
+                            TextField("Price", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
                                 .frame(width: 100)
@@ -101,7 +101,7 @@ struct ItemDetailView: View {
                     } header: {
                         Text("Price")
                     } footer: {
-                        Text("Set an estimated price for this item")
+                        Text("Set the price per unit for this item")
                     }
                     
                     Section {
@@ -237,7 +237,7 @@ struct ItemDetailView: View {
             item.unit = unit == .none ? nil : unit.rawValue
             item.category = category
             item.priority = priority
-            item.estimatedPrice = estimatedPrice.map { Decimal($0) }
+            item.pricePerUnit = pricePerUnit.map { Decimal($0) }
             item.notes = notes.isEmpty ? nil : notes
             
             if let selectedImage = selectedImage {

@@ -133,7 +133,7 @@ struct ItemRow: View {
                         }
                     }
                     
-                    if let price = item.estimatedPrice, price > 0 {
+                    if let price = item.pricePerUnit, price > 0 {
                         if item.quantity > 0 {
                             Text("•")
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
@@ -380,7 +380,7 @@ struct ItemRow: View {
                     }
                 }
                 
-                if let price = item.estimatedPrice, price > 0 {
+                if let price = item.pricePerUnit, price > 0 {
                     HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: "dollarsign.circle.fill")
                             .font(.caption)

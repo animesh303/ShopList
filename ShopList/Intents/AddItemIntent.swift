@@ -45,7 +45,7 @@ struct AddItemIntent: AppIntent {
             isCompleted: false,
             notes: nil,
             dateAdded: Date(),
-            estimatedPrice: nil,
+            pricePerUnit: nil,
             brand: nil,
             unit: nil,
             lastPurchasedPrice: nil,

@@ -75,7 +75,7 @@ final class ShoppingList {
     }
     
     private func calculateItemTotal(_ item: Item) -> Double {
-        let price = item.estimatedPrice ?? 0
+        let price = item.pricePerUnit ?? 0
         let quantity = item.quantity
         return Double(truncating: (price * quantity) as NSDecimalNumber)
     }
