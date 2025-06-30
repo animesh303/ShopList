@@ -4,6 +4,7 @@ struct ListSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: ShoppingListViewModel
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     let list: ShoppingList
     
     @State private var listName: String
@@ -12,6 +13,7 @@ struct ListSettingsView: View {
     @State private var isTemplate: Bool
     @State private var showingError = false
     @State private var errorMessage = ""
+    @State private var showingPremiumUpgrade = false
     
     init(list: ShoppingList, viewModel: ShoppingListViewModel) {
         self.list = list
@@ -20,6 +22,46 @@ struct ListSettingsView: View {
         _category = State(initialValue: list.category)
         _budget = State(initialValue: list.budget)
         _isTemplate = State(initialValue: list.isTemplate)
+    }
+    
+    private var availableCategories: [ListCategory] {
+        subscriptionManager.getAvailableCategories()
+    }
+    
+    private var budgetRow: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text(settingsManager.currency.symbol)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.primaryText)
+                TextField("Budget Amount", value: $budget, format: .number)
+                    .keyboardType(.decimalPad)
+                    .disabled(!subscriptionManager.canUseBudgetTracking())
+                    .onChange(of: budget) { oldValue, newValue in
+                        if let value = newValue, (value.isNaN || value.isInfinite) {
+                            budget = nil
+                        }
+                        
+                        // Check if user is trying to set a budget without premium
+                        if newValue != nil && !subscriptionManager.canUseBudgetTracking() {
+                            budget = nil
+                            showingPremiumUpgrade = true
+                        }
+                    }
+            }
+            
+            if !subscriptionManager.canUseBudgetTracking() {
+                HStack {
+                    Image(systemName: "crown.fill")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text("Upgrade to Premium for budget tracking")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                    Spacer()
+                }
+            }
+        }
     }
     
     var body: some View {
@@ -35,7 +77,7 @@ struct ListSettingsView: View {
                             .textContentType(.name)
                         
                         Picker(selection: $category) {
-                            ForEach(ListCategory.allCases.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
+                            ForEach(availableCategories.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
                                 HStack(spacing: 8) {
                                     Image(systemName: category.icon)
                                         .foregroundColor(category.color)
@@ -51,23 +93,29 @@ struct ListSettingsView: View {
                                 .font(DesignSystem.Typography.body)
                         }
                         .pickerStyle(MenuPickerStyle())
+                        .onChange(of: category) { oldValue, newValue in
+                            // Check if user is trying to use a premium category
+                            if !subscriptionManager.canUseCategory(newValue) {
+                                category = oldValue
+                                showingPremiumUpgrade = true
+                            }
+                        }
                     } header: {
                         Text("List Details")
                     } footer: {
-                        Text("Basic information about your shopping list")
+                        if !subscriptionManager.isPremium {
+                            Text("Free users can only use basic categories. Upgrade to Premium for all 20+ categories.")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        } else {
+                            Text("Basic information about your shopping list")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
                     }
                     
                     Section {
-                        HStack {
-                            Text(settingsManager.currency.symbol)
-                            TextField("Budget Amount", value: $budget, format: .number)
-                                .keyboardType(.decimalPad)
-                                .onChange(of: budget) { oldValue, newValue in
-                                    if let value = newValue, (value.isNaN || value.isInfinite) {
-                                        budget = nil
-                                    }
-                                }
-                        }
+                        budgetRow
                     } header: {
                         Text("Budget")
                     } footer: {
@@ -157,6 +205,9 @@ struct ListSettingsView: View {
             } message: {
                 Text(errorMessage)
             }
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
+            }
         }
     }
     
@@ -174,10 +225,22 @@ struct ListSettingsView: View {
                     }
                 }
                 
+                // Check if user can use the selected category
+                guard subscriptionManager.canUseCategory(category) else {
+                    showingPremiumUpgrade = true
+                    return
+                }
+                
+                // Check if user can use budget tracking
+                if budget != nil && !subscriptionManager.canUseBudgetTracking() {
+                    showingPremiumUpgrade = true
+                    return
+                }
+                
                 // Update the list properties
                 list.name = listName
                 list.category = category
-                list.budget = budget
+                list.budget = subscriptionManager.canUseBudgetTracking() ? budget : nil
                 list.isTemplate = isTemplate
                 
                 try await viewModel.updateShoppingList(list)
