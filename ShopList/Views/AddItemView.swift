@@ -52,6 +52,7 @@ extension ItemCategory {
 private struct SuggestionsListView: View {
     let suggestions: [(name: String, category: ItemCategory)]
     let onSelect: ((name: String, category: ItemCategory)) -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -92,7 +93,7 @@ private struct SuggestionsListView: View {
                                     Text(suggestion.name.capitalized)
                                         .font(.subheadline)
                                         .fontWeight(.medium)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
                                         .lineLimit(1)
                                 }
                                 
@@ -131,11 +132,37 @@ private struct SuggestionsListView: View {
         }
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(DesignSystem.Colors.cardGradient)
-                .shadow(color: DesignSystem.Shadows.colorfulSmall.color, radius: 8, x: 0, y: 4)
+                .fill(enhancedCardBackground)
+                .shadow(color: colorScheme == .dark ? Color.black.opacity(0.3) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         )
         .padding(.horizontal, 4)
         .padding(.top, 8)
+    }
+    
+    // Enhanced card background with more contrast
+    private var enhancedCardBackground: LinearGradient {
+        if colorScheme == .dark {
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.18, green: 0.18, blue: 0.23),
+                    Color(red: 0.12, green: 0.12, blue: 0.17),
+                    Color(red: 0.08, green: 0.08, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color.white,
+                    Color(red: 0.99, green: 0.99, blue: 1.0),
+                    Color(red: 0.97, green: 0.98, blue: 1.0),
+                    Color(red: 0.94, green: 0.96, blue: 0.99)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
 }
 
@@ -147,6 +174,7 @@ private enum Field: Hashable {
 struct AddItemView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Bindable var list: ShoppingList
     @Query private var allLists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
@@ -229,105 +257,103 @@ struct AddItemView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                // Enhanced background with vibrant gradient
-                DesignSystem.Colors.backgroundGradient
-                    .ignoresSafeArea()
-                
-                Form {
-                    imageSection
-                    itemDetailsSection
-                    additionalInfoSection
-                    notesSection
-                }
-                .scrollContentBackground(.hidden)
-                
-                // FABs at bottom
-                VStack {
-                    Spacer()
-                    HStack {
-                        // Cancel Button FAB at bottom left
-                        VStack {
-                            Spacer()
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                dismiss()
-                            } label: {
-                                Image(systemName: "xmark")
-                                    .font(.title)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
-                                    .background(
-                                        DesignSystem.Colors.error.opacity(0.8)
-                                    )
-                                    .clipShape(Circle())
-                                    .shadow(
-                                        color: DesignSystem.Colors.error.opacity(0.4),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 4
-                                    )
-                            }
-                        }
-                        .padding(.leading, DesignSystem.Spacing.lg)
-                        .padding(.bottom, DesignSystem.Spacing.lg)
-                        
+        ZStack {
+            // Enhanced background with vibrant gradient
+            DesignSystem.Colors.backgroundGradient
+                .ignoresSafeArea()
+            
+            List {
+                imageSection
+                itemDetailsSection
+                additionalInfoSection
+                notesSection
+            }
+            .scrollContentBackground(.hidden)
+            
+            // Enhanced Floating Action Buttons with consistent design
+            VStack {
+                Spacer()
+                HStack {
+                    // Cancel Button FAB at bottom left
+                    VStack {
                         Spacer()
-                        
-                        // Add Button FAB at bottom right
-                        VStack {
-                            Spacer()
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                addItem()
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.title)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
-                                    .background(
-                                        !name.isEmpty ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.tertiaryText.opacity(0.6)
-                                    )
-                                    .clipShape(Circle())
-                                    .shadow(
-                                        color: !name.isEmpty ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.tertiaryText.opacity(0.2),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 4
-                                    )
-                            }
-                            .disabled(name.isEmpty)
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                .background(
+                                    DesignSystem.Colors.error.opacity(0.8)
+                                )
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: DesignSystem.Colors.error.opacity(0.4),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
                         }
-                        .padding(.trailing, DesignSystem.Spacing.lg)
-                        .padding(.bottom, DesignSystem.Spacing.lg)
                     }
+                    .padding(.leading, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
+                    
+                    Spacer()
+                    
+                    // Add Button FAB at bottom right
+                    VStack {
+                        Spacer()
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            addItem()
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                .background(
+                                    !name.isEmpty ? DesignSystem.Colors.primaryButtonGradient : LinearGradient(colors: [DesignSystem.Colors.tertiaryText.opacity(0.6), DesignSystem.Colors.tertiaryText.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: !name.isEmpty ? DesignSystem.Colors.primary.opacity(0.4) : DesignSystem.Colors.tertiaryText.opacity(0.2),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                        }
+                        .disabled(name.isEmpty)
+                    }
+                    .padding(.trailing, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
                 }
             }
-            .enhancedNavigation(
-                title: "Add Item",
-                subtitle: "Add a new item to your list",
-                icon: "plus.circle",
-                style: .success,
-                showBanner: true
-            )
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
+        }
+        .enhancedNavigation(
+            title: "Add Item",
+            subtitle: "Add a new item to your list",
+            icon: "plus.circle",
+            style: .success,
+            showBanner: true
+        )
+        .alert("Error", isPresented: $showingError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+        .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+            Button("Upgrade") {
+                // Show premium upgrade view
             }
-            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
-                Button("Upgrade") {
-                    // Show premium upgrade view
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: {
-                Text(upgradePromptMessage)
-            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(upgradePromptMessage)
         }
     }
     
@@ -350,7 +376,7 @@ struct AddItemView: View {
                         .scaledToFill()
                         .frame(width: 120, height: 120)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: DesignSystem.Shadows.colorfulMedium.color, radius: 8, x: 0, y: 4)
+                        .shadow(color: DesignSystem.Colors.primary.opacity(0.3), radius: 8, x: 0, y: 4)
                 } else {
                     VStack(spacing: 16) {
                         Image(systemName: subscriptionManager.canUseItemImages() ? "photo.badge.plus" : "crown.fill")
@@ -527,7 +553,7 @@ struct AddItemView: View {
         } footer: {
             Text("Enter the basic information about your item")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
         }
     }
     
@@ -539,7 +565,7 @@ struct AddItemView: View {
                     Text("Estimated Price")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     TextField("0.00", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.decimalPad)
@@ -550,7 +576,7 @@ struct AddItemView: View {
                     Text("Category")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     Picker("Category", selection: $category) {
                         ForEach(ItemCategory.allCases, id: \.self) { category in
                             HStack {
@@ -567,7 +593,7 @@ struct AddItemView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
+                    .background(DesignSystem.Colors.secondaryBackground)
                     .cornerRadius(8)
                 }
                 
@@ -576,7 +602,7 @@ struct AddItemView: View {
                     Text("Priority")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.primary)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                     Picker("Priority", selection: $priority) {
                         ForEach(ItemPriority.allCases, id: \.self) { priority in
                             priorityRow(for: priority)
@@ -586,18 +612,18 @@ struct AddItemView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color(.systemGray6))
+                    .background(DesignSystem.Colors.secondaryBackground)
                     .cornerRadius(8)
                 }
             }
         } header: {
             Text("Additional Information")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(DesignSystem.Colors.primaryText)
         } footer: {
             Text("Add more details to help organize your items")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
         }
     }
     
@@ -607,21 +633,21 @@ struct AddItemView: View {
                 Text("Notes")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(.primary)
+                    .foregroundColor(DesignSystem.Colors.primaryText)
                 TextEditor(text: $notes)
                     .frame(minHeight: 100)
                     .padding(8)
-                    .background(Color(.systemGray6))
+                    .background(DesignSystem.Colors.secondaryBackground)
                     .cornerRadius(8)
             }
         } header: {
             Text("Notes")
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundColor(DesignSystem.Colors.primaryText)
         } footer: {
             Text("Add any additional notes or reminders about this item")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(DesignSystem.Colors.secondaryText)
         }
     }
     
