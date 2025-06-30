@@ -706,17 +706,11 @@ struct AddItemView: View {
     
     private var notesSection: some View {
         Section {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Notes")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
-                TextEditor(text: $notes)
-                    .frame(minHeight: 100)
-                    .padding(8)
-                    .background(DesignSystem.Colors.secondaryBackground)
-                    .cornerRadius(8)
-            }
+            TextEditor(text: $notes)
+                .frame(minHeight: 100)
+                .padding(8)
+                .background(DesignSystem.Colors.secondaryBackground)
+                .cornerRadius(8)
         } header: {
             Text("Notes")
                 .font(.headline)
