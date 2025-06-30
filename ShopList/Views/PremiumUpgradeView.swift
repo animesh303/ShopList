@@ -394,15 +394,18 @@ struct FeatureCard: View {
                     .fontWeight(.semibold)
                     .foregroundColor(DesignSystem.Colors.primaryText)
                     .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
                 
                 Text(feature.description)
                     .font(.caption)
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .multilineTextAlignment(.center)
-                    .lineLimit(2)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .frame(width: 140, height: 120)
+        .frame(minWidth: 140, maxWidth: 180, minHeight: 120)
         .padding(16)
         .background(DesignSystem.Colors.cardGradient)
         .cornerRadius(12)
