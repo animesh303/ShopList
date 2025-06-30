@@ -185,7 +185,7 @@ struct AddItemView: View {
     @State private var unit = ""
     @State private var brand = ""
     @State private var pricePerUnit: Double?
-    @State private var category: ItemCategory = .other
+    @State private var category: ItemCategory = UserSettingsManager.shared.defaultItemCategory
     @State private var notes = ""
     @State private var priority: ItemPriority = .normal
     @State private var showingError = false

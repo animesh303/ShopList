@@ -43,6 +43,12 @@ class UserSettingsManager: ObservableObject {
         }
     }
     
+    @Published var defaultItemCategory: ItemCategory {
+        didSet {
+            UserDefaults.standard.set(defaultItemCategory.rawValue, forKey: "defaultItemCategory")
+        }
+    }
+    
     @Published var defaultUnit: String {
         didSet {
             UserDefaults.standard.set(defaultUnit, forKey: "defaultUnit")
@@ -174,6 +180,10 @@ class UserSettingsManager: ObservableObject {
         // Default to normal priority
         let savedItemPriority = UserDefaults.standard.string(forKey: "defaultItemPriority") ?? String(ItemPriority.normal.rawValue)
         self.defaultItemPriority = ItemPriority(rawValue: Int(savedItemPriority) ?? ItemPriority.normal.rawValue) ?? .normal
+        
+        // Default to groceries category for items
+        let savedItemCategory = UserDefaults.standard.string(forKey: "defaultItemCategory") ?? ItemCategory.groceries.rawValue
+        self.defaultItemCategory = ItemCategory(rawValue: savedItemCategory) ?? .groceries
         
         // Default to kilogram unit
         self.defaultUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue

@@ -340,6 +340,24 @@ struct SettingsView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                         
+                        Picker(selection: $settingsManager.defaultItemCategory) {
+                            ForEach(ItemCategory.allCases, id: \.self) { category in
+                                HStack(spacing: 8) {
+                                    Image(systemName: category.icon)
+                                        .foregroundColor(category.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(category.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(category)
+                            }
+                        } label: {
+                            Text("Default Item Category")
+                                .font(DesignSystem.Typography.body)
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        
                         Picker(selection: $settingsManager.defaultItemPriority) {
                             ForEach(ItemPriority.allCases, id: \.self) { priority in
                                 HStack(spacing: 8) {
