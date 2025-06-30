@@ -66,17 +66,44 @@ struct PremiumUpgradeView: View {
                         termsSection
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 40)
+                    .padding(.top, 40) // Added top padding for icon card
+                    .padding(.bottom, 100) // Extra padding for FAB
                 }
-            }
-            .navigationTitle("Upgrade to Premium")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Close") {
-                        dismiss()
+                
+                // Close FAB at bottom
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: 56, height: 56)
+                                .background(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.red.opacity(0.8),
+                                            Color.red.opacity(0.6)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: Color.red.opacity(0.4),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
                     }
-                    .foregroundColor(.white)
                 }
             }
             .alert("Error", isPresented: $showingError) {
