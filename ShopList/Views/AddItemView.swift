@@ -535,72 +535,23 @@ struct AddItemView: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        Button {
-                            isUnitSheetPresented = true
+                        Picker(selection: $unit) {
+                            ForEach(Unit.allUnits, id: \.self) { unit in
+                                HStack(spacing: 8) {
+                                    Image(systemName: unit.icon)
+                                        .foregroundColor(unit.color)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
+                                    Text(unit.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                }
+                                .tag(unit.rawValue)
+                            }
                         } label: {
-                            HStack(spacing: 8) {
-                                let selectedUnit = Unit.allUnits.first { $0.rawValue == unit }
-                                Image(systemName: selectedUnit?.icon ?? "circle")
-                                    .foregroundColor(selectedUnit?.color ?? .gray)
-                                    .font(.title3)
-                                    .frame(width: 20)
-                                Text(selectedUnit?.displayName ?? "")
-                                    .font(DesignSystem.Typography.body)
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                                    .layoutPriority(1)
-                                Spacer()
-                                Image(systemName: "chevron.down")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 10)
-                            .background(DesignSystem.Colors.secondaryBackground)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(DesignSystem.Colors.borderLight, lineWidth: 1)
-                            )
-                            .fixedSize(horizontal: false, vertical: true)
+                            Text("Unit")
+                                .font(DesignSystem.Typography.body)
                         }
-                        .sheet(isPresented: $isUnitSheetPresented) {
-                            NavigationView {
-                                VStack {
-                                    TextField("Search units...", text: $unitSearchText)
-                                        .padding(8)
-                                        .background(Color(.systemGray6))
-                                        .cornerRadius(8)
-                                        .padding()
-
-                                    List(filteredUnits, id: \.self) { unitOption in
-                                        Button {
-                                            unit = unitOption.rawValue
-                                            isUnitSheetPresented = false
-                                        } label: {
-                                            HStack {
-                                                Image(systemName: unitOption.icon)
-                                                    .foregroundColor(unitOption.color)
-                                                Text(unitOption.displayName)
-                                                    .foregroundColor(DesignSystem.Colors.primaryText)
-                                                Spacer()
-                                                if unit == unitOption.rawValue {
-                                                    Image(systemName: "checkmark")
-                                                        .foregroundColor(.accentColor)
-                                                }
-                                            }
-                                            .padding(.vertical, 4)
-                                        }
-                                    }
-                                    .listStyle(PlainListStyle())
-                                }
-                                .navigationTitle("Select Unit")
-                                .navigationBarTitleDisplayMode(.inline)
-                                .toolbar {
-                                    ToolbarItem(placement: .cancellationAction) {
-                                        Button("Cancel") { isUnitSheetPresented = false }
-                                    }
-                                }
-                            }
-                        }
+                        .pickerStyle(MenuPickerStyle())
                     }
                 }
             }
