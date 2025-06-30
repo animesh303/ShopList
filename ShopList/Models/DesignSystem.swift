@@ -68,27 +68,27 @@ struct DesignSystem {
         static let borderColorful = Color(red: 0.9, green: 0.9, blue: 0.95)
         
         // Category Colors - Completely enhanced with vibrant colors
-        static let categoryGroceries = Color(red: 0.2, green: 0.9, blue: 0.4) // Bright green
-        static let categoryHousehold = Color(red: 0.0, green: 0.7, blue: 1.0) // Bright blue
-        static let categoryPersonalCare = Color(red: 0.9, green: 0.3, blue: 0.7) // Bright magenta
-        static let categoryHealth = Color(red: 1.0, green: 0.3, blue: 0.3) // Bright red
-        static let categoryElectronics = Color(red: 0.6, green: 0.3, blue: 0.9) // Bright purple
-        static let categoryClothing = Color(red: 1.0, green: 0.6, blue: 0.0) // Bright orange
-        static let categoryOffice = Color(red: 0.5, green: 0.5, blue: 0.8) // Soft blue-gray
-        static let categoryPet = Color(red: 0.8, green: 0.5, blue: 0.2) // Warm brown
-        static let categoryBaby = Color(red: 0.3, green: 0.8, blue: 0.8) // Bright teal
-        static let categoryAutomotive = Color(red: 0.4, green: 0.3, blue: 0.8) // Deep purple
-        static let categoryHomeImprovement = Color(red: 0.0, green: 0.7, blue: 0.7) // Teal
-        static let categoryGarden = Color(red: 0.2, green: 0.7, blue: 0.3) // Forest green
-        static let categoryGifts = Color(red: 0.9, green: 0.3, blue: 0.5) // Pink
-        static let categoryParty = Color(red: 0.7, green: 0.3, blue: 0.9) // Purple
-        static let categoryHoliday = Color(red: 1.0, green: 0.4, blue: 0.4) // Coral
-        static let categoryTravel = Color(red: 0.0, green: 0.5, blue: 0.8) // Ocean blue
-        static let categoryVacation = Color(red: 0.0, green: 0.8, blue: 0.8) // Cyan
-        static let categoryWork = Color(red: 0.6, green: 0.6, blue: 0.6) // Gray
-        static let categoryBusiness = Color(red: 0.4, green: 0.3, blue: 0.7) // Indigo
-        static let categoryPersonal = Color(red: 0.3, green: 0.7, blue: 0.7) // Teal
-        static let categoryOther = Color(red: 0.5, green: 0.5, blue: 0.5) // Gray
+        static let categoryGroceries = Color(red: 0.05, green: 0.5, blue: 0.2) // Much darker green
+        static let categoryHousehold = Color(red: 0.0, green: 0.3, blue: 0.6) // Much darker blue
+        static let categoryPersonalCare = Color(red: 0.5, green: 0.1, blue: 0.4) // Much darker magenta
+        static let categoryHealth = Color(red: 0.6, green: 0.1, blue: 0.1) // Much darker red
+        static let categoryElectronics = Color(red: 0.3, green: 0.1, blue: 0.5) // Much darker purple
+        static let categoryClothing = Color(red: 0.6, green: 0.3, blue: 0.0) // Much darker orange
+        static let categoryOffice = Color(red: 0.2, green: 0.2, blue: 0.4) // Much darker blue-gray
+        static let categoryPet = Color(red: 0.4, green: 0.2, blue: 0.05) // Much darker brown
+        static let categoryBaby = Color(red: 0.1, green: 0.4, blue: 0.4) // Much darker teal
+        static let categoryAutomotive = Color(red: 0.2, green: 0.1, blue: 0.4) // Much darker deep purple
+        static let categoryHomeImprovement = Color(red: 0.0, green: 0.3, blue: 0.3) // Much darker teal
+        static let categoryGarden = Color(red: 0.05, green: 0.3, blue: 0.1) // Much darker forest green
+        static let categoryGifts = Color(red: 0.5, green: 0.1, blue: 0.3) // Much darker pink
+        static let categoryParty = Color(red: 0.3, green: 0.1, blue: 0.5) // Much darker purple
+        static let categoryHoliday = Color(red: 0.6, green: 0.2, blue: 0.2) // Much darker coral
+        static let categoryTravel = Color(red: 0.0, green: 0.2, blue: 0.4) // Much darker ocean blue
+        static let categoryVacation = Color(red: 0.0, green: 0.4, blue: 0.4) // Much darker cyan
+        static let categoryWork = Color(red: 0.2, green: 0.2, blue: 0.2) // Much darker gray
+        static let categoryBusiness = Color(red: 0.2, green: 0.1, blue: 0.3) // Much darker indigo
+        static let categoryPersonal = Color(red: 0.1, green: 0.3, blue: 0.3) // Much darker teal
+        static let categoryOther = Color(red: 0.2, green: 0.2, blue: 0.2) // Much darker gray
         
         // Enhanced Category Gradients
         static func categoryGradient(for category: ItemCategory) -> LinearGradient {
