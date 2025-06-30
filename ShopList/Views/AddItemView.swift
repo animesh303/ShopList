@@ -494,6 +494,16 @@ struct AddItemView: View {
                 }
             }
         }
+        .listRowBackground(
+            LinearGradient(
+                colors: [
+                    DesignSystem.Colors.primary.opacity(0.1),
+                    DesignSystem.Colors.primaryLight.opacity(0.05)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
     }
     
     private var itemDetailsSection: some View {
@@ -594,6 +604,16 @@ struct AddItemView: View {
                 .font(.caption)
                 .foregroundColor(DesignSystem.Colors.secondaryText)
         }
+        .listRowBackground(
+            LinearGradient(
+                colors: [
+                    DesignSystem.Colors.accent2.opacity(0.1),
+                    DesignSystem.Colors.accent2.opacity(0.05)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
     }
     
     private var additionalInfoSection: some View {
@@ -702,6 +722,16 @@ struct AddItemView: View {
                 .font(.caption)
                 .foregroundColor(DesignSystem.Colors.secondaryText)
         }
+        .listRowBackground(
+            LinearGradient(
+                colors: [
+                    DesignSystem.Colors.accent1.opacity(0.1),
+                    DesignSystem.Colors.accent1.opacity(0.05)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
     }
     
     private var notesSection: some View {
@@ -720,6 +750,16 @@ struct AddItemView: View {
                 .font(.caption)
                 .foregroundColor(DesignSystem.Colors.secondaryText)
         }
+        .listRowBackground(
+            LinearGradient(
+                colors: [
+                    DesignSystem.Colors.secondary.opacity(0.1),
+                    DesignSystem.Colors.secondaryLight.opacity(0.05)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
     }
     
     // MARK: - Helper Views
