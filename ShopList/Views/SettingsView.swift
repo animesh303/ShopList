@@ -424,15 +424,18 @@ struct SettingsView: View {
                                 ForEach(NotificationSound.allCases) { sound in
                                     HStack(spacing: 8) {
                                         Image(systemName: sound.icon)
-                                            .foregroundColor(sound.color)
+                                            .renderingMode(.template)
+                                            .foregroundColor(DesignSystem.Colors.accent1)
                                             .font(.title3)
                                             .frame(width: 20)
                                         Text(sound.rawValue)
                                             .font(DesignSystem.Typography.body)
+                                            .foregroundColor(DesignSystem.Colors.accent1)
                                     }
                                     .tag(sound)
                                 }
                             }
+                            .pickerStyle(MenuPickerStyle())
                             
                             NavigationLink("Manage Notifications") {
                                 NotificationSettingsView()
