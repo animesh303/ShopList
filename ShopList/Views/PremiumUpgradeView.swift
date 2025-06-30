@@ -32,8 +32,13 @@ struct PremiumUpgradeView: View {
                     .padding(.bottom, 100) // Extra padding for FAB
                 }
                 .background(enhancedBackgroundGradient)
-                .navigationTitle("Upgrade to Premium")
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        // Empty view to remove the title
+                        EmptyView()
+                    }
+                }
                 
                 // Floating Action Button (FAB) for Close
                 VStack {
