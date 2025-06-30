@@ -309,7 +309,7 @@ struct ListRow: View {
                 // Budget status with enhanced styling and more distinct colors
                 if list.budget != nil {
                     HStack(spacing: 6) {
-                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
+                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon)
                             .font(.caption)
                             .foregroundColor(.white)
                             .padding(6)  // Increased padding

@@ -140,7 +140,7 @@ struct ItemRow: View {
                                 .font(DesignSystem.Typography.caption2)
                         }
                         HStack(spacing: DesignSystem.Spacing.xs) {
-                            Image(systemName: "dollarsign.circle.fill")
+                            Image(systemName: settingsManager.currency.icon)
                                 .font(.caption2)
                                 .foregroundColor(.white)
                                 .padding(2)
@@ -382,8 +382,8 @@ struct ItemRow: View {
                 
                 if let price = item.pricePerUnit, price > 0 {
                     HStack(spacing: DesignSystem.Spacing.xs) {
-                        Image(systemName: "dollarsign.circle.fill")
-                            .font(.caption)
+                        Image(systemName: settingsManager.currency.icon)
+                            .font(.caption2)
                             .foregroundColor(.white)
                             .padding(4)
                             .background(

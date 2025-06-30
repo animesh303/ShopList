@@ -225,7 +225,7 @@ struct AddItemView: View {
                     .font(.title3)
                     .foregroundColor(DesignSystem.Colors.primary)
                 
-                TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
+                TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 80)
@@ -612,7 +612,7 @@ struct AddItemView: View {
                             .font(.title3)
                             .foregroundColor(DesignSystem.Colors.primary)
                         
-                        TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
+                        TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)

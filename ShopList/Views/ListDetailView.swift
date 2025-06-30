@@ -81,7 +81,7 @@ struct ListDetailView: View {
                         
                         VStack(spacing: 12) {
                             HStack {
-                                Label("Budget", systemImage: "dollarsign.circle")
+                                Label("Budget", systemImage: settingsManager.currency.icon)
                                     .foregroundColor(DesignSystem.Colors.primary)
                                 Spacer()
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", budget))

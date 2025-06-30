@@ -442,7 +442,7 @@ struct GridListCard: View {
                 
                 if list.budget != nil {
                     HStack(spacing: DesignSystem.Spacing.xs) {
-                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : "dollarsign.circle.fill")
+                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon)
                             .font(.caption)
                             .foregroundColor(.white)
                             .padding(5)  // Increased padding
