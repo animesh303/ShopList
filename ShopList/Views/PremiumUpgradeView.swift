@@ -4,6 +4,7 @@ import StoreKit
 struct PremiumUpgradeView: View {
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedProduct: Any?
     @State private var showingError = false
     
@@ -29,7 +30,7 @@ struct PremiumUpgradeView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 40)
             }
-            .background(DesignSystem.Colors.backgroundGradient)
+            .background(enhancedBackgroundGradient)
             .navigationTitle("Upgrade to Premium")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -37,6 +38,7 @@ struct PremiumUpgradeView: View {
                     Button("Close") {
                         dismiss()
                     }
+                    .foregroundColor(DesignSystem.Colors.primaryText)
                 }
             }
             .alert("Error", isPresented: $showingError) {
@@ -55,25 +57,64 @@ struct PremiumUpgradeView: View {
         }
     }
     
+    // Enhanced background gradient with more contrast
+    private var enhancedBackgroundGradient: LinearGradient {
+        if colorScheme == .dark {
+            return LinearGradient(
+                colors: [
+                    Color.black,
+                    Color(red: 0.1, green: 0.1, blue: 0.15),
+                    Color(red: 0.05, green: 0.05, blue: 0.1)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.95, green: 0.97, blue: 1.0),
+                    Color(red: 0.9, green: 0.95, blue: 1.0),
+                    Color(red: 0.85, green: 0.92, blue: 0.98)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
     private var headerSection: some View {
         VStack(spacing: 16) {
-            // Premium icon
+            // Enhanced premium icon with more vibrant gradient
             Image(systemName: "crown.fill")
                 .font(.system(size: 60))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.orange, .yellow],
+                        colors: [
+                            Color(red: 1.0, green: 0.8, blue: 0.0), // Bright gold
+                            Color(red: 1.0, green: 0.6, blue: 0.0), // Orange
+                            Color(red: 0.9, green: 0.4, blue: 0.1)  // Red-orange
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .shadow(color: .orange.opacity(0.3), radius: 10, x: 0, y: 5)
+                .shadow(color: Color(red: 1.0, green: 0.6, blue: 0.0).opacity(0.6), radius: 15, x: 0, y: 8)
+                .shadow(color: Color(red: 0.9, green: 0.4, blue: 0.1).opacity(0.4), radius: 8, x: 0, y: 4)
             
             VStack(spacing: 8) {
                 Text("Unlock Premium Features")
                     .font(.title)
                     .fontWeight(.bold)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.primaryText,
+                                DesignSystem.Colors.accent1
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                 
                 Text("Get unlimited lists, location reminders, widgets, item images, and much more!")
                     .font(.body)
@@ -89,7 +130,16 @@ struct PremiumUpgradeView: View {
             Text("Premium Features")
                 .font(.title2)
                 .fontWeight(.semibold)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.primaryText,
+                            DesignSystem.Colors.accent1
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
             
             // Custom grid layout to center the last item when alone
             let features = Array(PremiumFeature.allCases)
@@ -134,7 +184,16 @@ struct PremiumUpgradeView: View {
             Text("Choose Your Plan")
                 .font(.title2)
                 .fontWeight(.semibold)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            DesignSystem.Colors.primaryText,
+                            DesignSystem.Colors.accent1
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
             
             if subscriptionManager.isLoading {
                 ProgressView()
@@ -179,8 +238,9 @@ struct PremiumUpgradeView: View {
                     }
                 }
                 .padding()
-                .background(DesignSystem.Colors.secondaryBackground.opacity(0.5))
+                .background(enhancedCardBackground)
                 .cornerRadius(12)
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
             } else {
                 VStack(spacing: 12) {
                     ForEach(subscriptionManager.subscriptionProducts, id: \.id) { product in
@@ -196,9 +256,34 @@ struct PremiumUpgradeView: View {
         }
     }
     
+    // Enhanced card background with more contrast
+    private var enhancedCardBackground: LinearGradient {
+        if colorScheme == .dark {
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.15, green: 0.15, blue: 0.2),
+                    Color(red: 0.1, green: 0.1, blue: 0.15),
+                    Color(red: 0.05, green: 0.05, blue: 0.1)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color.white,
+                    Color(red: 0.98, green: 0.98, blue: 1.0),
+                    Color(red: 0.95, green: 0.97, blue: 1.0)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
     private var actionButtonsSection: some View {
         VStack(spacing: 12) {
-            // Subscribe button
+            // Enhanced subscribe button with more vibrant gradient
             Button {
                 print("Subscribe button tapped - selectedProduct: \(getProductId() ?? "nil")")
                 Task {
@@ -224,18 +309,23 @@ struct PremiumUpgradeView: View {
                 .frame(height: 56)
                 .background(
                     LinearGradient(
-                        colors: [.orange, .red],
-                        startPoint: .leading,
-                        endPoint: .trailing
+                        colors: [
+                            Color(red: 1.0, green: 0.7, blue: 0.0), // Bright gold
+                            Color(red: 1.0, green: 0.5, blue: 0.0), // Orange
+                            Color(red: 0.9, green: 0.3, blue: 0.1)  // Red-orange
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
                 )
                 .cornerRadius(16)
-                .shadow(color: .orange.opacity(0.3), radius: 8, x: 0, y: 4)
+                .shadow(color: Color(red: 1.0, green: 0.5, blue: 0.0).opacity(0.5), radius: 12, x: 0, y: 6)
+                .shadow(color: Color(red: 0.9, green: 0.3, blue: 0.1).opacity(0.3), radius: 6, x: 0, y: 3)
             }
             .disabled(selectedProduct == nil || subscriptionManager.isLoading)
             .opacity(selectedProduct == nil ? 0.6 : 1.0)
             
-            // Mock Subscribe Button for Testing
+            // Enhanced mock subscribe button
             Button {
                 print("Mock subscribe button tapped")
                 subscriptionManager.mockSubscribe()
@@ -254,13 +344,17 @@ struct PremiumUpgradeView: View {
                 .frame(height: 50)
                 .background(
                     LinearGradient(
-                        colors: [.purple, .blue],
-                        startPoint: .leading,
-                        endPoint: .trailing
+                        colors: [
+                            Color(red: 0.8, green: 0.3, blue: 0.9), // Bright purple
+                            Color(red: 0.6, green: 0.2, blue: 0.8), // Dark purple
+                            Color(red: 0.4, green: 0.1, blue: 0.7)  // Deep purple
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
                     )
                 )
                 .cornerRadius(16)
-                .shadow(color: .purple.opacity(0.3), radius: 8, x: 0, y: 4)
+                .shadow(color: Color(red: 0.8, green: 0.3, blue: 0.9).opacity(0.5), radius: 10, x: 0, y: 5)
             }
             
             // Show message if no product is selected
@@ -376,17 +470,29 @@ struct PremiumUpgradeView: View {
 
 struct FeatureCard: View {
     let feature: PremiumFeature
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: feature.icon)
                 .font(.title2)
-                .foregroundColor(DesignSystem.Colors.accent1)
+                .foregroundColor(.white)
                 .frame(width: 40, height: 40)
                 .background(
                     Circle()
-                        .fill(DesignSystem.Colors.accent1.opacity(0.1))
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    DesignSystem.Colors.accent1,
+                                    DesignSystem.Colors.accent1.opacity(0.8),
+                                    DesignSystem.Colors.accent1.opacity(0.6)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
                 )
+                .shadow(color: DesignSystem.Colors.accent1.opacity(0.4), radius: 6, x: 0, y: 3)
             
             VStack(spacing: 4) {
                 Text(feature.rawValue)
@@ -407,14 +513,46 @@ struct FeatureCard: View {
         }
         .frame(minWidth: 140, maxWidth: 180, minHeight: 120)
         .padding(16)
-        .background(DesignSystem.Colors.cardGradient)
+        .background(enhancedFeatureCardBackground)
         .cornerRadius(12)
         .shadow(
-            color: DesignSystem.Shadows.colorfulSmall.color,
-            radius: DesignSystem.Shadows.colorfulSmall.radius,
-            x: DesignSystem.Shadows.colorfulSmall.x,
-            y: DesignSystem.Shadows.colorfulSmall.y
+            color: colorScheme == .dark ? Color.black.opacity(0.4) : Color.black.opacity(0.15),
+            radius: 12,
+            x: 0,
+            y: 6
         )
+        .shadow(
+            color: DesignSystem.Colors.accent1.opacity(0.2),
+            radius: 4,
+            x: 0,
+            y: 2
+        )
+    }
+    
+    // Enhanced feature card background with more contrast
+    private var enhancedFeatureCardBackground: LinearGradient {
+        if colorScheme == .dark {
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.2, green: 0.2, blue: 0.25),
+                    Color(red: 0.15, green: 0.15, blue: 0.2),
+                    Color(red: 0.1, green: 0.1, blue: 0.15)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color.white,
+                    Color(red: 0.98, green: 0.99, blue: 1.0),
+                    Color(red: 0.95, green: 0.97, blue: 1.0),
+                    Color(red: 0.92, green: 0.95, blue: 0.98)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
 }
 
@@ -422,6 +560,7 @@ struct PricingCard: View {
     let product: Product
     let isSelected: Bool
     let onTap: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     private var subscriptionPeriodName: String {
         guard let period = product.subscriptionPeriod else { return "Premium" }
@@ -467,15 +606,34 @@ struct PricingCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.green)
+                                .background(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 0.2, green: 0.9, blue: 0.4),
+                                            Color(red: 0.1, green: 0.8, blue: 0.3)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .cornerRadius(8)
+                                .shadow(color: Color(red: 0.2, green: 0.9, blue: 0.4).opacity(0.4), radius: 3, x: 0, y: 2)
                         }
                     }
                     
                     Text(product.formattedPrice)
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(DesignSystem.Colors.accent1)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [
+                                    DesignSystem.Colors.accent1,
+                                    DesignSystem.Colors.accent1.opacity(0.8)
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                 }
                 
                 Spacer()
@@ -483,27 +641,69 @@ struct PricingCard: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
                     .foregroundColor(isSelected ? DesignSystem.Colors.accent1 : DesignSystem.Colors.tertiaryText)
+                    .shadow(color: isSelected ? DesignSystem.Colors.accent1.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(DesignSystem.Colors.cardGradient)
+                    .fill(enhancedPricingCardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(
-                                isSelected ? DesignSystem.Colors.accent1 : Color.clear,
+                                isSelected ? 
+                                LinearGradient(
+                                    colors: [
+                                        DesignSystem.Colors.accent1,
+                                        DesignSystem.Colors.accent1.opacity(0.6)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) : 
+                                LinearGradient(
+                                    colors: [Color.clear, Color.clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
                                 lineWidth: 2
                             )
                     )
             )
             .shadow(
-                color: isSelected ? DesignSystem.Colors.accent1.opacity(0.2) : DesignSystem.Shadows.colorfulSmall.color,
-                radius: isSelected ? 8 : DesignSystem.Shadows.colorfulSmall.radius,
+                color: isSelected ? 
+                DesignSystem.Colors.accent1.opacity(0.3) : 
+                (colorScheme == .dark ? Color.black.opacity(0.3) : Color.black.opacity(0.1)),
+                radius: isSelected ? 12 : 8,
                 x: 0,
-                y: isSelected ? 4 : DesignSystem.Shadows.colorfulSmall.y
+                y: isSelected ? 6 : 4
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+    
+    // Enhanced pricing card background with more contrast
+    private var enhancedPricingCardBackground: LinearGradient {
+        if colorScheme == .dark {
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.18, green: 0.18, blue: 0.23),
+                    Color(red: 0.12, green: 0.12, blue: 0.17),
+                    Color(red: 0.08, green: 0.08, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color.white,
+                    Color(red: 0.99, green: 0.99, blue: 1.0),
+                    Color(red: 0.97, green: 0.98, blue: 1.0),
+                    Color(red: 0.94, green: 0.96, blue: 0.99)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
 }
 
@@ -531,6 +731,7 @@ struct MockPricingCard: View {
     let savings: String?
     let isSelected: Bool
     let onTap: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     init(title: String, price: String, period: String, savings: String? = nil, isSelected: Bool, onTap: @escaping () -> Void) {
         self.title = title
@@ -558,8 +759,18 @@ struct MockPricingCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.green)
+                                .background(
+                                    LinearGradient(
+                                        colors: [
+                                            Color(red: 0.2, green: 0.9, blue: 0.4),
+                                            Color(red: 0.1, green: 0.8, blue: 0.3)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .cornerRadius(8)
+                                .shadow(color: Color(red: 0.2, green: 0.9, blue: 0.4).opacity(0.4), radius: 3, x: 0, y: 2)
                         }
                     }
                     
@@ -567,7 +778,16 @@ struct MockPricingCard: View {
                         Text(price)
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(DesignSystem.Colors.accent1)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        DesignSystem.Colors.accent1,
+                                        DesignSystem.Colors.accent1.opacity(0.8)
+                                    ],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                         
                         Text(period)
                             .font(.caption)
@@ -580,26 +800,68 @@ struct MockPricingCard: View {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
                     .foregroundColor(isSelected ? DesignSystem.Colors.accent1 : DesignSystem.Colors.tertiaryText)
+                    .shadow(color: isSelected ? DesignSystem.Colors.accent1.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
             }
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(DesignSystem.Colors.cardGradient)
+                    .fill(enhancedMockCardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(
-                                isSelected ? DesignSystem.Colors.accent1 : Color.clear,
+                                isSelected ? 
+                                LinearGradient(
+                                    colors: [
+                                        DesignSystem.Colors.accent1,
+                                        DesignSystem.Colors.accent1.opacity(0.6)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) : 
+                                LinearGradient(
+                                    colors: [Color.clear, Color.clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
                                 lineWidth: 2
                             )
                     )
             )
             .shadow(
-                color: isSelected ? DesignSystem.Colors.accent1.opacity(0.2) : DesignSystem.Shadows.colorfulSmall.color,
-                radius: isSelected ? 8 : DesignSystem.Shadows.colorfulSmall.radius,
+                color: isSelected ? 
+                DesignSystem.Colors.accent1.opacity(0.3) : 
+                (colorScheme == .dark ? Color.black.opacity(0.3) : Color.black.opacity(0.1)),
+                radius: isSelected ? 12 : 8,
                 x: 0,
-                y: isSelected ? 4 : DesignSystem.Shadows.colorfulSmall.y
+                y: isSelected ? 6 : 4
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+    
+    // Enhanced mock card background with more contrast
+    private var enhancedMockCardBackground: LinearGradient {
+        if colorScheme == .dark {
+            return LinearGradient(
+                colors: [
+                    Color(red: 0.18, green: 0.18, blue: 0.23),
+                    Color(red: 0.12, green: 0.12, blue: 0.17),
+                    Color(red: 0.08, green: 0.08, blue: 0.12)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            return LinearGradient(
+                colors: [
+                    Color.white,
+                    Color(red: 0.99, green: 0.99, blue: 1.0),
+                    Color(red: 0.97, green: 0.98, blue: 1.0),
+                    Color(red: 0.94, green: 0.96, blue: 0.99)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
 } 
