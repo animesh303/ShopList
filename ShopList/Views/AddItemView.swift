@@ -533,11 +533,11 @@ struct AddItemView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Picker(selection: $unit) {
                             ForEach(Unit.allUnits, id: \.self) { unit in
-                                HStack(spacing: 8) {
+                                HStack(spacing: 6) {
                                     Image(systemName: unit.icon)
                                         .foregroundColor(unit.color)
-                                        .font(.title)
-                                        .frame(width: 32, height: 32)
+                                        .font(.body)
+                                        .frame(width: 20, height: 20)
                                     Text(unit.displayName)
                                         .font(DesignSystem.Typography.body)
                                 }
@@ -548,6 +548,7 @@ struct AddItemView: View {
                                 .font(DesignSystem.Typography.body)
                         }
                         .pickerStyle(MenuPickerStyle())
+                        .frame(minWidth: 80, alignment: .leading)
                     }
                 }
             }
