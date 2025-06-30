@@ -133,13 +133,13 @@ struct DesignSystem {
                     endPoint: .bottomTrailing
                 )
             } else {
-                // For light theme, create a more pronounced gradient with distinct color variations
+                // For light theme, create a more pronounced gradient with darker color variations
                 return LinearGradient(
                     colors: [
-                        baseColor, // Full color at top
-                        baseColor.opacity(0.9), // Slightly lighter
-                        baseColor.opacity(0.7), // More transparent
-                        baseColor.opacity(0.5)  // Most transparent at bottom
+                        baseColor, // 100% opacity at top
+                        baseColor.opacity(0.8), // 80% opacity at upper middle
+                        baseColor.opacity(0.6), // 60% opacity at lower middle
+                        baseColor.opacity(0.1)  // 10% opacity at bottom
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -162,13 +162,13 @@ struct DesignSystem {
                     endPoint: .bottomTrailing
                 )
             } else {
-                // For light theme, create a more pronounced gradient with distinct color variations
+                // For light theme, create a more pronounced gradient with darker color variations
                 return LinearGradient(
                     colors: [
-                        baseColor, // Full color at top
-                        baseColor.opacity(0.9), // Slightly lighter
-                        baseColor.opacity(0.7), // More transparent
-                        baseColor.opacity(0.5)  // Most transparent at bottom
+                        baseColor, // 100% opacity at top
+                        baseColor.opacity(0.8), // 80% opacity at upper middle
+                        baseColor.opacity(0.6), // 60% opacity at lower middle
+                        baseColor.opacity(0.1)  // 10% opacity at bottom
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
