@@ -117,6 +117,63 @@ struct DesignSystem {
             )
         }
         
+        // Theme-aware category gradient for navigation banners
+        static func themeAwareCategoryGradient(for category: ListCategory, colorScheme: ColorScheme) -> LinearGradient {
+            let baseColor = category.color
+            
+            if colorScheme == .dark {
+                // For dark theme, use darker, more muted versions of the category colors
+                return LinearGradient(
+                    colors: [
+                        baseColor.opacity(0.7),
+                        baseColor.opacity(0.5),
+                        baseColor.opacity(0.3)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            } else {
+                // For light theme, use the original vibrant colors
+                return LinearGradient(
+                    colors: [
+                        baseColor,
+                        baseColor.opacity(0.8),
+                        baseColor.opacity(0.6)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        }
+        
+        static func themeAwareCategoryGradient(for category: ItemCategory, colorScheme: ColorScheme) -> LinearGradient {
+            let baseColor = category.color
+            
+            if colorScheme == .dark {
+                // For dark theme, use darker, more muted versions of the category colors
+                return LinearGradient(
+                    colors: [
+                        baseColor.opacity(0.7),
+                        baseColor.opacity(0.5),
+                        baseColor.opacity(0.3)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            } else {
+                // For light theme, use the original vibrant colors
+                return LinearGradient(
+                    colors: [
+                        baseColor,
+                        baseColor.opacity(0.8),
+                        baseColor.opacity(0.6)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        }
+        
         // Button Gradients
         static let primaryButtonGradient = LinearGradient(
             colors: [

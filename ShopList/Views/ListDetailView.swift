@@ -4,6 +4,7 @@ import SwiftData
 struct ListDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Bindable var list: ShoppingList
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var viewModel: ShoppingListViewModel
@@ -237,7 +238,7 @@ struct ListDetailView: View {
                 title: list.name,
                 subtitle: "\(list.items.count) items • \(list.category.rawValue)",
                 icon: list.category.icon,
-                style: .custom(DesignSystem.Colors.categoryGradient(for: list.category)),
+                style: .custom(DesignSystem.Colors.themeAwareCategoryGradient(for: list.category, colorScheme: colorScheme)),
                 showBanner: true,
                 searchText: $searchText,
                 searchPrompt: "Search items"
