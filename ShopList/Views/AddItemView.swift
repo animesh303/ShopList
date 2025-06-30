@@ -531,10 +531,6 @@ struct AddItemView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Unit")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
                         Picker(selection: $unit) {
                             ForEach(Unit.allUnits, id: \.self) { unit in
                                 HStack(spacing: 8) {
