@@ -78,19 +78,16 @@ struct NavigationBannerView: View {
                     
                     VStack(alignment: .leading, spacing: 1) {
                         Text(title)
-                            .font(.custom("Bradley Hand", size: 38, relativeTo: .title2))
+                            .font(.custom("Bradley Hand", size: 32, relativeTo: .title2))
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .lineLimit(1)
-                            .shadow(color: .black.opacity(0.4), radius: 2, x: 0, y: 1)
                         
                         if let subtitle = subtitle {
                             Text(subtitle)
-                                .font(.custom("Bradley Hand", size: 20, relativeTo: .caption))
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white.opacity(0.95))
+                                .font(.custom("Bradley Hand", size: 18, relativeTo: .caption))
+                                .foregroundColor(.white.opacity(0.9))
                                 .lineLimit(1)
-                                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         }
                     }
                     
@@ -331,19 +328,16 @@ struct CustomNavigationTitleView: View {
             
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                    .font(.custom("Bradley Hand", size: 28, relativeTo: .title3))
+                    .font(.custom("Bradley Hand", size: 24, relativeTo: .title3))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .lineLimit(1)
-                    .shadow(color: .black.opacity(0.4), radius: 2, x: 0, y: 1)
                 
                 if let subtitle = subtitle {
                     Text(subtitle)
-                        .font(.custom("Bradley Hand", size: 18, relativeTo: .caption))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white.opacity(0.95))
+                        .font(.custom("Bradley Hand", size: 16, relativeTo: .caption))
+                        .foregroundColor(.white.opacity(0.9))
                         .lineLimit(1)
-                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 }
             }
         }
