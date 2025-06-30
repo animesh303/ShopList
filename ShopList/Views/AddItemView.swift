@@ -523,42 +523,67 @@ struct AddItemView: View {
                 }
                 
                 // Enhanced Quantity and Unit
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 8) {
+                VStack(spacing: 20) {
+                    // Quantity Field - Settings Style
+                    HStack {
                         Text("Quantity")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
+                            .font(DesignSystem.Typography.body)
                             .foregroundColor(DesignSystem.Colors.primaryText)
-                        TextField("0", value: $quantity, format: .number)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.decimalPad)
-                    }
-                    .frame(maxWidth: .infinity)
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Unit")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        Picker(selection: $unit) {
-                            ForEach(Unit.allUnits, id: \.self) { unit in
-                                HStack(spacing: 4) {
-                                    Image(systemName: unit.icon)
-                                        .foregroundColor(unit.color)
-                                        .font(.callout)
-                                        .frame(width: 16, height: 16)
-                                    Text(unit.displayName)
-                                        .font(.callout)
-                                }
-                                .tag(unit.rawValue)
+                        
+                        Spacer()
+                        
+                        HStack(spacing: 8) {
+                            Button(action: {
+                                if quantity > 1 { quantity -= 1 }
+                            }) {
+                                Image(systemName: "minus.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .frame(width: 28, height: 28)
                             }
-                        } label: {
-                            EmptyView()
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            TextField("0", value: $quantity, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 48)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .font(.body)
+                                .padding(.vertical, 2)
+                                .background(DesignSystem.Colors.secondaryBackground)
+                                .cornerRadius(6)
+                            
+                            Button(action: {
+                                quantity += 1
+                            }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(DesignSystem.Colors.primary)
+                                    .frame(width: 28, height: 28)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
-                        .pickerStyle(MenuPickerStyle())
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxWidth: .infinity)
+
+                    // Unit Picker - Settings Style
+                    Picker(selection: $unit) {
+                        ForEach(Unit.allUnits, id: \.self) { unit in
+                            HStack(spacing: 8) {
+                                Image(systemName: unit.icon)
+                                    .foregroundColor(unit.color)
+                                    .font(.title3)
+                                    .frame(width: 20)
+                                Text(unit.displayName)
+                                    .font(DesignSystem.Typography.body)
+                            }
+                            .tag(unit.rawValue)
+                        }
+                    } label: {
+                        Text("Unit")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                    }
+                    .pickerStyle(MenuPickerStyle())
                 }
             }
         } header: {
