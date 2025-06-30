@@ -357,6 +357,11 @@ struct AddItemView: View {
         } message: {
             Text(upgradePromptMessage)
         }
+        .onAppear {
+            if unit.isEmpty {
+                unit = settingsManager.defaultUnit
+            }
+        }
     }
     
     // MARK: - Section Views
@@ -527,29 +532,33 @@ struct AddItemView: View {
                         TextField("0", value: $quantity, format: .number)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.decimalPad)
-                            .frame(width: 70)
                     }
+                    .frame(maxWidth: .infinity)
 
                     VStack(alignment: .leading, spacing: 8) {
+                        Text("Unit")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
                         Picker(selection: $unit) {
                             ForEach(Unit.allUnits, id: \.self) { unit in
-                                HStack(spacing: 6) {
+                                HStack(spacing: 4) {
                                     Image(systemName: unit.icon)
                                         .foregroundColor(unit.color)
-                                        .font(.body)
-                                        .frame(width: 20, height: 20)
+                                        .font(.callout)
+                                        .frame(width: 16, height: 16)
                                     Text(unit.displayName)
-                                        .font(DesignSystem.Typography.body)
+                                        .font(.callout)
                                 }
                                 .tag(unit.rawValue)
                             }
                         } label: {
-                            Text("Unit")
-                                .font(DesignSystem.Typography.body)
+                            EmptyView()
                         }
                         .pickerStyle(MenuPickerStyle())
-                        .frame(minWidth: 80, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
         } header: {
