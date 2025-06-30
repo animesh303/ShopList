@@ -151,8 +151,8 @@ struct ListDetailView: View {
                     if filteredItems.isEmpty {
                         ZStack {
                             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .fill(Color.white.opacity(0.92))
-                                .shadow(color: DesignSystem.Colors.primary.opacity(0.25), radius: 20, x: 0, y: 10)
+                                .fill(Color(.systemBackground).opacity(0.92))
+                                .shadow(color: DesignSystem.Colors.primary.opacity(0.35), radius: 24, x: 0, y: 12)
                             VStack(spacing: 16) {
                                 Button(action: {
                                     showingAddItem = true
@@ -170,10 +170,10 @@ struct ListDetailView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 Text("No items yet!")
                                     .font(.headline)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .foregroundColor(Color(.label))
                                 Text("Tap the cart to add your first item.")
                                     .font(.subheadline)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .foregroundColor(Color(.secondaryLabel))
                             }
                             .padding(.vertical, 32)
                             .padding(.horizontal, 16)
