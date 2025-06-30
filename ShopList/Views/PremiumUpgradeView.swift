@@ -10,35 +10,64 @@ struct PremiumUpgradeView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Header
-                    headerSection
-                    
-                    // Features
-                    featuresSection
-                    
-                    // Pricing
-                    pricingSection
-                    
-                    // Action buttons
-                    actionButtonsSection
-                    
-                    // Terms and privacy
-                    termsSection
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 40)
-            }
-            .background(enhancedBackgroundGradient)
-            .navigationTitle("Upgrade to Premium")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Close") {
-                        dismiss()
+            ZStack {
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Header
+                        headerSection
+                        
+                        // Features
+                        featuresSection
+                        
+                        // Pricing
+                        pricingSection
+                        
+                        // Action buttons
+                        actionButtonsSection
+                        
+                        // Terms and privacy
+                        termsSection
                     }
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 100) // Extra padding for FAB
+                }
+                .background(enhancedBackgroundGradient)
+                .navigationTitle("Upgrade to Premium")
+                .navigationBarTitleDisplayMode(.large)
+                
+                // Floating Action Button (FAB) for Close
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: 56, height: 56)
+                                .background(
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color(red: 0.3, green: 0.3, blue: 0.4),
+                                                    Color(red: 0.2, green: 0.2, blue: 0.3),
+                                                    Color(red: 0.1, green: 0.1, blue: 0.2)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                )
+                                .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        }
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
+                    }
                 }
             }
             .alert("Error", isPresented: $showingError) {
