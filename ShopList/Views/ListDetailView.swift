@@ -152,7 +152,7 @@ struct ListDetailView: View {
                         ZStack {
                             RoundedRectangle(cornerRadius: 24, style: .continuous)
                                 .fill(Color.white.opacity(0.92))
-                                .shadow(color: DesignSystem.Colors.primary.opacity(0.10), radius: 16, x: 0, y: 8)
+                                .shadow(color: DesignSystem.Colors.primary.opacity(0.25), radius: 20, x: 0, y: 10)
                             VStack(spacing: 16) {
                                 Button(action: {
                                     showingAddItem = true
