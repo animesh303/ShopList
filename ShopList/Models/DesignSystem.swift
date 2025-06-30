@@ -133,12 +133,13 @@ struct DesignSystem {
                     endPoint: .bottomTrailing
                 )
             } else {
-                // For light theme, use the original vibrant colors
+                // For light theme, create a more pronounced gradient with distinct color variations
                 return LinearGradient(
                     colors: [
-                        baseColor,
-                        baseColor.opacity(0.8),
-                        baseColor.opacity(0.6)
+                        baseColor, // Full color at top
+                        baseColor.opacity(0.9), // Slightly lighter
+                        baseColor.opacity(0.7), // More transparent
+                        baseColor.opacity(0.5)  // Most transparent at bottom
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -161,12 +162,13 @@ struct DesignSystem {
                     endPoint: .bottomTrailing
                 )
             } else {
-                // For light theme, use the original vibrant colors
+                // For light theme, create a more pronounced gradient with distinct color variations
                 return LinearGradient(
                     colors: [
-                        baseColor,
-                        baseColor.opacity(0.8),
-                        baseColor.opacity(0.6)
+                        baseColor, // Full color at top
+                        baseColor.opacity(0.9), // Slightly lighter
+                        baseColor.opacity(0.7), // More transparent
+                        baseColor.opacity(0.5)  // Most transparent at bottom
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
