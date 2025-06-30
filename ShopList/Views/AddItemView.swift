@@ -543,10 +543,10 @@ struct AddItemView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             
-                            TextField("0", value: $quantity, format: .number)
+                            TextField("0", value: $quantity, format: .number.precision(.fractionLength(1)))
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.center)
-                                .frame(width: 48)
+                                .frame(width: 96)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .font(.body)
                                 .padding(.vertical, 2)
