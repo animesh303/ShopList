@@ -532,37 +532,20 @@ struct AddItemView: View {
                         
                         Spacer()
                         
-                        HStack(spacing: 8) {
-                            Button(action: {
-                                if quantity > 1 { quantity -= 1 }
-                            }) {
-                                Image(systemName: "minus.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                                    .frame(width: 28, height: 28)
+                        TextField("0", value: $quantity, format: .number.precision(.fractionLength(1)))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .onTapGesture {
+                                // Clear field on tap for easier editing
+                                if quantity == 1.0 {
+                                    quantity = 0
+                                }
                             }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            TextField("0", value: $quantity, format: .number.precision(.fractionLength(1)))
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.center)
-                                .frame(width: 96)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .font(.body)
-                                .padding(.vertical, 2)
-                                .background(DesignSystem.Colors.secondaryBackground)
-                                .cornerRadius(6)
-                            
-                            Button(action: {
-                                quantity += 1
-                            }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                    .frame(width: 28, height: 28)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
+                        
+                        Stepper("", value: $quantity, in: 1.0...999.9, step: 0.5)
+                            .labelsHidden()
                     }
 
                     // Unit Picker - Settings Style
