@@ -497,8 +497,8 @@ struct AddItemView: View {
         .listRowBackground(
             LinearGradient(
                 colors: [
-                    DesignSystem.Colors.primary.opacity(0.1),
-                    DesignSystem.Colors.primaryLight.opacity(0.05)
+                    DesignSystem.Colors.primary.opacity(0.2),
+                    DesignSystem.Colors.primaryLight.opacity(0.1)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -607,8 +607,8 @@ struct AddItemView: View {
         .listRowBackground(
             LinearGradient(
                 colors: [
-                    DesignSystem.Colors.accent2.opacity(0.1),
-                    DesignSystem.Colors.accent2.opacity(0.05)
+                    DesignSystem.Colors.accent2.opacity(0.2),
+                    DesignSystem.Colors.accent2.opacity(0.1)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -725,8 +725,8 @@ struct AddItemView: View {
         .listRowBackground(
             LinearGradient(
                 colors: [
-                    DesignSystem.Colors.accent1.opacity(0.1),
-                    DesignSystem.Colors.accent1.opacity(0.05)
+                    DesignSystem.Colors.accent1.opacity(0.2),
+                    DesignSystem.Colors.accent1.opacity(0.1)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -753,8 +753,8 @@ struct AddItemView: View {
         .listRowBackground(
             LinearGradient(
                 colors: [
-                    DesignSystem.Colors.secondary.opacity(0.1),
-                    DesignSystem.Colors.secondaryLight.opacity(0.05)
+                    DesignSystem.Colors.secondary.opacity(0.2),
+                    DesignSystem.Colors.secondaryLight.opacity(0.1)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
