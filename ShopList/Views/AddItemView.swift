@@ -220,10 +220,17 @@ struct AddItemView: View {
         HStack {
             Text("Price per unit")
             Spacer()
-            TextField("Price", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
-                .keyboardType(.decimalPad)
-                .multilineTextAlignment(.trailing)
-                .frame(width: 100)
+            HStack(spacing: 6) {
+                Image(systemName: currencyIcon)
+                    .font(.title3)
+                    .foregroundColor(DesignSystem.Colors.primary)
+                
+                TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
+                    .keyboardType(.decimalPad)
+                    .multilineTextAlignment(.trailing)
+                    .frame(width: 80)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            }
         }
     }
     
@@ -248,6 +255,15 @@ struct AddItemView: View {
                 Text(priority.displayName).tag(priority)
             }
         }
+    }
+    
+    private var totalCost: Double {
+        guard let price = pricePerUnit, price > 0 else { return 0 }
+        return price * quantity
+    }
+    
+    private var currencyIcon: String {
+        return settingsManager.currency.icon
     }
     
     private var filteredUnits: [Unit] {
@@ -591,11 +607,49 @@ struct AddItemView: View {
                     
                     Spacer()
                     
-                    TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 120)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    HStack(spacing: 6) {
+                        Image(systemName: currencyIcon)
+                            .font(.title3)
+                            .foregroundColor(DesignSystem.Colors.primary)
+                        
+                        TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 80)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                }
+                
+                // Total Cost Field - Settings Style
+                if pricePerUnit != nil && pricePerUnit! > 0 {
+                    HStack {
+                        Text("Total Cost")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(totalCost.formatted(.currency(code: settingsManager.currency.rawValue)))
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(DesignSystem.Colors.primary)
+                            
+                            Text("\(quantity, specifier: "%.1f") × \(pricePerUnit!.formatted(.currency(code: settingsManager.currency.rawValue)))")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(DesignSystem.Colors.primary.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(DesignSystem.Colors.primary.opacity(0.2), lineWidth: 1)
+                            )
+                    )
                 }
                 
                 // Category Picker - Settings Style
