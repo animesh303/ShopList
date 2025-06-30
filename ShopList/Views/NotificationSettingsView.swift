@@ -1,12 +1,17 @@
 import SwiftUI
 
 struct NotificationSettingsView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var settingsManager = UserSettingsManager.shared
     @State private var showingPermissionAlert = false
     
     var body: some View {
-        NavigationView {
+        ZStack {
+            // Enhanced background with vibrant gradient
+            DesignSystem.Colors.backgroundGradient
+                .ignoresSafeArea()
+            
             List {
                 Section {
                     HStack {
@@ -84,20 +89,38 @@ struct NotificationSettingsView: View {
                     }
                 }
             }
-            .enhancedNavigation(
-                title: "Notifications",
-                subtitle: "Manage notification preferences",
-                icon: "bell.circle",
-                style: .warning,
-                showBanner: true
-            )
-            .refreshable {
-                await notificationManager.getPendingNotifications()
-            }
-            .onAppear {
-                Task {
-                    await notificationManager.getPendingNotifications()
+            .scrollContentBackground(.hidden)
+            
+            // Back Button FAB at bottom left
+            VStack {
+                Spacer()
+                HStack {
+                    VStack {
+                        Spacer()
+                        BackButtonFAB {
+                            dismiss()
+                        }
+                    }
+                    .padding(.leading, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
+                    
+                    Spacer()
                 }
+            }
+        }
+        .enhancedNavigation(
+            title: "Notifications",
+            subtitle: "Manage notification preferences",
+            icon: "bell.circle",
+            style: .warning,
+            showBanner: true
+        )
+        .refreshable {
+            await notificationManager.getPendingNotifications()
+        }
+        .onAppear {
+            Task {
+                await notificationManager.getPendingNotifications()
             }
         }
         .alert("Permission Required", isPresented: $showingPermissionAlert) {
