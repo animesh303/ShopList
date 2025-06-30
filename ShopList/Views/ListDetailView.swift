@@ -149,30 +149,38 @@ struct ListDetailView: View {
                 // Items Section
                 Section {
                     if filteredItems.isEmpty {
-                        VStack(spacing: 16) {
-                            Button(action: {
-                                showingAddItem = true
-                            }) {
-                                Image(systemName: "cart.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 48, height: 48)
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                    .padding()
-                                    .background(DesignSystem.Colors.primary.opacity(0.1))
-                                    .clipShape(Circle())
-                                    .shadow(color: DesignSystem.Colors.primary.opacity(0.15), radius: 8, x: 0, y: 4)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                .fill(Color.white.opacity(0.92))
+                                .shadow(color: DesignSystem.Colors.primary.opacity(0.10), radius: 16, x: 0, y: 8)
+                            VStack(spacing: 16) {
+                                Button(action: {
+                                    showingAddItem = true
+                                }) {
+                                    Image(systemName: "cart.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 48, height: 48)
+                                        .foregroundColor(DesignSystem.Colors.primary)
+                                        .padding()
+                                        .background(DesignSystem.Colors.primary.opacity(0.1))
+                                        .clipShape(Circle())
+                                        .shadow(color: DesignSystem.Colors.primary.opacity(0.15), radius: 8, x: 0, y: 4)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                Text("No items yet!")
+                                    .font(.headline)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                Text("Tap the cart to add your first item.")
+                                    .font(.subheadline)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
-                            .buttonStyle(PlainButtonStyle())
-                            Text("No items yet!")
-                                .font(.headline)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                            Text("Tap the cart to add your first item.")
-                                .font(.subheadline)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .padding(.vertical, 32)
+                            .padding(.horizontal, 16)
                         }
                         .frame(maxWidth: .infinity, minHeight: 180)
                         .padding(.vertical, 24)
+                        .padding(.horizontal, 8)
                         .listRowBackground(Color.clear)
                     } else {
                         ForEach(filteredItems) { item in
