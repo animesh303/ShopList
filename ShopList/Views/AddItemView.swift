@@ -583,61 +583,61 @@ struct AddItemView: View {
     private var additionalInfoSection: some View {
         Section {
             VStack(spacing: 20) {
-                // Enhanced Price field
-                VStack(alignment: .leading, spacing: 8) {
+                // Price Field - Settings Style
+                HStack {
                     Text("Estimated Price")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                        .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.primaryText)
+                    
+                    Spacer()
+                    
                     TextField("0.00", value: $estimatedPrice, format: .currency(code: settingsManager.currency.rawValue))
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 120)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 
-                // Enhanced Category picker
-                VStack(alignment: .leading, spacing: 8) {
+                // Category Picker - Settings Style
+                Picker(selection: $category) {
+                    ForEach(ItemCategory.allCases, id: \.self) { category in
+                        HStack(spacing: 8) {
+                            Image(systemName: category.icon)
+                                .foregroundColor(category.color)
+                                .font(.title3)
+                                .frame(width: 20)
+                            Text(category.rawValue)
+                                .font(DesignSystem.Typography.body)
+                        }
+                        .tag(category)
+                    }
+                } label: {
                     Text("Category")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                        .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.primaryText)
-                    Picker("Category", selection: $category) {
-                        ForEach(ItemCategory.allCases, id: \.self) { category in
-                            HStack {
-                                Image(systemName: category.icon)
-                                    .foregroundColor(category.color)
-                                    .font(.title3)
-                                Text(category.rawValue)
-                                    .font(DesignSystem.Typography.body)
-                            }
-                            .tag(category)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(DesignSystem.Colors.secondaryBackground)
-                    .cornerRadius(8)
                 }
+                .pickerStyle(MenuPickerStyle())
                 
-                // Enhanced Priority picker
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Priority")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                    Picker("Priority", selection: $priority) {
-                        ForEach(ItemPriority.allCases, id: \.self) { priority in
-                            priorityRow(for: priority)
+                // Priority Picker - Settings Style
+                Picker(selection: $priority) {
+                    ForEach(ItemPriority.allCases, id: \.self) { priority in
+                        HStack(spacing: 8) {
+                            let (iconName, iconColor) = getPriorityIconAndColor(for: priority)
+                            Image(systemName: iconName)
+                                .foregroundColor(iconColor)
+                                .font(.title3)
+                                .frame(width: 20)
+                            Text(priority.displayName)
+                                .font(DesignSystem.Typography.body)
                         }
+                        .tag(priority)
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(DesignSystem.Colors.secondaryBackground)
-                    .cornerRadius(8)
+                } label: {
+                    Text("Priority")
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
                 }
+                .pickerStyle(MenuPickerStyle())
             }
         } header: {
             Text("Additional Information")
