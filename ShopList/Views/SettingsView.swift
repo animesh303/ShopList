@@ -422,8 +422,15 @@ struct SettingsView: View {
                             
                             Picker("Notification Sound", selection: $settingsManager.notificationSound) {
                                 ForEach(NotificationSound.allCases) { sound in
-                                    Text(sound.rawValue)
-                                        .tag(sound)
+                                    HStack(spacing: 8) {
+                                        Image(systemName: sound.icon)
+                                            .foregroundColor(sound.color)
+                                            .font(.title3)
+                                            .frame(width: 20)
+                                        Text(sound.rawValue)
+                                            .font(DesignSystem.Typography.body)
+                                    }
+                                    .tag(sound)
                                 }
                             }
                             

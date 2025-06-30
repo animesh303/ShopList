@@ -201,6 +201,24 @@ enum NotificationSound: String, CaseIterable, Identifiable {
     case none = "None"
     
     var id: String { rawValue }
+    
+    var icon: String {
+        switch self {
+        case .defaultSound: return "bell.fill"
+        case .gentle: return "bell.badge"
+        case .urgent: return "exclamationmark.triangle.fill"
+        case .none: return "bell.slash.fill"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .defaultSound: return .blue
+        case .gentle: return .green
+        case .urgent: return .red
+        case .none: return .gray
+        }
+    }
 }
 
 enum Unit: String, CaseIterable, Identifiable {
