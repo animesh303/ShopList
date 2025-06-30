@@ -148,39 +148,67 @@ struct ListDetailView: View {
                 
                 // Items Section
                 Section {
-                    ForEach(filteredItems) { item in
-                        NavigationLink(value: item) {
-                            ItemRow(item: item)
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        let generator = UINotificationFeedbackGenerator()
-                                        generator.notificationOccurred(.success)
-                                        list.removeItem(item)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
-                                .swipeActions(edge: .leading) {
-                                    Button {
-                                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                                        generator.impactOccurred()
-                                        item.isCompleted.toggle()
-                                    } label: {
-                                        Label(item.isCompleted ? "Uncheck" : "Check", 
-                                              systemImage: item.isCompleted ? "xmark.circle" : "checkmark.circle")
-                                    }
-                                    .tint(item.isCompleted ? DesignSystem.Colors.warning : DesignSystem.Colors.success)
-                                }
-                        }
-                    }
-                    
-                    if !filteredItems.isEmpty {
-                        HStack {
-                            Label("Total Items", systemImage: "list.bullet")
-                                .foregroundColor(DesignSystem.Colors.primary)
-                            Spacer()
-                            Text("\(filteredItems.count) items")
+                    if filteredItems.isEmpty {
+                        VStack(spacing: 16) {
+                            Button(action: {
+                                showingAddItem = true
+                            }) {
+                                Image(systemName: "cart.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 48, height: 48)
+                                    .foregroundColor(DesignSystem.Colors.primary)
+                                    .padding()
+                                    .background(DesignSystem.Colors.primary.opacity(0.1))
+                                    .clipShape(Circle())
+                                    .shadow(color: DesignSystem.Colors.primary.opacity(0.15), radius: 8, x: 0, y: 4)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            Text("No items yet!")
+                                .font(.headline)
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
+                            Text("Tap the cart to add your first item.")
+                                .font(.subheadline)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 180)
+                        .padding(.vertical, 24)
+                        .listRowBackground(Color.clear)
+                    } else {
+                        ForEach(filteredItems) { item in
+                            NavigationLink(value: item) {
+                                ItemRow(item: item)
+                                    .swipeActions(edge: .trailing) {
+                                        Button(role: .destructive) {
+                                            let generator = UINotificationFeedbackGenerator()
+                                            generator.notificationOccurred(.success)
+                                            list.removeItem(item)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                    .swipeActions(edge: .leading) {
+                                        Button {
+                                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                                            generator.impactOccurred()
+                                            item.isCompleted.toggle()
+                                        } label: {
+                                            Label(item.isCompleted ? "Uncheck" : "Check", 
+                                                  systemImage: item.isCompleted ? "xmark.circle" : "checkmark.circle")
+                                        }
+                                        .tint(item.isCompleted ? DesignSystem.Colors.warning : DesignSystem.Colors.success)
+                                    }
+                            }
+                        }
+                        
+                        if !filteredItems.isEmpty {
+                            HStack {
+                                Label("Total Items", systemImage: "list.bullet")
+                                    .foregroundColor(DesignSystem.Colors.primary)
+                                Spacer()
+                                Text("\(filteredItems.count) items")
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
                         }
                     }
                 } header: {
