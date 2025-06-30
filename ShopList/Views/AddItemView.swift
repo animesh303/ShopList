@@ -341,7 +341,7 @@ struct AddItemView: View {
             title: "Add Item",
             subtitle: "Add a new item to your list",
             icon: "plus.circle",
-            style: .success,
+            style: .custom(DesignSystem.Colors.themeAwareCategoryGradient(for: category, colorScheme: colorScheme)),
             showBanner: true
         )
         .alert("Error", isPresented: $showingError) {
