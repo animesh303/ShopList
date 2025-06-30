@@ -9,27 +9,66 @@ struct PremiumUpgradeView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Header
-                    headerSection
-                    
-                    // Features
-                    featuresSection
-                    
-                    // Pricing
-                    pricingSection
-                    
-                    // Action buttons
-                    actionButtonsSection
-                    
-                    // Terms and privacy
-                    termsSection
+            ZStack {
+                // Enhanced premium background with animated gradient
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.1, green: 0.1, blue: 0.3),
+                        Color(red: 0.2, green: 0.1, blue: 0.4),
+                        Color(red: 0.1, green: 0.2, blue: 0.5),
+                        Color(red: 0.0, green: 0.1, blue: 0.3)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                // Animated floating particles effect
+                ForEach(0..<20, id: \.self) { index in
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.1),
+                                    Color.white.opacity(0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: CGFloat.random(in: 4...12))
+                        .position(
+                            x: CGFloat.random(in: 0...UIScreen.main.bounds.width),
+                            y: CGFloat.random(in: 0...UIScreen.main.bounds.height)
+                        )
+                        .animation(
+                            Animation.easeInOut(duration: Double.random(in: 3...8))
+                                .repeatForever(autoreverses: true),
+                            value: index
+                        )
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 40)
+                
+                ScrollView {
+                    VStack(spacing: 32) {
+                        // Header
+                        headerSection
+                        
+                        // Features
+                        featuresSection
+                        
+                        // Pricing
+                        pricingSection
+                        
+                        // Action buttons
+                        actionButtonsSection
+                        
+                        // Terms and privacy
+                        termsSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 40)
+                }
             }
-            .background(DesignSystem.Colors.backgroundGradient)
             .navigationTitle("Upgrade to Premium")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -37,6 +76,7 @@ struct PremiumUpgradeView: View {
                     Button("Close") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
                 }
             }
             .alert("Error", isPresented: $showingError) {
@@ -56,40 +96,118 @@ struct PremiumUpgradeView: View {
     }
     
     private var headerSection: some View {
-        VStack(spacing: 16) {
-            // Premium icon
-            Image(systemName: "crown.fill")
-                .font(.system(size: 60))
+        VStack(spacing: 20) {
+            // Enhanced premium icon with animated gradient
+            ZStack {
+                // Glowing background circle
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.orange.opacity(0.3),
+                                Color.yellow.opacity(0.2),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 20,
+                            endRadius: 80
+                        )
+                    )
+                    .frame(width: 120, height: 120)
+                    .scaleEffect(1.2)
+                
+                // Crown icon with enhanced gradient
+                Image(systemName: "crown.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 1.0, green: 0.8, blue: 0.0), // Bright gold
+                                Color(red: 1.0, green: 0.6, blue: 0.0), // Orange gold
+                                Color(red: 0.8, green: 0.4, blue: 0.0)  // Dark gold
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: .orange.opacity(0.5), radius: 15, x: 0, y: 8)
+                    .shadow(color: .yellow.opacity(0.3), radius: 8, x: 0, y: 4)
+            }
+            .padding(.top, 20)
+            
+            VStack(spacing: 12) {
+                Text("Unlock Premium Features")
+                    .font(.custom("Bradley Hand", size: 32, relativeTo: .title))
+                    .fontWeight(.bold)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Color.white,
+                                Color(red: 1.0, green: 0.9, blue: 0.8)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                
+                Text("Get unlimited lists, location reminders, widgets, item images, and much more!")
+                    .font(.body)
+                    .fontWeight(.medium)
+                    .foregroundColor(Color.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
+            }
+            .padding(.horizontal, 16)
+        }
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.05),
+                            Color.clear
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.2),
+                                    Color.white.opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+        )
+        .padding(.horizontal, 8)
+    }
+    
+    private var featuresSection: some View {
+        VStack(spacing: 20) {
+            Text("Premium Features")
+                .font(.custom("Bradley Hand", size: 28, relativeTo: .title2))
+                .fontWeight(.bold)
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.orange, .yellow],
+                        colors: [
+                            Color.white,
+                            Color(red: 1.0, green: 0.9, blue: 0.8)
+                        ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
-                .shadow(color: .orange.opacity(0.3), radius: 10, x: 0, y: 5)
-            
-            VStack(spacing: 8) {
-                Text("Unlock Premium Features")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
-                
-                Text("Get unlimited lists, location reminders, widgets, item images, and much more!")
-                    .font(.body)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .multilineTextAlignment(.center)
-            }
-        }
-        .padding(.top, 20)
-    }
-    
-    private var featuresSection: some View {
-        VStack(spacing: 16) {
-            Text("Premium Features")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
             
             // Custom grid layout to center the last item when alone
             let features = Array(PremiumFeature.allCases)
@@ -130,30 +248,41 @@ struct PremiumUpgradeView: View {
     }
     
     private var pricingSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Text("Choose Your Plan")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(DesignSystem.Colors.primaryText)
+                .font(.custom("Bradley Hand", size: 28, relativeTo: .title2))
+                .fontWeight(.bold)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color.white,
+                            Color(red: 1.0, green: 0.9, blue: 0.8)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
             
             if subscriptionManager.isLoading {
                 ProgressView()
                     .scaleEffect(1.2)
+                    .tint(.white)
             } else if subscriptionManager.subscriptionProducts.isEmpty {
                 // Show message when no products are available
                 VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.title)
-                        .foregroundColor(DesignSystem.Colors.warning)
+                        .foregroundColor(Color.orange)
                     
                     Text("Subscription Products Not Available")
                         .font(.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .foregroundColor(.white)
                     
                     Text("To test subscriptions, you need to configure products in App Store Connect and set up StoreKit testing.")
                         .font(.subheadline)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .foregroundColor(Color.white.opacity(0.8))
                         .multilineTextAlignment(.center)
                     
                     // Show mock pricing cards for demonstration
@@ -179,8 +308,23 @@ struct PremiumUpgradeView: View {
                     }
                 }
                 .padding()
-                .background(DesignSystem.Colors.secondaryBackground.opacity(0.5))
-                .cornerRadius(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.1),
+                                    Color.white.opacity(0.05)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                )
             } else {
                 VStack(spacing: 12) {
                     ForEach(subscriptionManager.subscriptionProducts, id: \.id) { product in
@@ -289,21 +433,42 @@ struct PremiumUpgradeView: View {
         VStack(spacing: 8) {
             Text("Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.")
                 .font(.caption)
-                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                .foregroundColor(Color.white.opacity(0.7))
                 .multilineTextAlignment(.center)
+                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
             
             HStack(spacing: 16) {
                 Button("Terms of Service") {
                     // Open terms of service
                 }
                 .font(.caption)
-                .foregroundColor(DesignSystem.Colors.accent1)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1.0, green: 0.8, blue: 0.0),
+                            Color(red: 1.0, green: 0.6, blue: 0.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                 
                 Button("Privacy Policy") {
                     // Open privacy policy
                 }
                 .font(.caption)
-                .foregroundColor(DesignSystem.Colors.accent1)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 1.0, green: 0.8, blue: 0.0),
+                            Color(red: 1.0, green: 0.6, blue: 0.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
             }
         }
     }
@@ -379,27 +544,50 @@ struct FeatureCard: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            Image(systemName: feature.icon)
-                .font(.title2)
-                .foregroundColor(DesignSystem.Colors.accent1)
-                .frame(width: 40, height: 40)
-                .background(
-                    Circle()
-                        .fill(DesignSystem.Colors.accent1.opacity(0.1))
-                )
+            // Enhanced icon with gradient background
+            ZStack {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                Color.orange.opacity(0.3),
+                                Color.yellow.opacity(0.2),
+                                Color.clear
+                            ],
+                            center: .center,
+                            startRadius: 5,
+                            endRadius: 25
+                        )
+                    )
+                    .frame(width: 50, height: 50)
+                
+                Image(systemName: feature.icon)
+                    .font(.title2)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 1.0, green: 0.8, blue: 0.0),
+                                Color(red: 1.0, green: 0.6, blue: 0.0)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
             
             VStack(spacing: 4) {
                 Text(feature.rawValue)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
+                    .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 
                 Text(feature.description)
                     .font(.caption)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                    .foregroundColor(Color.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
@@ -407,13 +595,39 @@ struct FeatureCard: View {
         }
         .frame(minWidth: 140, maxWidth: 180, minHeight: 120)
         .padding(16)
-        .background(DesignSystem.Colors.cardGradient)
-        .cornerRadius(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.15),
+                            Color.white.opacity(0.08),
+                            Color.white.opacity(0.05)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.3),
+                                    Color.white.opacity(0.1)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+        )
         .shadow(
-            color: DesignSystem.Shadows.colorfulSmall.color,
-            radius: DesignSystem.Shadows.colorfulSmall.radius,
-            x: DesignSystem.Shadows.colorfulSmall.x,
-            y: DesignSystem.Shadows.colorfulSmall.y
+            color: Color.orange.opacity(0.2),
+            radius: 8,
+            x: 0,
+            y: 4
         )
     }
 }
@@ -458,7 +672,8 @@ struct PricingCard: View {
                         Text(subscriptionPeriodName)
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         
                         if let savings = savings {
                             Text(savings)
@@ -467,40 +682,84 @@ struct PricingCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.green)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.green, Color.green.opacity(0.8)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .cornerRadius(8)
+                                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
                         }
                     }
                     
                     Text(product.formattedPrice)
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(DesignSystem.Colors.accent1)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [
+                                    Color(red: 1.0, green: 0.8, blue: 0.0),
+                                    Color(red: 1.0, green: 0.6, blue: 0.0)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                 }
                 
                 Spacer()
                 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(isSelected ? DesignSystem.Colors.accent1 : DesignSystem.Colors.tertiaryText)
+                    .foregroundColor(isSelected ? Color(red: 1.0, green: 0.8, blue: 0.0) : Color.white.opacity(0.6))
+                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
             }
             .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(DesignSystem.Colors.cardGradient)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(isSelected ? 0.2 : 0.1),
+                                Color.white.opacity(isSelected ? 0.15 : 0.05),
+                                Color.white.opacity(isSelected ? 0.1 : 0.02)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: 16)
                             .stroke(
-                                isSelected ? DesignSystem.Colors.accent1 : Color.clear,
-                                lineWidth: 2
+                                isSelected ? 
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 1.0, green: 0.8, blue: 0.0),
+                                        Color(red: 1.0, green: 0.6, blue: 0.0)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) : 
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.3),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: isSelected ? 2 : 1
                             )
                     )
             )
             .shadow(
-                color: isSelected ? DesignSystem.Colors.accent1.opacity(0.2) : DesignSystem.Shadows.colorfulSmall.color,
-                radius: isSelected ? 8 : DesignSystem.Shadows.colorfulSmall.radius,
+                color: isSelected ? Color.orange.opacity(0.4) : Color.black.opacity(0.2),
+                radius: isSelected ? 12 : 6,
                 x: 0,
-                y: isSelected ? 4 : DesignSystem.Shadows.colorfulSmall.y
+                y: isSelected ? 6 : 3
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -549,7 +808,8 @@ struct MockPricingCard: View {
                         Text(title)
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         
                         if let savings = savings {
                             Text(savings)
@@ -558,8 +818,15 @@ struct MockPricingCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 2)
-                                .background(Color.green)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.green, Color.green.opacity(0.8)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .cornerRadius(8)
+                                .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
                         }
                     }
                     
@@ -567,11 +834,21 @@ struct MockPricingCard: View {
                         Text(price)
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(DesignSystem.Colors.accent1)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 1.0, green: 0.8, blue: 0.0),
+                                        Color(red: 1.0, green: 0.6, blue: 0.0)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                         
                         Text(period)
                             .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .foregroundColor(Color.white.opacity(0.8))
                     }
                 }
                 
@@ -579,25 +856,52 @@ struct MockPricingCard: View {
                 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(isSelected ? DesignSystem.Colors.accent1 : DesignSystem.Colors.tertiaryText)
+                    .foregroundColor(isSelected ? Color(red: 1.0, green: 0.8, blue: 0.0) : Color.white.opacity(0.6))
+                    .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
             }
             .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(DesignSystem.Colors.cardGradient)
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(isSelected ? 0.2 : 0.1),
+                                Color.white.opacity(isSelected ? 0.15 : 0.05),
+                                Color.white.opacity(isSelected ? 0.1 : 0.02)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: 16)
                             .stroke(
-                                isSelected ? DesignSystem.Colors.accent1 : Color.clear,
-                                lineWidth: 2
+                                isSelected ? 
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 1.0, green: 0.8, blue: 0.0),
+                                        Color(red: 1.0, green: 0.6, blue: 0.0)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ) : 
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.3),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: isSelected ? 2 : 1
                             )
                     )
             )
             .shadow(
-                color: isSelected ? DesignSystem.Colors.accent1.opacity(0.2) : DesignSystem.Shadows.colorfulSmall.color,
-                radius: isSelected ? 8 : DesignSystem.Shadows.colorfulSmall.radius,
+                color: isSelected ? Color.orange.opacity(0.4) : Color.black.opacity(0.2),
+                radius: isSelected ? 12 : 6,
                 x: 0,
-                y: isSelected ? 4 : DesignSystem.Shadows.colorfulSmall.y
+                y: isSelected ? 6 : 3
             )
         }
         .buttonStyle(PlainButtonStyle())
