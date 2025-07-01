@@ -239,29 +239,38 @@ struct ItemRow: View {
                 
                 Spacer()
                 
-                // Enhanced Priority indicator with gradient
+                // Priority badge (icon + label) at the right
                 if item.priority != .normal {
-                    Image(systemName: priorityIcon)
-                        .foregroundColor(.white)
-                        .font(.title3)
-                        .padding(DesignSystem.Spacing.sm)
-                        .background(
-                            LinearGradient(
-                                colors: [
-                                    priorityColor,
-                                    priorityColor.opacity(0.8)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Image(systemName: priorityIcon)
+                            .font(.caption2)
+                            .foregroundColor(.white)
+                        Text(item.priority.displayName)
+                            .font(DesignSystem.Typography.caption1)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.sm)
+                    .padding(.vertical, DesignSystem.Spacing.xs)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                priorityColor,
+                                priorityColor.opacity(0.8)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                        .clipShape(Circle())
-                        .shadow(
-                            color: priorityColor.opacity(0.3),
-                            radius: 3,
-                            x: 0,
-                            y: 1
-                        )
+                    )
+                    .cornerRadius(DesignSystem.CornerRadius.sm)
+                    .shadow(
+                        color: priorityColor.opacity(0.3),
+                        radius: 3,
+                        x: 0,
+                        y: 1
+                    )
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
