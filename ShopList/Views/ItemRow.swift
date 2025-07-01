@@ -409,6 +409,7 @@ struct ItemRow: View {
                                 .stroke(Color.blue.opacity(0.2), lineWidth: 1.5)
                         )
                 )
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, DesignSystem.Spacing.sm)
             }
         }
