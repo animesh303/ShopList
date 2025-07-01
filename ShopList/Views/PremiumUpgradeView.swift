@@ -2,7 +2,7 @@ import SwiftUI
 import StoreKit
 
 struct PremiumUpgradeView: View {
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @State private var selectedProduct: Any?
@@ -743,6 +743,7 @@ struct PricingCard: View {
 
 #Preview {
     PremiumUpgradeView()
+        .environmentObject(SubscriptionManager.shared)
 }
 
 // MARK: - Mock Product for Testing

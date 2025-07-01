@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct UsageLimitView: View {
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingPremiumUpgrade = false
     @State private var isExpanded = false
     

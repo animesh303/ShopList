@@ -13,7 +13,7 @@ struct ShoppingListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var lists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     @State private var showingAddList = false
     @State private var showingPremiumUpgrade = false

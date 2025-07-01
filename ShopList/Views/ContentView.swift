@@ -6,7 +6,7 @@ struct ContentView: View {
     @Query private var lists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingAddList = false
     @State private var showingSettings = false
     @State private var showingSortPicker = false
@@ -677,4 +677,5 @@ struct GridListCard: View {
 #Preview {
     ContentView()
         .modelContainer(for: ShoppingList.self, inMemory: true)
+        .environmentObject(SubscriptionManager.shared)
 } 

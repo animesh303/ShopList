@@ -6,7 +6,7 @@ struct SettingsView: View {
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var locationManager = LocationManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingPremiumUpgrade = false
     
     var body: some View {
@@ -140,6 +140,32 @@ struct SettingsView: View {
                             Text("Use this to test premium features without real purchases")
                                 .font(DesignSystem.Typography.caption2)
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
+                            
+                            // Debug buttons
+                            HStack {
+                                Button("Debug Status") {
+                                    subscriptionManager.debugPersistedStatus()
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.blue)
+                                .captionStyle()
+                                
+                                Button("Clear Data") {
+                                    subscriptionManager.clearPersistedSubscriptionData()
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.red)
+                                .captionStyle()
+                                
+                                Button("Force Refresh") {
+                                    Task {
+                                        await subscriptionManager.forceRefreshSubscriptionStatus()
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.orange)
+                                .captionStyle()
+                            }
                         }
                     } header: {
                         Text("Development Testing")
@@ -667,4 +693,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environmentObject(SubscriptionManager.shared)
 } 

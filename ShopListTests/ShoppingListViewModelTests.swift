@@ -155,4 +155,88 @@ final class ShoppingListViewModelTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
     }
+    
+    func testSubscriptionPersistence() {
+        let subscriptionManager = SubscriptionManager.shared
+        
+        // Test mock subscription persistence
+        subscriptionManager.mockSubscribe()
+        XCTAssertTrue(subscriptionManager.isPremium)
+        XCTAssertEqual(subscriptionManager.currentTier, .premium)
+        
+        // Verify UserDefaults was updated
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: "isPremium"))
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "subscriptionTier"), "Premium")
+        
+        // Test mock unsubscription persistence
+        subscriptionManager.mockUnsubscribe()
+        XCTAssertFalse(subscriptionManager.isPremium)
+        XCTAssertEqual(subscriptionManager.currentTier, .free)
+        
+        // Verify UserDefaults was updated
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: "isPremium"))
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "subscriptionTier"), "Free")
+        
+        // Clean up
+        subscriptionManager.clearPersistedSubscriptionData()
+    }
+    
+    func testSubscriptionManagerSingleton() {
+        // Test that we get the same instance
+        let instance1 = SubscriptionManager.shared
+        let instance2 = SubscriptionManager.shared
+        
+        XCTAssertTrue(instance1 === instance2, "SubscriptionManager should be a singleton")
+        
+        // Test that changes persist across instances
+        instance1.mockSubscribe()
+        XCTAssertTrue(instance2.isPremium)
+        XCTAssertEqual(instance2.currentTier, .premium)
+        
+        // Clean up
+        instance1.clearPersistedSubscriptionData()
+    }
+    
+    func testSubscriptionPersistenceWithMockData() {
+        let subscriptionManager = SubscriptionManager.shared
+        
+        // Clear any existing data
+        subscriptionManager.clearPersistedSubscriptionData()
+        
+        // Test that initial state is free
+        XCTAssertFalse(subscriptionManager.isPremium)
+        XCTAssertEqual(subscriptionManager.currentTier, .free)
+        
+        // Mock subscribe
+        subscriptionManager.mockSubscribe()
+        XCTAssertTrue(subscriptionManager.isPremium)
+        XCTAssertEqual(subscriptionManager.currentTier, .premium)
+        
+        // Verify UserDefaults was updated
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: "isPremium"))
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "subscriptionTier"), "Premium")
+        
+        // Simulate app restart by creating a new instance
+        // (In real app, this would happen when app restarts)
+        let newInstance = SubscriptionManager.shared
+        
+        // The new instance should maintain the premium status
+        XCTAssertTrue(newInstance.isPremium)
+        XCTAssertEqual(newInstance.currentTier, .premium)
+        
+        // Clean up
+        subscriptionManager.clearPersistedSubscriptionData()
+    }
+    
+    func testDebugMethods() {
+        let subscriptionManager = SubscriptionManager.shared
+        
+        // Test debug methods don't crash
+        subscriptionManager.debugPersistedStatus()
+        subscriptionManager.clearPersistedSubscriptionData()
+        
+        // Verify data was cleared
+        XCTAssertFalse(UserDefaults.standard.bool(forKey: "isPremium"))
+        XCTAssertNil(UserDefaults.standard.string(forKey: "subscriptionTier"))
+    }
 } 

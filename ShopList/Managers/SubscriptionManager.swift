@@ -22,10 +22,28 @@ enum SubscriptionError: Error, LocalizedError {
 
 @MainActor
 class SubscriptionManager: NSObject, ObservableObject {
-    static let shared = SubscriptionManager()
+    private static var _shared: SubscriptionManager?
     
-    @Published var currentTier: SubscriptionTier = .free
-    @Published var isPremium: Bool = false
+    static var shared: SubscriptionManager {
+        if _shared == nil {
+            print("SubscriptionManager: Creating new shared instance")
+            _shared = SubscriptionManager()
+        } else {
+            print("SubscriptionManager: Returning existing shared instance")
+        }
+        return _shared!
+    }
+    
+    @Published var currentTier: SubscriptionTier = .free {
+        didSet {
+            UserDefaults.standard.set(currentTier.rawValue, forKey: "subscriptionTier")
+        }
+    }
+    @Published var isPremium: Bool = false {
+        didSet {
+            UserDefaults.standard.set(isPremium, forKey: "isPremium")
+        }
+    }
     @Published var subscriptionProducts: [Product] = []
     @Published var purchasedProducts: Set<String> = []
     @Published var isLoading: Bool = false
@@ -41,6 +59,12 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     private override init() {
         super.init()
+        
+        print("SubscriptionManager: Initializing singleton instance")
+        
+        // Load persisted subscription status
+        loadPersistedSubscriptionStatus()
+        
         updateListenerTask = listenForTransactions()
         Task {
             await loadProducts()
@@ -54,6 +78,22 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
+    }
+    
+    // MARK: - Persistence
+    
+    private func loadPersistedSubscriptionStatus() {
+        // Load subscription tier
+        if let savedTierString = UserDefaults.standard.string(forKey: "subscriptionTier"),
+           let savedTier = SubscriptionTier(rawValue: savedTierString) {
+            self.currentTier = savedTier
+        }
+        
+        // Load premium status
+        let savedIsPremium = UserDefaults.standard.bool(forKey: "isPremium")
+        self.isPremium = savedIsPremium
+        
+        print("SubscriptionManager: Loaded persisted status - Tier: \(currentTier), Premium: \(isPremium)")
     }
     
     // MARK: - Product Management
@@ -154,6 +194,12 @@ class SubscriptionManager: NSObject, ObservableObject {
         }
     }
     
+    /// Force refresh subscription status from StoreKit (ignoring persisted status)
+    func forceRefreshSubscriptionStatus() async {
+        print("SubscriptionManager: Force refreshing subscription status from StoreKit")
+        await updateSubscriptionStatus()
+    }
+    
     private func listenForTransactions() -> Task<Void, Error> {
         return Task.detached {
             for await result in StoreKit.Transaction.updates {
@@ -167,23 +213,43 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     private func updateSubscriptionStatus() async {
+        // Check for valid StoreKit transactions
+        var foundValidTransaction = false
+        
         for await result in StoreKit.Transaction.currentEntitlements {
             if case .verified(let transaction) = result {
                 if transaction.productID.contains("premium") {
                     await MainActor.run {
                         self.currentTier = .premium
                         self.isPremium = true
+                        print("SubscriptionManager: Valid premium transaction found - Status updated")
                     }
+                    foundValidTransaction = true
                     return
                 }
             }
         }
         
-        await MainActor.run {
-            self.currentTier = .free
-            self.isPremium = false
-            // Reset premium-only settings when subscription is lost
-            UserSettingsManager.shared.resetPremiumOnlySettings()
+        // If no valid StoreKit transactions found, check if we have persisted premium status
+        if !foundValidTransaction {
+            let persistedIsPremium = UserDefaults.standard.bool(forKey: "isPremium")
+            let persistedTierString = UserDefaults.standard.string(forKey: "subscriptionTier")
+            
+            await MainActor.run {
+                if persistedIsPremium && persistedTierString == "Premium" {
+                    // Keep the persisted premium status
+                    self.currentTier = .premium
+                    self.isPremium = true
+                    print("SubscriptionManager: No StoreKit transactions found, but keeping persisted premium status")
+                } else {
+                    // Reset to free only if no persisted premium status
+                    self.currentTier = .free
+                    self.isPremium = false
+                    // Reset premium-only settings when subscription is lost
+                    UserSettingsManager.shared.resetPremiumOnlySettings()
+                    print("SubscriptionManager: No valid premium transactions found and no persisted premium status - Status reset to free")
+                }
+            }
         }
     }
     
@@ -375,20 +441,41 @@ class SubscriptionManager: NSObject, ObservableObject {
         print("SubscriptionManager: Mock subscription activated")
         currentTier = .premium
         isPremium = true
-        print("SubscriptionManager: User is now premium (mock)")
+        // Ensure persistence
+        UserDefaults.standard.set(currentTier.rawValue, forKey: "subscriptionTier")
+        UserDefaults.standard.set(isPremium, forKey: "isPremium")
+        print("SubscriptionManager: User is now premium (mock) - Status persisted")
     }
     
     func mockUnsubscribe() {
         print("SubscriptionManager: Mock subscription deactivated")
         currentTier = .free
         isPremium = false
+        // Ensure persistence
+        UserDefaults.standard.set(currentTier.rawValue, forKey: "subscriptionTier")
+        UserDefaults.standard.set(isPremium, forKey: "isPremium")
         // Reset premium-only settings when mock subscription is lost
         UserSettingsManager.shared.resetPremiumOnlySettings()
-        print("SubscriptionManager: User is now free (mock)")
+        print("SubscriptionManager: User is now free (mock) - Status persisted")
     }
     
     func isMockSubscribed() -> Bool {
         return isPremium
+    }
+    
+    /// Clears all persisted subscription data (for testing purposes)
+    func clearPersistedSubscriptionData() {
+        UserDefaults.standard.removeObject(forKey: "subscriptionTier")
+        UserDefaults.standard.removeObject(forKey: "isPremium")
+        print("SubscriptionManager: Cleared all persisted subscription data")
+    }
+    
+    /// Debug method to check current persisted status
+    func debugPersistedStatus() {
+        let persistedIsPremium = UserDefaults.standard.bool(forKey: "isPremium")
+        let persistedTierString = UserDefaults.standard.string(forKey: "subscriptionTier")
+        print("SubscriptionManager: Debug - Persisted isPremium: \(persistedIsPremium), Tier: \(persistedTierString ?? "nil")")
+        print("SubscriptionManager: Debug - Current isPremium: \(isPremium), Tier: \(currentTier)")
     }
 }
 

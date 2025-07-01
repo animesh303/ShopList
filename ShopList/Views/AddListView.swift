@@ -5,7 +5,7 @@ struct AddListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @StateObject private var settingsManager = UserSettingsManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     @State private var listName = ""
     @State private var category: ListCategory = .groceries
