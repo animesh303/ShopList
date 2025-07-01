@@ -351,8 +351,10 @@ struct ItemRow: View {
                                     .fill(DesignSystem.Colors.info)
                             )
                         Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                            .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .font(.body)
+                            .foregroundColor(Color(red: 0.1, green: 0.2, blue: 0.6))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                     .fixedSize(horizontal: true, vertical: false)
                 }
@@ -368,8 +370,10 @@ struct ItemRow: View {
                                     .fill(DesignSystem.Colors.success)
                             )
                         Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                            .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .font(.body)
+                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
