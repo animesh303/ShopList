@@ -66,15 +66,38 @@ struct ItemRow: View {
                             y: DesignSystem.Shadows.colorfulSmall.y
                         )
                 } else {
-                    // Placeholder for items without images
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                        .fill(DesignSystem.Colors.tertiaryBackground)
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Image(systemName: "photo")
-                                .font(.caption)
-                                .foregroundColor(DesignSystem.Colors.tertiaryText)
-                        )
+                    // Enhanced placeholder for items without images
+                    ZStack {
+                        // Background with subtle gradient
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        item.category.color.opacity(0.1),
+                                        item.category.color.opacity(0.05)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 40, height: 40)
+                        
+                        // Category icon with gradient background
+                        Image(systemName: item.category.icon)
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(6)
+                            .background(
+                                DesignSystem.Colors.categoryGradient(for: item.category)
+                            )
+                            .clipShape(Circle())
+                            .shadow(
+                                color: item.category.color.opacity(0.3),
+                                radius: 2,
+                                x: 0,
+                                y: 1
+                            )
+                    }
                 }
             }
             
@@ -233,15 +256,38 @@ struct ItemRow: View {
                                 y: DesignSystem.Shadows.colorfulSmall.y
                             )
                     } else {
-                        // Placeholder for items without images
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                            .fill(DesignSystem.Colors.tertiaryBackground)
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .font(.caption)
-                                    .foregroundColor(DesignSystem.Colors.tertiaryText)
-                            )
+                        // Enhanced placeholder for items without images
+                        ZStack {
+                            // Background with subtle gradient
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            item.category.color.opacity(0.1),
+                                            item.category.color.opacity(0.05)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 50, height: 50)
+                            
+                            // Category icon with gradient background
+                            Image(systemName: item.category.icon)
+                                .font(.title3)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(
+                                    DesignSystem.Colors.categoryGradient(for: item.category)
+                                )
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: item.category.color.opacity(0.3),
+                                    radius: 3,
+                                    x: 0,
+                                    y: 2
+                                )
+                        }
                     }
                 }
                 
