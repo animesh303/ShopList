@@ -143,8 +143,8 @@ struct ItemRow: View {
                 Spacer().frame(width: priorityWidth)
             }
         }
-        .padding(.vertical, DesignSystem.Spacing.sm)
-        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .padding(.vertical, DesignSystem.Spacing.xs)
+        .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                 .fill(DesignSystem.Colors.cardBackground(for: item.category))
@@ -153,8 +153,8 @@ struct ItemRow: View {
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                 .stroke(item.category.color.opacity(0.15), lineWidth: 1)
         )
-        .padding(.horizontal, DesignSystem.Spacing.xs)
-        .padding(.vertical, 2)
+        .padding(.horizontal, 4)
+        .padding(.vertical, 1)
     }
     
     // MARK: - Detailed View
