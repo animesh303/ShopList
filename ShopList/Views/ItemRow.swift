@@ -41,174 +41,197 @@ struct ItemRow: View {
     
     // MARK: - Compact View
     private var compactView: some View {
-        HStack(spacing: DesignSystem.Spacing.lg) {
-            Button(action: toggleCompletion) {
-                Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundColor(item.isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
-                    .scaleEffect(item.isCompleted ? 1.1 : 1.0)
-                    .animation(DesignSystem.Animations.spring, value: item.isCompleted)
-            }
-            .buttonStyle(.plain)
-            
-            // Item Image (Premium Feature)
-            if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
-                if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 40, height: 40)
-                        .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
-                        .shadow(
-                            color: DesignSystem.Shadows.colorfulSmall.color,
-                            radius: DesignSystem.Shadows.colorfulSmall.radius,
-                            x: DesignSystem.Shadows.colorfulSmall.x,
-                            y: DesignSystem.Shadows.colorfulSmall.y
-                        )
-                } else {
-                    // Enhanced placeholder for items without images
-                    ZStack {
-                        // Background with subtle gradient
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        item.category.color.opacity(0.1),
-                                        item.category.color.opacity(0.05)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+        VStack(spacing: DesignSystem.Spacing.sm) {
+            // Main content row
+            HStack(spacing: DesignSystem.Spacing.md) {
+                // Completion button
+                Button(action: toggleCompletion) {
+                    Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                        .font(.title2)
+                        .foregroundColor(item.isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
+                        .scaleEffect(item.isCompleted ? 1.1 : 1.0)
+                        .animation(DesignSystem.Animations.spring, value: item.isCompleted)
+                }
+                .buttonStyle(.plain)
+                
+                // Item Image or Category Icon
+                Group {
+                    if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
+                        if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
+                                .shadow(
+                                    color: DesignSystem.Shadows.colorfulSmall.color,
+                                    radius: DesignSystem.Shadows.colorfulSmall.radius,
+                                    x: DesignSystem.Shadows.colorfulSmall.x,
+                                    y: DesignSystem.Shadows.colorfulSmall.y
                                 )
-                            )
-                            .frame(width: 40, height: 40)
-                        
-                        // Category icon with gradient background
+                        } else {
+                            // Enhanced placeholder for items without images
+                            ZStack {
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                item.category.color.opacity(0.1),
+                                                item.category.color.opacity(0.05)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 44, height: 44)
+                                
+                                Image(systemName: item.category.icon)
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .background(
+                                        DesignSystem.Colors.categoryGradient(for: item.category)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: item.category.color.opacity(0.3),
+                                        radius: 2,
+                                        x: 0,
+                                        y: 1
+                                    )
+                            }
+                        }
+                    } else {
+                        // Category icon when images are disabled
                         Image(systemName: item.category.icon)
-                            .font(.caption)
+                            .font(.title3)
                             .foregroundColor(.white)
-                            .padding(6)
+                            .frame(width: 44, height: 44)
                             .background(
                                 DesignSystem.Colors.categoryGradient(for: item.category)
                             )
-                            .clipShape(Circle())
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
                             .shadow(
-                                color: item.category.color.opacity(0.3),
-                                radius: 2,
+                                color: item.category.color.opacity(0.4),
+                                radius: 4,
                                 x: 0,
-                                y: 1
+                                y: 2
                             )
                     }
                 }
-            }
-            
-            // Enhanced Category Icon with vibrant gradient
-            Image(systemName: item.category.icon)
-                .font(.title3)
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(
-                    DesignSystem.Colors.categoryGradient(for: item.category)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
-                .shadow(
-                    color: item.category.color.opacity(0.4),
-                    radius: 4,
-                    x: 0,
-                    y: 2
-                )
-            
-            // Item Name and Brand with enhanced typography
-            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                HStack {
-                    Text(item.name)
-                        .font(DesignSystem.Typography.body)
-                        .fontWeight(.medium)
-                        .strikethrough(item.isCompleted)
-                        .lineLimit(1)
-                    
-                    if let brand = item.brand, !brand.isEmpty {
-                        Text("•")
-                            .foregroundColor(DesignSystem.Colors.tertiaryText)
-                            .font(DesignSystem.Typography.caption1)
-                        Text(brand)
-                            .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.tertiaryText)
+                
+                // Item name and brand
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Text(item.name)
+                            .font(DesignSystem.Typography.body)
+                            .fontWeight(.medium)
+                            .strikethrough(item.isCompleted)
                             .lineLimit(1)
+                            .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                        
+                        if let brand = item.brand, !brand.isEmpty {
+                            Text("•")
+                                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                                .font(DesignSystem.Typography.caption1)
+                            Text(brand)
+                                .font(DesignSystem.Typography.caption1)
+                                .foregroundColor(DesignSystem.Colors.tertiaryText)
+                                .lineLimit(1)
+                        }
                     }
                 }
                 
-                // Enhanced Quantity and Price with colorful icons
-                HStack(spacing: DesignSystem.Spacing.sm) {
-                    if item.quantity > 0 {
-                        HStack(spacing: DesignSystem.Spacing.xs) {
-                            Image(systemName: "number.circle.fill")
-                                .font(.caption2)
-                                .foregroundColor(.white)
-                                .padding(2)
-                                .background(
-                                    Circle()
-                                        .fill(DesignSystem.Colors.info)
-                                )
-                            Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                                .font(DesignSystem.Typography.caption2)
-                                .fontWeight(.medium)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                        }
-                    }
-                    
-                    if let price = item.pricePerUnit, price > 0 {
-                        if item.quantity > 0 {
-                            Text("•")
-                                .foregroundColor(DesignSystem.Colors.tertiaryText)
-                                .font(DesignSystem.Typography.caption2)
-                        }
-                        HStack(spacing: DesignSystem.Spacing.xs) {
-                            Image(systemName: settingsManager.currency.icon)
-                                .font(.caption2)
-                                .foregroundColor(.white)
-                                .padding(2)
-                                .background(
-                                    Circle()
-                                        .fill(DesignSystem.Colors.success)
-                                )
-                            Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                                .font(DesignSystem.Typography.caption2)
-                                .fontWeight(.medium)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
-                        }
-                    }
+                Spacer()
+                
+                // Priority indicator
+                if item.priority != .normal {
+                    Image(systemName: priorityIcon)
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .padding(DesignSystem.Spacing.sm)
+                        .background(
+                            LinearGradient(
+                                colors: [
+                                    priorityColor,
+                                    priorityColor.opacity(0.8)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(Circle())
+                        .shadow(
+                            color: priorityColor.opacity(0.4),
+                            radius: 3,
+                            x: 0,
+                            y: 1
+                        )
                 }
             }
             
-            Spacer()
-            
-            // Enhanced Priority indicator with vibrant colors
-            if item.priority != .normal {
-                Image(systemName: priorityIcon)
-                    .foregroundColor(.white)
-                    .font(.caption)
-                    .padding(DesignSystem.Spacing.xs)
-                    .background(
-                        LinearGradient(
-                            colors: [
-                                priorityColor,
-                                priorityColor.opacity(0.8)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .clipShape(Circle())
-                    .shadow(
-                        color: priorityColor.opacity(0.4),
-                        radius: 3,
-                        x: 0,
-                        y: 1
-                    )
+            // Quantity and Price Details Row
+            if item.quantity > 0 || (item.pricePerUnit ?? 0) > 0 {
+                HStack(spacing: DesignSystem.Spacing.md) {
+                    // Spacer to align with content above
+                    Spacer()
+                        .frame(width: 44 + DesignSystem.Spacing.md) // Match button + image width + spacing
+                    
+                    // Quantity and price info with enhanced styling
+                    HStack(spacing: DesignSystem.Spacing.lg) {
+                        if item.quantity > 0 {
+                            HStack(spacing: DesignSystem.Spacing.sm) {
+                                Image(systemName: "number.circle.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(4)
+                                    .background(
+                                        Circle()
+                                            .fill(DesignSystem.Colors.info)
+                                    )
+                                    .shadow(
+                                        color: DesignSystem.Colors.info.opacity(0.3),
+                                        radius: 2,
+                                        x: 0,
+                                        y: 1
+                                    )
+                                Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
+                                    .font(DesignSystem.Typography.caption1)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                        }
+                        
+                        if let price = item.pricePerUnit, price > 0 {
+                            HStack(spacing: DesignSystem.Spacing.sm) {
+                                Image(systemName: settingsManager.currency.icon)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(4)
+                                    .background(
+                                        Circle()
+                                            .fill(DesignSystem.Colors.success)
+                                    )
+                                    .shadow(
+                                        color: DesignSystem.Colors.success.opacity(0.3),
+                                        radius: 2,
+                                        x: 0,
+                                        y: 1
+                                    )
+                                Text(price, format: .currency(code: settingsManager.currency.rawValue))
+                                    .font(DesignSystem.Typography.caption1)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                }
             }
         }
-        .padding(.vertical, DesignSystem.Spacing.sm)
-        .padding(.horizontal, DesignSystem.Spacing.xs)
+        .padding(.vertical, DesignSystem.Spacing.md)
+        .padding(.horizontal, DesignSystem.Spacing.md)
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                 .fill(DesignSystem.Colors.cardBackground(for: item.category))
