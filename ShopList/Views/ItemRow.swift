@@ -42,11 +42,11 @@ struct ItemRow: View {
     // MARK: - Compact View
     private var compactView: some View {
         let checkboxWidth: CGFloat = 28
-        let imageWidth: CGFloat = 44
+        let imageWidth: CGFloat = 40
         let priorityWidth: CGFloat = 28
         return VStack(alignment: .leading, spacing: 2) {
             // Top row: Checkbox | Image | Name | Priority
-            HStack(spacing: DesignSystem.Spacing.sm) {
+            HStack(spacing: DesignSystem.Spacing.xs) {
                 // Checkbox
                 Button(action: toggleCompletion) {
                     Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
@@ -119,7 +119,7 @@ struct ItemRow: View {
                 }
             }
             // Bottom row: Quantity (left) | Cost (right)
-            HStack(spacing: DesignSystem.Spacing.sm) {
+            HStack(spacing: DesignSystem.Spacing.xs) {
                 Spacer().frame(width: checkboxWidth)
                 Spacer().frame(width: imageWidth)
                 if item.quantity > 0 {
