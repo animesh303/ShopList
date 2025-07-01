@@ -367,7 +367,7 @@ struct ItemRow: View {
                             .foregroundColor(DesignSystem.Colors.primary)
                     }
                     Text(notes)
-                        .font(DesignSystem.Typography.body)
+                        .font(DesignSystem.Typography.caption1)
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
