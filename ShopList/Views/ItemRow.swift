@@ -281,7 +281,7 @@ struct ItemRow: View {
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.primaryText)
                         .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(DesignSystem.Spacing.sm)
                 .background(
