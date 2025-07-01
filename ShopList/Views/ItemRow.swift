@@ -159,7 +159,7 @@ struct ItemRow: View {
     
     // MARK: - Detailed View
     private var detailedView: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             // Header with completion button and item name
             HStack(spacing: DesignSystem.Spacing.md) {
                 Button(action: toggleCompletion) {
@@ -384,8 +384,8 @@ struct ItemRow: View {
             
             // Notes section - Enhanced styling
             if let notes = item.notes, !notes.isEmpty {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                    HStack(spacing: DesignSystem.Spacing.sm) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: "note.text")
                             .font(.body)
                             .foregroundColor(DesignSystem.Colors.primary)
@@ -400,7 +400,8 @@ struct ItemRow: View {
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(DesignSystem.Spacing.md)
+                .padding(.vertical, DesignSystem.Spacing.sm)
+                .padding(.horizontal, DesignSystem.Spacing.sm)
                 .background(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
                         .fill(Color.blue.opacity(0.05))
