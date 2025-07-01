@@ -42,7 +42,7 @@ struct ItemRow: View {
     // MARK: - Compact View
     private var compactView: some View {
         let checkboxWidth: CGFloat = 28
-        let imageWidth: CGFloat = 36
+        let imageWidth: CGFloat = 44
         let priorityWidth: CGFloat = 28
         return VStack(alignment: .leading, spacing: 2) {
             // Top row: Checkbox | Image | Name | Priority
@@ -75,16 +75,16 @@ struct ItemRow: View {
                                     ))
                                     .frame(width: imageWidth, height: imageWidth)
                                 Image(systemName: item.category.icon)
-                                    .font(.caption)
+                                    .font(.body)
                                     .foregroundColor(.white)
-                                    .padding(6)
+                                    .padding(8)
                                     .background(DesignSystem.Colors.categoryGradient(for: item.category))
                                     .clipShape(Circle())
                             }
                         }
                     } else {
                         Image(systemName: item.category.icon)
-                            .font(.caption)
+                            .font(.body)
                             .foregroundColor(.white)
                             .frame(width: imageWidth, height: imageWidth)
                             .background(DesignSystem.Colors.categoryGradient(for: item.category))
@@ -93,7 +93,7 @@ struct ItemRow: View {
                 }
                 // Name (single line)
                 Text(item.name)
-                    .font(DesignSystem.Typography.subheadline)
+                    .font(DesignSystem.Typography.body)
                     .fontWeight(.medium)
                     .strikethrough(item.isCompleted)
                     .lineLimit(1)
@@ -104,7 +104,7 @@ struct ItemRow: View {
                 if item.priority != .normal {
                     Image(systemName: priorityIcon)
                         .foregroundColor(.white)
-                        .font(.caption2)
+                        .font(.caption)
                         .frame(width: priorityWidth, height: priorityWidth)
                         .background(
                             LinearGradient(
@@ -124,15 +124,17 @@ struct ItemRow: View {
                 Spacer().frame(width: imageWidth)
                 if item.quantity > 0 {
                     Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                        .font(DesignSystem.Typography.caption2)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .font(.body)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.primary)
                         .lineLimit(1)
                 }
                 Spacer()
                 if let price = item.pricePerUnit, price > 0 {
                     Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                        .font(DesignSystem.Typography.caption2)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .font(.body)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.success)
                         .lineLimit(1)
                 }
                 Spacer().frame(width: priorityWidth)
