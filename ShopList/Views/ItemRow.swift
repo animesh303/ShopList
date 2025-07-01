@@ -267,11 +267,33 @@ struct ItemRow: View {
             
             // Notes section
             if let notes = item.notes, !notes.isEmpty {
-                Text(notes)
-                    .font(DesignSystem.Typography.body)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                    .lineLimit(3)
-                    .padding(.leading, DesignSystem.Spacing.xxxl)
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Image(systemName: "note.text")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                        Text("Notes")
+                            .font(DesignSystem.Typography.caption1)
+                            .fontWeight(.medium)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                    }
+                    Text(notes)
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(DesignSystem.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(Color.gray.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
+                )
+                .padding(.leading, DesignSystem.Spacing.xxxl)
+                .padding(.trailing, DesignSystem.Spacing.sm)
             }
             
             // Enhanced Category and priority badges with gradients
