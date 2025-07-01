@@ -126,7 +126,7 @@ struct ItemRow: View {
                     Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                         .font(.body)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(red: 0.1, green: 0.2, blue: 0.6))
+                        .foregroundColor(.blue)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity * 0.25, alignment: .leading)
@@ -135,7 +135,7 @@ struct ItemRow: View {
                     Text(price, format: .currency(code: settingsManager.currency.rawValue))
                         .font(.body)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+                        .foregroundColor(.green)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -265,37 +265,6 @@ struct ItemRow: View {
                 }
             }
             
-            // Notes section
-            if let notes = item.notes, !notes.isEmpty {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    HStack(spacing: DesignSystem.Spacing.xs) {
-                        Image(systemName: "note.text")
-                            .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                        Text("Notes")
-                            .font(DesignSystem.Typography.caption1)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                    }
-                    Text(notes)
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(DesignSystem.Spacing.sm)
-                .background(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                        .fill(Color.gray.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                        )
-                )
-                .padding(.leading, DesignSystem.Spacing.xxxl)
-                .padding(.trailing, DesignSystem.Spacing.sm)
-            }
-            
             // Enhanced Category and priority badges with gradients
             HStack(spacing: DesignSystem.Spacing.xs) {
                 // Enhanced Category badge with gradient
@@ -374,7 +343,7 @@ struct ItemRow: View {
                             )
                         Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                             .font(.body)
-                            .foregroundColor(Color(red: 0.1, green: 0.2, blue: 0.6))
+                            .foregroundColor(.blue)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
@@ -393,7 +362,7 @@ struct ItemRow: View {
                             )
                         Text(price, format: .currency(code: settingsManager.currency.rawValue))
                             .font(.body)
-                            .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
+                            .foregroundColor(.green)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
@@ -401,6 +370,37 @@ struct ItemRow: View {
                 }
                 
                 Spacer()
+            }
+            
+            // Notes section
+            if let notes = item.notes, !notes.isEmpty {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Image(systemName: "note.text")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                        Text("Notes")
+                            .font(DesignSystem.Typography.caption1)
+                            .fontWeight(.medium)
+                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                    }
+                    Text(notes)
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(DesignSystem.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(Color.gray.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
+                )
+                .padding(.leading, DesignSystem.Spacing.xxxl)
+                .padding(.trailing, DesignSystem.Spacing.sm)
             }
         }
         .padding(.vertical, DesignSystem.Spacing.sm)
