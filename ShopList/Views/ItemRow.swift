@@ -410,9 +410,9 @@ struct ItemRow: View {
                         )
                 )
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, DesignSystem.Spacing.sm)
             }
         }
+        .frame(maxWidth: .infinity)
         .padding(.vertical, DesignSystem.Spacing.sm)
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
