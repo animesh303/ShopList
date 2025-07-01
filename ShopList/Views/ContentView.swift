@@ -60,30 +60,85 @@ struct ContentView: View {
                             .padding(.top, 16)
                     }
                     
-                    if settingsManager.defaultListViewStyle == .grid {
-                        ScrollView {
-                            LazyVGrid(columns: [
-                                GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
-                            ], spacing: DesignSystem.Spacing.lg) {
-                                ForEach(sortedLists) { list in
-                                    NavigationLink(value: list) {
-                                        GridListCard(list: list)
+                    if sortedLists.isEmpty {
+                        // Empty state view
+                        VStack(spacing: DesignSystem.Spacing.xl) {
+                            Spacer()
+                            
+                            Image(systemName: "list.bullet.clipboard")
+                                .font(.system(size: 80))
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .opacity(0.6)
+                            
+                            VStack(spacing: DesignSystem.Spacing.md) {
+                                Text("No Shopping Lists")
+                                    .font(DesignSystem.Typography.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                
+                                Text("Create your first shopping list to get started")
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, DesignSystem.Spacing.xl)
+                            }
+                            
+                            Button {
+                                if subscriptionManager.canCreateList() {
+                                    showingAddList = true
+                                } else {
+                                    showingPremiumUpgrade = true
+                                }
+                            } label: {
+                                HStack(spacing: DesignSystem.Spacing.sm) {
+                                    Image(systemName: "plus")
+                                        .font(.headline)
+                                    Text("Create First List")
+                                        .font(DesignSystem.Typography.headline)
+                                        .fontWeight(.semibold)
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, DesignSystem.Spacing.xl)
+                                .padding(.vertical, DesignSystem.Spacing.lg)
+                                .background(DesignSystem.Colors.primaryButtonGradient)
+                                .cornerRadius(DesignSystem.CornerRadius.lg)
+                                .shadow(
+                                    color: DesignSystem.Colors.primary.opacity(0.3),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(DesignSystem.Spacing.xl)
+                    } else {
+                        if settingsManager.defaultListViewStyle == .grid {
+                            ScrollView {
+                                LazyVGrid(columns: [
+                                    GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
+                                ], spacing: DesignSystem.Spacing.lg) {
+                                    ForEach(sortedLists) { list in
+                                        NavigationLink(value: list) {
+                                            GridListCard(list: list)
+                                        }
                                     }
                                 }
+                                .padding(DesignSystem.Spacing.lg)
                             }
-                            .padding(DesignSystem.Spacing.lg)
-                        }
-                    } else {
-                        List {
-                            ForEach(sortedLists) { list in
-                                NavigationLink(value: list) {
-                                    ListRow(list: list)
+                        } else {
+                            List {
+                                ForEach(sortedLists) { list in
+                                    NavigationLink(value: list) {
+                                        ListRow(list: list)
+                                    }
                                 }
+                                .onDelete(perform: deleteLists)
                             }
-                            .onDelete(perform: deleteLists)
+                            .listStyle(PlainListStyle())
+                            .scrollContentBackground(.hidden)
                         }
-                        .listStyle(PlainListStyle())
-                        .scrollContentBackground(.hidden)
                     }
                 }
                 

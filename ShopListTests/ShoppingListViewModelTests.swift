@@ -140,4 +140,19 @@ final class ShoppingListViewModelTests: XCTestCase {
         XCTAssertEqual(newViewModel.shoppingLists.count, 1)
         XCTAssertEqual(newViewModel.shoppingLists.first?.name, "Test List")
     }
+    
+    func testNoAutomaticSampleListCreation() {
+        // Test that no automatic sample list is created when view model is initialized
+        let emptyViewModel = ShoppingListViewModel()
+        
+        // Wait a bit for async operations to complete
+        let expectation = XCTestExpectation(description: "Wait for async operations")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Should not have any automatic sample lists
+            XCTAssertEqual(emptyViewModel.shoppingLists.count, 0)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
 } 
