@@ -38,7 +38,7 @@ struct ItemRow: View {
             }
         }
     }
-    
+        
     // MARK: - Compact View
     private var compactView: some View {
         let checkboxWidth: CGFloat = 28
@@ -126,7 +126,7 @@ struct ItemRow: View {
                     Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                         .font(.body)
                         .fontWeight(.bold)
-                        .foregroundColor(DesignSystem.Colors.primary)
+                        .foregroundColor(Color(red: 0.1, green: 0.2, blue: 0.6))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity * 0.25, alignment: .leading)
@@ -135,7 +135,7 @@ struct ItemRow: View {
                     Text(price, format: .currency(code: settingsManager.currency.rawValue))
                         .font(.body)
                         .fontWeight(.bold)
-                        .foregroundColor(DesignSystem.Colors.success)
+                        .foregroundColor(Color(red: 0.1, green: 0.5, blue: 0.2))
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .frame(maxWidth: .infinity, alignment: .trailing)
