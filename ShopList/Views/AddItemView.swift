@@ -635,7 +635,7 @@ struct AddItemView: View {
                         TextField("0.00", value: $pricePerUnit, format: .currency(code: settingsManager.currency.rawValue).precision(.fractionLength(2)))
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
-                            .frame(width: 80)
+                            .frame(width: 120)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
                 }
