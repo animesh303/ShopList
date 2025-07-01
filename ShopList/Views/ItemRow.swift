@@ -96,8 +96,7 @@ struct ItemRow: View {
                     .font(DesignSystem.Typography.body)
                     .fontWeight(.medium)
                     .strikethrough(item.isCompleted)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+                    .fixedSize(horizontal: false, vertical: true)
                     .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 // Priority
