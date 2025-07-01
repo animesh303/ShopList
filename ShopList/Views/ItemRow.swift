@@ -128,14 +128,17 @@ struct ItemRow: View {
                         .fontWeight(.bold)
                         .foregroundColor(DesignSystem.Colors.primary)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity * 0.25, alignment: .leading)
                 }
-                Spacer()
                 if let price = item.pricePerUnit, price > 0 {
                     Text(price, format: .currency(code: settingsManager.currency.rawValue))
                         .font(.body)
                         .fontWeight(.bold)
                         .foregroundColor(DesignSystem.Colors.success)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 Spacer().frame(width: priorityWidth)
             }
