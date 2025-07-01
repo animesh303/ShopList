@@ -275,7 +275,7 @@ struct ItemRow: View {
             }
             
             // Enhanced Category and priority badges with gradients
-            HStack(spacing: DesignSystem.Spacing.xs) {
+            HStack(spacing: DesignSystem.Spacing.sm) {
                 // Enhanced Category badge with gradient
                 HStack(spacing: DesignSystem.Spacing.xs) {
                     Image(systemName: item.category.icon)
@@ -300,40 +300,6 @@ struct ItemRow: View {
                 )
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
-                
-                // Enhanced Priority badge with gradient
-                if item.priority != .normal {
-                    HStack(spacing: DesignSystem.Spacing.xs) {
-                        Image(systemName: priorityIcon)
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                        Text(item.priority.displayName)
-                            .font(DesignSystem.Typography.caption1)
-                            .fontWeight(.medium)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.sm)
-                    .padding(.vertical, DesignSystem.Spacing.xs)
-                    .background(
-                        LinearGradient(
-                            colors: [
-                                priorityColor,
-                                priorityColor.opacity(0.8)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .cornerRadius(DesignSystem.CornerRadius.sm)
-                    .shadow(
-                        color: priorityColor.opacity(0.3),
-                        radius: 3,
-                        x: 0,
-                        y: 1
-                    )
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
-                }
                 
                 Spacer()
             }
