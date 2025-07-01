@@ -41,15 +41,15 @@ struct ItemRow: View {
     
     // MARK: - Compact View
     private var compactView: some View {
-        VStack(spacing: DesignSystem.Spacing.sm) {
+        VStack(spacing: DesignSystem.Spacing.xs) {
             // Main content row
-            HStack(spacing: DesignSystem.Spacing.md) {
+            HStack(spacing: DesignSystem.Spacing.sm) {
                 // Completion button
                 Button(action: toggleCompletion) {
                     Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
+                        .font(.title3)
                         .foregroundColor(item.isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
-                        .scaleEffect(item.isCompleted ? 1.1 : 1.0)
+                        .scaleEffect(item.isCompleted ? 1.05 : 1.0)
                         .animation(DesignSystem.Animations.spring, value: item.isCompleted)
                 }
                 .buttonStyle(.plain)
@@ -61,18 +61,18 @@ struct ItemRow: View {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 44, height: 44)
-                                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
+                                .frame(width: 36, height: 36)
+                                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs))
                                 .shadow(
                                     color: DesignSystem.Shadows.colorfulSmall.color,
-                                    radius: DesignSystem.Shadows.colorfulSmall.radius,
+                                    radius: DesignSystem.Shadows.colorfulSmall.radius * 0.7,
                                     x: DesignSystem.Shadows.colorfulSmall.x,
                                     y: DesignSystem.Shadows.colorfulSmall.y
                                 )
                         } else {
                             // Enhanced placeholder for items without images
                             ZStack {
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
                                     .fill(
                                         LinearGradient(
                                             colors: [
@@ -83,48 +83,48 @@ struct ItemRow: View {
                                             endPoint: .bottomTrailing
                                         )
                                     )
-                                    .frame(width: 44, height: 44)
+                                    .frame(width: 36, height: 36)
                                 
                                 Image(systemName: item.category.icon)
-                                    .font(.title3)
+                                    .font(.caption)
                                     .foregroundColor(.white)
-                                    .padding(8)
+                                    .padding(6)
                                     .background(
                                         DesignSystem.Colors.categoryGradient(for: item.category)
                                     )
                                     .clipShape(Circle())
                                     .shadow(
                                         color: item.category.color.opacity(0.3),
-                                        radius: 2,
+                                        radius: 1.5,
                                         x: 0,
-                                        y: 1
+                                        y: 0.5
                                     )
                             }
                         }
                     } else {
                         // Category icon when images are disabled
                         Image(systemName: item.category.icon)
-                            .font(.title3)
+                            .font(.caption)
                             .foregroundColor(.white)
-                            .frame(width: 44, height: 44)
+                            .frame(width: 36, height: 36)
                             .background(
                                 DesignSystem.Colors.categoryGradient(for: item.category)
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs))
                             .shadow(
                                 color: item.category.color.opacity(0.4),
-                                radius: 4,
+                                radius: 2.5,
                                 x: 0,
-                                y: 2
+                                y: 1
                             )
                     }
                 }
                 
                 // Item name and brand
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    HStack(spacing: DesignSystem.Spacing.xs) {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
                         Text(item.name)
-                            .font(DesignSystem.Typography.body)
+                            .font(DesignSystem.Typography.subheadline)
                             .fontWeight(.medium)
                             .strikethrough(item.isCompleted)
                             .lineLimit(1)
@@ -133,9 +133,9 @@ struct ItemRow: View {
                         if let brand = item.brand, !brand.isEmpty {
                             Text("•")
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
-                                .font(DesignSystem.Typography.caption1)
+                                .font(DesignSystem.Typography.caption2)
                             Text(brand)
-                                .font(DesignSystem.Typography.caption1)
+                                .font(DesignSystem.Typography.caption2)
                                 .foregroundColor(DesignSystem.Colors.tertiaryText)
                                 .lineLimit(1)
                         }
@@ -148,8 +148,8 @@ struct ItemRow: View {
                 if item.priority != .normal {
                     Image(systemName: priorityIcon)
                         .foregroundColor(.white)
-                        .font(.caption)
-                        .padding(DesignSystem.Spacing.sm)
+                        .font(.caption2)
+                        .padding(DesignSystem.Spacing.xs)
                         .background(
                             LinearGradient(
                                 colors: [
@@ -163,68 +163,68 @@ struct ItemRow: View {
                         .clipShape(Circle())
                         .shadow(
                             color: priorityColor.opacity(0.4),
-                            radius: 3,
+                            radius: 2,
                             x: 0,
-                            y: 1
+                            y: 0.5
                         )
                 }
             }
             
             // Quantity and Price Details Row
             if item.quantity > 0 || (item.pricePerUnit ?? 0) > 0 {
-                HStack(spacing: DesignSystem.Spacing.md) {
+                HStack(spacing: DesignSystem.Spacing.sm) {
                     // Spacer to align with content above
                     Spacer()
-                        .frame(width: 44 + DesignSystem.Spacing.md) // Match button + image width + spacing
+                        .frame(width: 36 + DesignSystem.Spacing.sm)
                     
                     // Quantity and price info with optimized spacing
-                    LazyHStack(spacing: DesignSystem.Spacing.lg) {
+                    LazyHStack(spacing: DesignSystem.Spacing.md) {
                         if item.quantity > 0 {
-                            HStack(spacing: DesignSystem.Spacing.sm) {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
                                 Image(systemName: "number.circle.fill")
-                                    .font(.caption)
+                                    .font(.caption2)
                                     .foregroundColor(.white)
-                                    .padding(4)
+                                    .padding(3)
                                     .background(
                                         Circle()
                                             .fill(DesignSystem.Colors.info)
                                     )
                                     .shadow(
                                         color: DesignSystem.Colors.info.opacity(0.3),
-                                        radius: 2,
+                                        radius: 1.5,
                                         x: 0,
-                                        y: 1
+                                        y: 0.5
                                     )
                                 Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                                    .font(DesignSystem.Typography.caption1)
+                                    .font(DesignSystem.Typography.caption2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
-                            .fixedSize(horizontal: true, vertical: false) // Keep quantity compact
+                            .fixedSize(horizontal: true, vertical: false)
                         }
                         
                         if let price = item.pricePerUnit, price > 0 {
-                            HStack(spacing: DesignSystem.Spacing.sm) {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
                                 Image(systemName: settingsManager.currency.icon)
-                                    .font(.caption)
+                                    .font(.caption2)
                                     .foregroundColor(.white)
-                                    .padding(4)
+                                    .padding(3)
                                     .background(
                                         Circle()
                                             .fill(DesignSystem.Colors.success)
                                     )
                                     .shadow(
                                         color: DesignSystem.Colors.success.opacity(0.3),
-                                        radius: 2,
+                                        radius: 1.5,
                                         x: 0,
-                                        y: 1
+                                        y: 0.5
                                     )
                                 Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                                    .font(DesignSystem.Typography.caption1)
+                                    .font(DesignSystem.Typography.caption2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading) // Give price more space
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                     
@@ -232,24 +232,24 @@ struct ItemRow: View {
                 }
             }
         }
-        .padding(.vertical, DesignSystem.Spacing.md)
-        .padding(.horizontal, DesignSystem.Spacing.md)
+        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(.horizontal, DesignSystem.Spacing.sm)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                 .fill(DesignSystem.Colors.cardBackground(for: item.category))
                 .shadow(
                     color: DesignSystem.Shadows.colorfulSmall.color,
-                    radius: DesignSystem.Shadows.colorfulSmall.radius,
+                    radius: DesignSystem.Shadows.colorfulSmall.radius * 0.8,
                     x: DesignSystem.Shadows.colorfulSmall.x,
                     y: DesignSystem.Shadows.colorfulSmall.y
                 )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                 .stroke(item.category.color.opacity(0.15), lineWidth: 1)
         )
-        .padding(.horizontal, DesignSystem.Spacing.sm)
-        .padding(.vertical, DesignSystem.Spacing.xs)
+        .padding(.horizontal, DesignSystem.Spacing.xs)
+        .padding(.vertical, 2)
     }
     
     // MARK: - Detailed View
@@ -449,7 +449,7 @@ struct ItemRow: View {
                             .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
-                    .fixedSize(horizontal: true, vertical: false) // Keep quantity compact
+                    .fixedSize(horizontal: true, vertical: false)
                 }
                 
                 if let price = item.pricePerUnit, price > 0 {
@@ -466,7 +466,7 @@ struct ItemRow: View {
                             .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading) // Give price more space
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
                 Spacer()
