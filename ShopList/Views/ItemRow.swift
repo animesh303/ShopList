@@ -41,195 +41,101 @@ struct ItemRow: View {
     
     // MARK: - Compact View
     private var compactView: some View {
-        VStack(spacing: DesignSystem.Spacing.xs) {
-            // Main content row
+        let checkboxWidth: CGFloat = 28
+        let imageWidth: CGFloat = 36
+        let priorityWidth: CGFloat = 28
+        return VStack(alignment: .leading, spacing: 2) {
+            // Top row: Checkbox | Image | Name | Priority
             HStack(spacing: DesignSystem.Spacing.sm) {
-                // Completion button
+                // Checkbox
                 Button(action: toggleCompletion) {
                     Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
                         .font(.title3)
                         .foregroundColor(item.isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
-                        .scaleEffect(item.isCompleted ? 1.05 : 1.0)
+                        .frame(width: checkboxWidth, height: checkboxWidth)
                         .animation(DesignSystem.Animations.spring, value: item.isCompleted)
                 }
                 .buttonStyle(.plain)
-                
-                // Item Image or Category Icon
+                // Image or Category Icon
                 Group {
                     if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
                         if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 36, height: 36)
+                                .frame(width: imageWidth, height: imageWidth)
                                 .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs))
-                                .shadow(
-                                    color: DesignSystem.Shadows.colorfulSmall.color,
-                                    radius: DesignSystem.Shadows.colorfulSmall.radius * 0.7,
-                                    x: DesignSystem.Shadows.colorfulSmall.x,
-                                    y: DesignSystem.Shadows.colorfulSmall.y
-                                )
                         } else {
-                            // Enhanced placeholder for items without images
                             ZStack {
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                item.category.color.opacity(0.1),
-                                                item.category.color.opacity(0.05)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(width: 36, height: 36)
-                                
+                                    .fill(LinearGradient(
+                                        colors: [item.category.color.opacity(0.1), item.category.color.opacity(0.05)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: imageWidth, height: imageWidth)
                                 Image(systemName: item.category.icon)
                                     .font(.caption)
                                     .foregroundColor(.white)
                                     .padding(6)
-                                    .background(
-                                        DesignSystem.Colors.categoryGradient(for: item.category)
-                                    )
+                                    .background(DesignSystem.Colors.categoryGradient(for: item.category))
                                     .clipShape(Circle())
-                                    .shadow(
-                                        color: item.category.color.opacity(0.3),
-                                        radius: 1.5,
-                                        x: 0,
-                                        y: 0.5
-                                    )
                             }
                         }
                     } else {
-                        // Category icon when images are disabled
                         Image(systemName: item.category.icon)
                             .font(.caption)
                             .foregroundColor(.white)
-                            .frame(width: 36, height: 36)
-                            .background(
-                                DesignSystem.Colors.categoryGradient(for: item.category)
-                            )
+                            .frame(width: imageWidth, height: imageWidth)
+                            .background(DesignSystem.Colors.categoryGradient(for: item.category))
                             .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs))
-                            .shadow(
-                                color: item.category.color.opacity(0.4),
-                                radius: 2.5,
-                                x: 0,
-                                y: 1
-                            )
                     }
                 }
-                
-                // Item name and brand
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 4) {
-                        Text(item.name)
-                            .font(DesignSystem.Typography.subheadline)
-                            .fontWeight(.medium)
-                            .strikethrough(item.isCompleted)
-                            .lineLimit(1)
-                            .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
-                        
-                        if let brand = item.brand, !brand.isEmpty {
-                            Text("•")
-                                .foregroundColor(DesignSystem.Colors.tertiaryText)
-                                .font(DesignSystem.Typography.caption2)
-                            Text(brand)
-                                .font(DesignSystem.Typography.caption2)
-                                .foregroundColor(DesignSystem.Colors.tertiaryText)
-                                .lineLimit(1)
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                // Priority indicator
+                // Name (single line)
+                Text(item.name)
+                    .font(DesignSystem.Typography.subheadline)
+                    .fontWeight(.medium)
+                    .strikethrough(item.isCompleted)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                // Priority
                 if item.priority != .normal {
                     Image(systemName: priorityIcon)
                         .foregroundColor(.white)
                         .font(.caption2)
-                        .padding(DesignSystem.Spacing.xs)
+                        .frame(width: priorityWidth, height: priorityWidth)
                         .background(
                             LinearGradient(
-                                colors: [
-                                    priorityColor,
-                                    priorityColor.opacity(0.8)
-                                ],
+                                colors: [priorityColor, priorityColor.opacity(0.8)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .clipShape(Circle())
-                        .shadow(
-                            color: priorityColor.opacity(0.4),
-                            radius: 2,
-                            x: 0,
-                            y: 0.5
-                        )
+                } else {
+                    Spacer().frame(width: priorityWidth)
                 }
             }
-            
-            // Quantity and Price Details Row
-            if item.quantity > 0 || (item.pricePerUnit ?? 0) > 0 {
-                HStack(spacing: DesignSystem.Spacing.sm) {
-                    // Spacer to align with content above
-                    Spacer()
-                        .frame(width: 36 + DesignSystem.Spacing.sm)
-                    
-                    // Quantity and price info with optimized spacing
-                    LazyHStack(spacing: DesignSystem.Spacing.md) {
-                        if item.quantity > 0 {
-                            HStack(spacing: DesignSystem.Spacing.xs) {
-                                Image(systemName: "number.circle.fill")
-                                    .font(.caption2)
-                                    .foregroundColor(.white)
-                                    .padding(3)
-                                    .background(
-                                        Circle()
-                                            .fill(DesignSystem.Colors.info)
-                                    )
-                                    .shadow(
-                                        color: DesignSystem.Colors.info.opacity(0.3),
-                                        radius: 1.5,
-                                        x: 0,
-                                        y: 0.5
-                                    )
-                                Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                                    .font(DesignSystem.Typography.caption2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                            }
-                            .fixedSize(horizontal: true, vertical: false)
-                        }
-                        
-                        if let price = item.pricePerUnit, price > 0 {
-                            HStack(spacing: DesignSystem.Spacing.xs) {
-                                Image(systemName: settingsManager.currency.icon)
-                                    .font(.caption2)
-                                    .foregroundColor(.white)
-                                    .padding(3)
-                                    .background(
-                                        Circle()
-                                            .fill(DesignSystem.Colors.success)
-                                    )
-                                    .shadow(
-                                        color: DesignSystem.Colors.success.opacity(0.3),
-                                        radius: 1.5,
-                                        x: 0,
-                                        y: 0.5
-                                    )
-                                Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                                    .font(DesignSystem.Typography.caption2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                    
-                    Spacer()
+            // Bottom row: Quantity (left) | Cost (right)
+            HStack(spacing: DesignSystem.Spacing.sm) {
+                Spacer().frame(width: checkboxWidth)
+                Spacer().frame(width: imageWidth)
+                if item.quantity > 0 {
+                    Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
+                        .font(DesignSystem.Typography.caption2)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .lineLimit(1)
                 }
+                Spacer()
+                if let price = item.pricePerUnit, price > 0 {
+                    Text(price, format: .currency(code: settingsManager.currency.rawValue))
+                        .font(DesignSystem.Typography.caption2)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .lineLimit(1)
+                }
+                Spacer().frame(width: priorityWidth)
             }
         }
         .padding(.vertical, DesignSystem.Spacing.sm)
@@ -237,12 +143,6 @@ struct ItemRow: View {
         .background(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                 .fill(DesignSystem.Colors.cardBackground(for: item.category))
-                .shadow(
-                    color: DesignSystem.Shadows.colorfulSmall.color,
-                    radius: DesignSystem.Shadows.colorfulSmall.radius * 0.8,
-                    x: DesignSystem.Shadows.colorfulSmall.x,
-                    y: DesignSystem.Shadows.colorfulSmall.y
-                )
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
