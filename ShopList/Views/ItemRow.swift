@@ -330,9 +330,9 @@ struct ItemRow: View {
             }
             
             // Enhanced Quantity and price info with colorful icons
-            LazyHStack(spacing: DesignSystem.Spacing.md) {
+            HStack(spacing: DesignSystem.Spacing.lg) {
                 if item.quantity > 0 {
-                    HStack(spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "number.circle.fill")
                             .font(.caption)
                             .foregroundColor(.white)
@@ -347,11 +347,18 @@ struct ItemRow: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
-                    .fixedSize(horizontal: true, vertical: false)
+                    .padding(.horizontal, DesignSystem.Spacing.sm)
+                    .padding(.vertical, DesignSystem.Spacing.xs)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                            .fill(Color.blue.opacity(0.1))
+                    )
                 }
                 
+                Spacer()
+                
                 if let price = item.pricePerUnit, price > 0 {
-                    HStack(spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: settingsManager.currency.icon)
                             .font(.caption2)
                             .foregroundColor(.white)
@@ -366,23 +373,26 @@ struct ItemRow: View {
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, DesignSystem.Spacing.sm)
+                    .padding(.vertical, DesignSystem.Spacing.xs)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                            .fill(Color.green.opacity(0.1))
+                    )
                 }
-                
-                Spacer()
             }
             
-            // Notes section
+            // Notes section - Enhanced styling
             if let notes = item.notes, !notes.isEmpty {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                    HStack(spacing: DesignSystem.Spacing.xs) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "note.text")
-                            .font(.caption)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .font(.body)
+                            .foregroundColor(DesignSystem.Colors.primary)
                         Text("Notes")
-                            .font(DesignSystem.Typography.caption1)
-                            .fontWeight(.medium)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .font(DesignSystem.Typography.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignSystem.Colors.primary)
                     }
                     Text(notes)
                         .font(DesignSystem.Typography.body)
@@ -390,17 +400,16 @@ struct ItemRow: View {
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(DesignSystem.Spacing.sm)
+                .padding(DesignSystem.Spacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                        .fill(Color.gray.opacity(0.1))
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .fill(Color.blue.opacity(0.05))
                         .overlay(
-                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                .stroke(Color.blue.opacity(0.2), lineWidth: 1.5)
                         )
                 )
-                .padding(.leading, DesignSystem.Spacing.xxxl)
-                .padding(.trailing, DesignSystem.Spacing.sm)
+                .padding(.horizontal, DesignSystem.Spacing.sm)
             }
         }
         .padding(.vertical, DesignSystem.Spacing.sm)
