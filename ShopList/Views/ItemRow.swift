@@ -234,11 +234,37 @@ struct ItemRow: View {
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .lineLimit(1)
                     }
+                    // Category badge row, left-aligned
+                    HStack {
+                        HStack(spacing: DesignSystem.Spacing.xs) {
+                            Image(systemName: item.category.icon)
+                                .font(.caption2)
+                                .foregroundColor(.white)
+                            Text(item.category.rawValue)
+                                .font(DesignSystem.Typography.caption1)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.sm)
+                        .padding(.vertical, DesignSystem.Spacing.xs)
+                        .background(
+                            DesignSystem.Colors.categoryGradient(for: item.category)
+                        )
+                        .cornerRadius(DesignSystem.CornerRadius.sm)
+                        .shadow(
+                            color: item.category.color.opacity(0.3),
+                            radius: 3,
+                            x: 0,
+                            y: 1
+                        )
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                    }
                 }
                 
                 Spacer()
                 
-                // VStack for right-aligned badges
+                // VStack for right-aligned badges (priority only)
                 VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
                     // Priority badge (icon + label) at the right (if present)
                     if item.priority != .normal {
@@ -273,30 +299,6 @@ struct ItemRow: View {
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                     }
-                    // Category badge below
-                    HStack(spacing: DesignSystem.Spacing.xs) {
-                        Image(systemName: item.category.icon)
-                            .font(.caption2)
-                            .foregroundColor(.white)
-                        Text(item.category.rawValue)
-                            .font(DesignSystem.Typography.caption1)
-                            .fontWeight(.medium)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.sm)
-                    .padding(.vertical, DesignSystem.Spacing.xs)
-                    .background(
-                        DesignSystem.Colors.categoryGradient(for: item.category)
-                    )
-                    .cornerRadius(DesignSystem.CornerRadius.sm)
-                    .shadow(
-                        color: item.category.color.opacity(0.3),
-                        radius: 3,
-                        x: 0,
-                        y: 1
-                    )
-                    .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
                 }
             }
             
