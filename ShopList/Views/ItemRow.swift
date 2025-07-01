@@ -226,7 +226,7 @@ struct ItemRow: View {
                         .font(DesignSystem.Typography.headline)
                         .fontWeight(.semibold)
                         .strikethrough(item.isCompleted)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                         .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                     
                     if let brand = item.brand, !brand.isEmpty {
