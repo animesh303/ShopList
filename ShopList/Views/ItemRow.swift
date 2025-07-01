@@ -177,8 +177,8 @@ struct ItemRow: View {
                     Spacer()
                         .frame(width: 44 + DesignSystem.Spacing.md) // Match button + image width + spacing
                     
-                    // Quantity and price info with enhanced styling
-                    HStack(spacing: DesignSystem.Spacing.lg) {
+                    // Quantity and price info with optimized spacing
+                    LazyHStack(spacing: DesignSystem.Spacing.lg) {
                         if item.quantity > 0 {
                             HStack(spacing: DesignSystem.Spacing.sm) {
                                 Image(systemName: "number.circle.fill")
@@ -200,6 +200,7 @@ struct ItemRow: View {
                                     .fontWeight(.semibold)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
+                            .fixedSize(horizontal: true, vertical: false) // Keep quantity compact
                         }
                         
                         if let price = item.pricePerUnit, price > 0 {
@@ -223,6 +224,7 @@ struct ItemRow: View {
                                     .fontWeight(.semibold)
                                     .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading) // Give price more space
                         }
                     }
                     
@@ -432,7 +434,7 @@ struct ItemRow: View {
             }
             
             // Enhanced Quantity and price info with colorful icons
-            HStack(spacing: DesignSystem.Spacing.md) {
+            LazyHStack(spacing: DesignSystem.Spacing.md) {
                 if item.quantity > 0 {
                     HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: "number.circle.fill")
@@ -447,6 +449,7 @@ struct ItemRow: View {
                             .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
+                    .fixedSize(horizontal: true, vertical: false) // Keep quantity compact
                 }
                 
                 if let price = item.pricePerUnit, price > 0 {
@@ -463,6 +466,7 @@ struct ItemRow: View {
                             .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading) // Give price more space
                 }
                 
                 Spacer()
