@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BudgetProgressView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let budget: Double
     let spent: Double
     let currency: Currency
@@ -61,7 +62,7 @@ struct BudgetProgressView: View {
             HStack {
                 Text("Budget Progress")
                     .font(DesignSystem.Typography.headline)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.primaryText : .white)
                 Spacer()
                 Text("\(Int(progress * 100))%")
                     .font(DesignSystem.Typography.subheadlineBold)
@@ -94,7 +95,7 @@ struct BudgetProgressView: View {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text("Spent")
                         .font(DesignSystem.Typography.caption1)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.secondaryText : .white.opacity(0.8))
                     Text(spent, format: .currency(code: currency.rawValue))
                         .font(DesignSystem.Typography.subheadlineBold)
                         .foregroundColor(progressColor)
@@ -105,7 +106,7 @@ struct BudgetProgressView: View {
                 VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
                     Text("Remaining")
                         .font(DesignSystem.Typography.caption1)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.secondaryText : .white.opacity(0.8))
                     Text(remaining, format: .currency(code: currency.rawValue))
                         .font(DesignSystem.Typography.subheadlineBold)
                         .foregroundColor(remaining > 0 ? DesignSystem.Colors.success : DesignSystem.Colors.error)
@@ -113,7 +114,7 @@ struct BudgetProgressView: View {
             }
         }
         .padding(DesignSystem.Spacing.lg)
-        .background(DesignSystem.Colors.cardGradient)
+        .background(DesignSystem.Colors.themeAwareCardGradient(colorScheme: colorScheme))
         .cornerRadius(DesignSystem.CornerRadius.md)
         .shadow(
             color: DesignSystem.Shadows.colorfulMedium.color,

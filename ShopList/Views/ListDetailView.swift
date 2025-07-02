@@ -82,37 +82,50 @@ struct ListDetailView: View {
                         VStack(spacing: 12) {
                             HStack {
                                 Label("Budget", systemImage: settingsManager.currency.icon)
-                                    .foregroundColor(DesignSystem.Colors.primary)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.primary : .white)
                                 Spacer()
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.primary : .white)
+                                    .fontWeight(.semibold)
                             }
                             
                             HStack {
                                 Label("Estimated Cost", systemImage: "cart")
-                                    .foregroundColor(DesignSystem.Colors.info)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.info : .white.opacity(0.9))
                                 Spacer()
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.info : .white.opacity(0.9))
+                                    .fontWeight(.semibold)
                             }
                             
                             HStack {
                                 Label("Spent", systemImage: "checkmark.circle.fill")
-                                    .foregroundColor(DesignSystem.Colors.success)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.success : .white.opacity(0.9))
                                 Spacer()
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalSpentCost))
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.success : .white.opacity(0.9))
+                                    .fontWeight(.semibold)
                             }
                             
                             HStack {
                                 Label("Remaining", systemImage: "creditcard")
-                                    .foregroundColor(DesignSystem.Colors.success)
+                                    .foregroundColor(colorScheme == .dark ? DesignSystem.Colors.success : .white.opacity(0.9))
                                 Spacer()
                                 let remaining = budget - list.totalSpentCost
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
-                                    .foregroundColor(remaining >= 0 ? DesignSystem.Colors.success : DesignSystem.Colors.error)
+                                    .foregroundColor(remaining >= 0 ? (colorScheme == .dark ? DesignSystem.Colors.success : .white.opacity(0.9)) : DesignSystem.Colors.error)
+                                    .fontWeight(.semibold)
                             }
                         }
+                        .padding(DesignSystem.Spacing.lg)
+                        .background(DesignSystem.Colors.themeAwareCardGradient(colorScheme: colorScheme))
+                        .cornerRadius(DesignSystem.CornerRadius.md)
+                        .shadow(
+                            color: DesignSystem.Shadows.colorfulMedium.color,
+                            radius: DesignSystem.Shadows.colorfulMedium.radius,
+                            x: DesignSystem.Shadows.colorfulMedium.x,
+                            y: DesignSystem.Shadows.colorfulMedium.y
+                        )
                     } header: {
                         Text("Budget Overview")
                             .foregroundColor(DesignSystem.Colors.primaryText)
@@ -157,6 +170,11 @@ struct ListDetailView: View {
                 
                 // Items Section
                 Section {
+                    // Add subtle background to the entire section
+                    Rectangle()
+                        .fill(DesignSystem.Colors.themeAwareListSectionBackground(colorScheme: colorScheme))
+                        .frame(height: 0)
+                        .listRowBackground(Color.clear)
                     if filteredItems.isEmpty {
                         ZStack {
                             RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -195,6 +213,7 @@ struct ListDetailView: View {
                         ForEach(filteredItems) { item in
                             NavigationLink(value: item) {
                                 ItemRow(item: item)
+                                    .listRowBackground(Color.clear)
                                     .swipeActions(edge: .trailing) {
                                         Button(role: .destructive) {
                                             let generator = UINotificationFeedbackGenerator()

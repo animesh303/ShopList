@@ -37,6 +37,8 @@ struct ItemRow: View {
                 detailedView
             }
         }
+        .scaleEffect(item.isCompleted ? 0.98 : 1.02)
+        .animation(DesignSystem.Animations.spring, value: item.isCompleted)
     }
         
     // MARK: - Compact View
@@ -145,15 +147,36 @@ struct ItemRow: View {
         .padding(.vertical, DesignSystem.Spacing.xs)
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .fill(DesignSystem.Colors.cardBackground(for: item.category))
+            ZStack {
+                // Glow effect
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                    .fill(item.category.color.opacity(0.1))
+                    .blur(radius: 8)
+                    .offset(y: 4)
+                
+                // Main background
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                    .fill(DesignSystem.Colors.cardBackground(for: item.category))
+                    .shadow(
+                        color: item.category.color.opacity(0.4),
+                        radius: 8,
+                        x: 0,
+                        y: 4
+                    )
+                    .shadow(
+                        color: DesignSystem.Shadows.colorfulLarge.color,
+                        radius: DesignSystem.Shadows.colorfulLarge.radius,
+                        x: DesignSystem.Shadows.colorfulLarge.x,
+                        y: DesignSystem.Shadows.colorfulLarge.y
+                    )
+            }
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .stroke(item.category.color.opacity(0.15), lineWidth: 1)
+                .stroke(item.category.color.opacity(0.6), lineWidth: 2.5)
         )
-        .padding(.horizontal, 4)
-        .padding(.vertical, 1)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4)
     }
     
     // MARK: - Detailed View
@@ -390,21 +413,36 @@ struct ItemRow: View {
         .padding(.vertical, DesignSystem.Spacing.sm)
         .padding(.horizontal, DesignSystem.Spacing.xs)
         .background(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .fill(DesignSystem.Colors.cardBackground(for: item.category))
-                .shadow(
-                    color: DesignSystem.Shadows.colorfulSmall.color,
-                    radius: DesignSystem.Shadows.colorfulSmall.radius,
-                    x: DesignSystem.Shadows.colorfulSmall.x,
-                    y: DesignSystem.Shadows.colorfulSmall.y
-                )
+            ZStack {
+                // Glow effect
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                    .fill(item.category.color.opacity(0.15))
+                    .blur(radius: 12)
+                    .offset(y: 6)
+                
+                // Main background
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                    .fill(DesignSystem.Colors.cardBackground(for: item.category))
+                    .shadow(
+                        color: item.category.color.opacity(0.5),
+                        radius: 12,
+                        x: 0,
+                        y: 6
+                    )
+                    .shadow(
+                        color: DesignSystem.Shadows.colorfulLarge.color,
+                        radius: DesignSystem.Shadows.colorfulLarge.radius,
+                        x: DesignSystem.Shadows.colorfulLarge.x,
+                        y: DesignSystem.Shadows.colorfulLarge.y
+                    )
+            }
         )
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .stroke(item.category.color.opacity(0.15), lineWidth: 1)
+                .stroke(item.category.color.opacity(0.8), lineWidth: 3)
         )
-        .padding(.horizontal, DesignSystem.Spacing.xs)
-        .padding(.vertical, DesignSystem.Spacing.xs)
+        .padding(.horizontal, DesignSystem.Spacing.md)
+        .padding(.vertical, DesignSystem.Spacing.md)
     }
     
     private func toggleCompletion() {
