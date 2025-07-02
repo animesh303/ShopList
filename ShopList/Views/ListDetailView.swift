@@ -22,6 +22,7 @@ struct ListDetailView: View {
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
+    @State private var showBudgetDetails = false
     
     init(list: ShoppingList) {
         self.list = list
@@ -72,51 +73,54 @@ struct ListDetailView: View {
                 // Budget Section
                 if let budget = list.budget {
                     Section {
-                        BudgetProgressView(
-                            budget: budget,
-                            spent: list.totalSpentCost,
-                            currency: settingsManager.currency
+                        DisclosureGroup(
+                            isExpanded: $showBudgetDetails,
+                            content: {
+                                VStack(spacing: 12) {
+                                    HStack {
+                                        Label("Budget", systemImage: settingsManager.currency.icon)
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                        Spacer()
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                            .fontWeight(.semibold)
+                                    }
+                                    HStack {
+                                        Label("Estimated Cost", systemImage: "cart")
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                        Spacer()
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                            .fontWeight(.semibold)
+                                    }
+                                    HStack {
+                                        Label("Spent", systemImage: "checkmark.circle.fill")
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                        Spacer()
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalSpentCost))
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                            .fontWeight(.semibold)
+                                    }
+                                    HStack {
+                                        Label("Remaining", systemImage: "creditcard")
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                        Spacer()
+                                        let remaining = budget - list.totalSpentCost
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
+                                            .foregroundColor(remaining >= 0 ? DesignSystem.Colors.adaptiveTextColor() : DesignSystem.Colors.error)
+                                            .fontWeight(.semibold)
+                                    }
+                                }
+                            },
+                            label: {
+                                BudgetProgressView(
+                                    budget: budget,
+                                    spent: list.totalSpentCost,
+                                    currency: settingsManager.currency
+                                )
+                                .padding(.vertical, 8)
+                            }
                         )
-                        .padding(.vertical, 8)
-                        
-                        VStack(spacing: 12) {
-                            HStack {
-                                Label("Budget", systemImage: settingsManager.currency.icon)
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                Spacer()
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            HStack {
-                                Label("Estimated Cost", systemImage: "cart")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Spacer()
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            HStack {
-                                Label("Spent", systemImage: "checkmark.circle.fill")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Spacer()
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalSpentCost))
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            HStack {
-                                Label("Remaining", systemImage: "creditcard")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Spacer()
-                                let remaining = budget - list.totalSpentCost
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
-                                    .foregroundColor(remaining >= 0 ? DesignSystem.Colors.adaptiveTextColor() : DesignSystem.Colors.error)
-                                    .fontWeight(.semibold)
-                            }
-                        }
                     } header: {
                         Text("Budget Overview")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
