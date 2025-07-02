@@ -93,7 +93,7 @@ struct ItemRow: View {
                 }
                 // Name (single line)
                 Text(item.name)
-                    .font(DesignSystem.Typography.body)
+                    .font(DesignSystem.Typography.subheadline)
                     .fontWeight(.medium)
                     .strikethrough(item.isCompleted)
                     .fixedSize(horizontal: false, vertical: true)
@@ -123,7 +123,7 @@ struct ItemRow: View {
                 Spacer().frame(width: imageWidth)
                 if item.quantity > 0 {
                     Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                        .font(.body)
+                        .font(DesignSystem.Typography.caption1)
                         .fontWeight(.bold)
                         .foregroundColor(.blue)
                         .lineLimit(1)
@@ -132,7 +132,7 @@ struct ItemRow: View {
                 }
                 if let price = item.pricePerUnit, price > 0 {
                     Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                        .font(.body)
+                        .font(DesignSystem.Typography.caption1)
                         .fontWeight(.bold)
                         .foregroundColor(.green)
                         .lineLimit(1)
@@ -159,8 +159,8 @@ struct ItemRow: View {
     // MARK: - Detailed View
     private var detailedView: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            // Header with completion button and item name
-            HStack(spacing: DesignSystem.Spacing.md) {
+            HStack(alignment: .top, spacing: DesignSystem.Spacing.md) {
+                // Checkbox
                 Button(action: toggleCompletion) {
                     Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
                         .font(.title2)
@@ -169,8 +169,7 @@ struct ItemRow: View {
                         .animation(DesignSystem.Animations.spring, value: item.isCompleted)
                 }
                 .buttonStyle(.plain)
-                
-                // Item Image (Premium Feature)
+                // Image
                 if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
                     if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
@@ -185,9 +184,7 @@ struct ItemRow: View {
                                 y: DesignSystem.Shadows.colorfulSmall.y
                             )
                     } else {
-                        // Enhanced placeholder for items without images
                         ZStack {
-                            // Background with subtle gradient
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                 .fill(
                                     LinearGradient(
@@ -200,8 +197,6 @@ struct ItemRow: View {
                                     )
                                 )
                                 .frame(width: 50, height: 50)
-                            
-                            // Category icon with gradient background
                             Image(systemName: item.category.icon)
                                 .font(.title3)
                                 .foregroundColor(.white)
@@ -219,23 +214,25 @@ struct ItemRow: View {
                         }
                     }
                 }
-                
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                // VStack for item details
+                VStack(alignment: .leading, spacing: 2) {
+                    // Item name
                     Text(item.name)
-                        .font(DesignSystem.Typography.headline)
+                        .font(DesignSystem.Typography.body)
                         .fontWeight(.semibold)
                         .strikethrough(item.isCompleted)
                         .fixedSize(horizontal: false, vertical: true)
                         .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
-                    
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    // Brand (if present)
                     if let brand = item.brand, !brand.isEmpty {
                         Text(brand)
-                            .font(DesignSystem.Typography.subheadline)
+                            .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                             .lineLimit(1)
                     }
-                    // Category badge row, left-aligned
-                    HStack {
+                    // Category and Priority badges
+                    HStack(spacing: DesignSystem.Spacing.sm) {
                         HStack(spacing: DesignSystem.Spacing.xs) {
                             Image(systemName: item.category.icon)
                                 .font(.caption2)
@@ -259,51 +256,40 @@ struct ItemRow: View {
                         )
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
-                    }
-                }
-                
-                Spacer()
-                
-                // VStack for right-aligned badges (priority only)
-                VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
-                    // Priority badge (icon + label) at the right (if present)
-                    if item.priority != .normal {
-                        HStack(spacing: DesignSystem.Spacing.xs) {
-                            Image(systemName: priorityIcon)
-                                .font(.caption2)
-                                .foregroundColor(.white)
-                            Text(item.priority.displayName)
-                                .font(DesignSystem.Typography.caption1)
-                                .fontWeight(.medium)
-                                .foregroundColor(.white)
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.sm)
-                        .padding(.vertical, DesignSystem.Spacing.xs)
-                        .background(
-                            LinearGradient(
-                                colors: [
-                                    priorityColor,
-                                    priorityColor.opacity(0.8)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                        if item.priority != .normal {
+                            HStack(spacing: DesignSystem.Spacing.xs) {
+                                Image(systemName: priorityIcon)
+                                    .font(.caption2)
+                                    .foregroundColor(.white)
+                                Text(item.priority.displayName)
+                                    .font(DesignSystem.Typography.caption1)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.sm)
+                            .padding(.vertical, DesignSystem.Spacing.xs)
+                            .background(
+                                LinearGradient(
+                                    colors: [priorityColor, priorityColor.opacity(0.8)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                        .cornerRadius(DesignSystem.CornerRadius.sm)
-                        .shadow(
-                            color: priorityColor.opacity(0.3),
-                            radius: 3,
-                            x: 0,
-                            y: 1
-                        )
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
+                            .cornerRadius(DesignSystem.CornerRadius.sm)
+                            .shadow(
+                                color: priorityColor.opacity(0.3),
+                                radius: 3,
+                                x: 0,
+                                y: 1
+                            )
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
+                        }
                     }
                 }
             }
-            
-            // Enhanced Quantity and price info with colorful icons
-            HStack(spacing: DesignSystem.Spacing.lg) {
+            // Bottom row: Quantity (left), Cost (right)
+            HStack {
                 if item.quantity > 0 {
                     HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: "number.circle.fill")
@@ -315,7 +301,7 @@ struct ItemRow: View {
                                     .fill(DesignSystem.Colors.info)
                             )
                         Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
-                            .font(.body)
+                            .font(DesignSystem.Typography.caption1)
                             .foregroundColor(.blue)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
@@ -327,9 +313,7 @@ struct ItemRow: View {
                             .fill(Color.blue.opacity(0.1))
                     )
                 }
-                
                 Spacer()
-                
                 if let price = item.pricePerUnit, price > 0 {
                     HStack(spacing: DesignSystem.Spacing.sm) {
                         Image(systemName: settingsManager.currency.icon)
@@ -341,7 +325,7 @@ struct ItemRow: View {
                                     .fill(DesignSystem.Colors.success)
                             )
                         Text(price, format: .currency(code: settingsManager.currency.rawValue))
-                            .font(.body)
+                            .font(DesignSystem.Typography.caption1)
                             .foregroundColor(.green)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
@@ -354,16 +338,15 @@ struct ItemRow: View {
                     )
                 }
             }
-            
-            // Notes section - Enhanced styling
+            // Notes section
             if let notes = item.notes, !notes.isEmpty {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     HStack(spacing: DesignSystem.Spacing.xs) {
                         Image(systemName: "note.text")
-                            .font(.body)
+                            .font(DesignSystem.Typography.caption1)
                             .foregroundColor(DesignSystem.Colors.primary)
                         Text("Notes")
-                            .font(DesignSystem.Typography.subheadline)
+                            .font(DesignSystem.Typography.caption1)
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.primary)
                     }
