@@ -104,17 +104,6 @@ struct DesignSystem {
             )
         }
         
-        // Enhanced card background with glow effect
-        static func cardBackgroundWithGlow(for category: ItemCategory) -> some View {
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                .fill(DesignSystem.Colors.cardBackground(for: category))
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                        .stroke(category.color.opacity(0.3), lineWidth: 1)
-                        .blur(radius: 2)
-                )
-        }
-        
         static func categoryGradient(for category: ListCategory) -> LinearGradient {
             let baseColor = category.color
             return LinearGradient(
@@ -238,34 +227,6 @@ struct DesignSystem {
             startPoint: .top,
             endPoint: .bottom
         )
-        
-        // Dark card gradient for light theme
-        static let darkCardGradient = LinearGradient(
-            colors: [
-                Color(red: 0.1, green: 0.1, blue: 0.15),
-                Color(red: 0.15, green: 0.15, blue: 0.2)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        
-        // Theme-aware card gradient
-        static func themeAwareCardGradient(colorScheme: ColorScheme) -> LinearGradient {
-            if colorScheme == .dark {
-                return cardGradient
-            } else {
-                return darkCardGradient
-            }
-        }
-        
-        // Theme-aware list section background
-        static func themeAwareListSectionBackground(colorScheme: ColorScheme) -> Color {
-            if colorScheme == .dark {
-                return Color(.systemBackground).opacity(0.2)
-            } else {
-                return Color(.systemBackground).opacity(0.6)
-            }
-        }
         
         static let cardGradientColored = LinearGradient(
             colors: [
