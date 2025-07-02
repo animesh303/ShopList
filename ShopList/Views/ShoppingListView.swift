@@ -166,18 +166,25 @@ struct ListRow: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Enhanced Header with colorful category badge
+        VStack(alignment: .leading, spacing: 16) {
+            // Header with list name and category badge
             HStack(alignment: .center) {
-                Text(list.name)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
-                    .foregroundColor(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(list.name)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .lineLimit(1)
+                        .foregroundColor(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                    
+                    // Last modified date as subtitle
+                    Text("Updated \(list.lastModified, style: .relative)")
+                        .font(.caption)
+                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                }
                 
                 Spacer()
                 
-                // Enhanced Category Badge with gradient and more prominence
+                // Category Badge
                 HStack(spacing: 6) {
                     Image(systemName: list.category.icon)
                         .font(.caption2)
@@ -187,68 +194,92 @@ struct ListRow: View {
                         .fontWeight(.medium)
                         .foregroundColor(.white)
                 }
-                .padding(.horizontal, 12)  // Increased padding for more prominence
-                .padding(.vertical, 8)     // Increased padding for more prominence
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(
                     DesignSystem.Colors.categoryGradient(for: list.category)
                 )
-                .cornerRadius(12)  // Increased corner radius
+                .cornerRadius(12)
                 .shadow(
-                    color: list.category.color.opacity(0.4),  // Increased shadow opacity
-                    radius: 4,  // Increased shadow radius
+                    color: list.category.color.opacity(0.4),
+                    radius: 4,
                     x: 0,
                     y: 2
                 )
             }
             
-            // Show "Empty List" indicator for lists without items
-            if list.items.isEmpty {
-                HStack(spacing: 8) {
-                    Image(systemName: "tray")
-                        .font(.caption)
-                        .foregroundColor(DesignSystem.Colors.tertiaryText)
-                    Text("Empty list")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(DesignSystem.Colors.tertiaryText)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(DesignSystem.Colors.tertiaryBackground)
+            // Status badges row
+            HStack(spacing: 12) {
+                // Items count badge
+                BadgeView(
+                    icon: "cart.fill",
+                    text: "\(list.items.count) items",
+                    color: list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info,
+                    isCompact: true
                 )
+                
+                // Completion status badge
+                if !list.items.isEmpty {
+                    BadgeView(
+                        icon: completionPercentage == 1.0 ? "checkmark.circle.fill" : "circle",
+                        text: "\(Int(completionPercentage * 100))%",
+                        color: completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText,
+                        isCompact: true
+                    )
+                }
+                
+                // Budget status badge
+                if list.budget != nil {
+                    BadgeView(
+                        icon: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon,
+                        text: settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost),
+                        color: isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success,
+                        isCompact: true
+                    )
+                }
+                
+                // Empty list indicator
+                if list.items.isEmpty {
+                    BadgeView(
+                        icon: "tray",
+                        text: "Empty",
+                        color: DesignSystem.Colors.tertiaryText,
+                        isCompact: true
+                    )
+                }
+                
+                Spacer()
             }
             
-            // Enhanced progress bar for completion with more distinct colors
+            // Progress bar for non-empty lists
             if !list.items.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("\(Int(completionPercentage * 100))%")
+                        Text("Progress")
                             .font(.caption)
                             .fontWeight(.medium)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         Spacer()
-                        Text("\(list.completedItems.count)/\(list.items.count)")
+                        Text("\(list.completedItems.count) of \(list.items.count) completed")
                             .font(.caption)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            // Enhanced background track with more contrast
+                            // Background track
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(DesignSystem.Colors.tertiaryBackground)
-                                .frame(height: 12)  // Increased height
+                                .frame(height: 12)
                             
-                            // Enhanced progress fill with gradient and more distinct colors
+                            // Progress fill
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(progressGradient)
                                 .frame(width: geometry.size.width * completionPercentage, height: 12)
                                 .animation(.easeInOut(duration: 0.3), value: completionPercentage)
                                 .shadow(
-                                    color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : list.category.color).opacity(0.5),  // Increased shadow opacity
-                                    radius: 3,  // Increased shadow radius
+                                    color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : list.category.color).opacity(0.5),
+                                    radius: 3,
                                     x: 0,
                                     y: 2
                                 )
@@ -257,92 +288,11 @@ struct ListRow: View {
                     .frame(height: 12)
                 }
             }
-            
-            // Enhanced details row with more colorful and distinct icons
-            HStack(spacing: 16) {
-                // Items count with enhanced styling and more distinct colors
-                HStack(spacing: 6) {
-                    Image(systemName: "cart.fill")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(6)  // Increased padding
-                        .background(
-                            Circle()
-                                .fill(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info)
-                        )
-                        .shadow(
-                            color: (list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info).opacity(0.4),
-                            radius: 2,
-                            x: 0,
-                            y: 1
-                        )
-                    Text("\(list.items.count)")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                }
-                .foregroundColor(DesignSystem.Colors.secondaryText)
-                
-                // Completion status with enhanced styling and more distinct colors
-                if !list.items.isEmpty {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(6)  // Increased padding
-                            .background(
-                                Circle()
-                                    .fill(completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
-                            )
-                            .shadow(
-                                color: (completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText).opacity(0.4),
-                                radius: 2,
-                                x: 0,
-                                y: 1
-                            )
-                        Text("\(Int(completionPercentage * 100))%")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                    .foregroundColor(completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
-                }
-                
-                // Budget status with enhanced styling and more distinct colors
-                if list.budget != nil {
-                    HStack(spacing: 6) {
-                        Image(systemName: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon)
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(6)  // Increased padding
-                            .background(
-                                Circle()
-                                    .fill(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success)
-                            )
-                            .shadow(
-                                color: (isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success).opacity(0.4),
-                                radius: 2,
-                                x: 0,
-                                y: 1
-                            )
-                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                    .foregroundColor(isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.secondaryText)
-                }
-                
-                Spacer()
-                
-                // Last modified date with enhanced styling
-                Text(list.lastModified, style: .relative)
-                    .font(.caption2)
-                    .fontWeight(.medium)
-                    .foregroundColor(DesignSystem.Colors.secondaryText)
-            }
         }
-        .padding(.vertical, 16)  // Increased padding
-        .padding(.horizontal, 12)  // Increased padding
+        .padding(.vertical, 16)
+        .padding(.horizontal, 16)
         .background(
-            RoundedRectangle(cornerRadius: 16)  // Increased corner radius
+            RoundedRectangle(cornerRadius: 16)
                 .fill(cardGradient)
                 .shadow(
                     color: DesignSystem.Shadows.colorfulMedium.color,
@@ -353,10 +303,104 @@ struct ListRow: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(list.category.color.opacity(list.items.isEmpty ? 0.1 : 0.25), lineWidth: 1.5)  // Reduced border opacity for empty lists
+                .stroke(list.category.color.opacity(list.items.isEmpty ? 0.1 : 0.25), lineWidth: 1.5)
         )
         .padding(.horizontal, 8)
-        .padding(.vertical, 4)  // Increased vertical padding for better separation
+        .padding(.vertical, 4)
+    }
+}
+
+// Reusable Badge Component
+struct BadgeView: View {
+    let icon: String
+    let text: String
+    let color: Color
+    let isCompact: Bool
+    
+    // Enhanced contrasting colors for better visibility
+    private var badgeBackgroundColor: Color {
+        switch color {
+        case DesignSystem.Colors.success:
+            return Color.green.opacity(0.15)
+        case DesignSystem.Colors.error:
+            return Color.red.opacity(0.15)
+        case DesignSystem.Colors.info:
+            return Color.blue.opacity(0.15)
+        case DesignSystem.Colors.tertiaryText:
+            return Color.gray.opacity(0.15)
+        default:
+            return color.opacity(0.15)
+        }
+    }
+    
+    private var iconBackgroundColor: Color {
+        switch color {
+        case DesignSystem.Colors.success:
+            return Color.green
+        case DesignSystem.Colors.error:
+            return Color.red
+        case DesignSystem.Colors.info:
+            return Color.blue
+        case DesignSystem.Colors.tertiaryText:
+            return Color.gray
+        default:
+            return color
+        }
+    }
+    
+    private var textColor: Color {
+        switch color {
+        case DesignSystem.Colors.success:
+            return Color.green
+        case DesignSystem.Colors.error:
+            return Color.red
+        case DesignSystem.Colors.info:
+            return Color.blue
+        case DesignSystem.Colors.tertiaryText:
+            return Color.gray
+        default:
+            return DesignSystem.Colors.secondaryText
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: isCompact ? 4 : 6) {
+            Image(systemName: icon)
+                .font(isCompact ? .caption2 : .caption)
+                .foregroundColor(.white)
+                .padding(isCompact ? 4 : 6)
+                .background(
+                    Circle()
+                        .fill(iconBackgroundColor)
+                        .shadow(
+                            color: iconBackgroundColor.opacity(0.6),
+                            radius: 3,
+                            x: 0,
+                            y: 2
+                        )
+                )
+            
+            Text(text)
+                .font(isCompact ? .caption2 : .caption)
+                .fontWeight(.semibold)
+                .foregroundColor(textColor)
+        }
+        .padding(.horizontal, isCompact ? 8 : 10)
+        .padding(.vertical, isCompact ? 6 : 8)
+        .background(
+            RoundedRectangle(cornerRadius: isCompact ? 12 : 16)
+                .fill(badgeBackgroundColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: isCompact ? 12 : 16)
+                        .stroke(iconBackgroundColor.opacity(0.3), lineWidth: 1)
+                )
+                .shadow(
+                    color: iconBackgroundColor.opacity(0.2),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                )
+        )
     }
 }
 
