@@ -162,14 +162,45 @@ struct ItemRow: View {
                         .minimumScaleFactor(0.8)
                 }
                 Spacer()
-                if let price = item.pricePerUnit, price > 0 {
-                    Text(price, format: .currency(code: settingsManager.currency.rawValue))
+                if let pricePerUnit = item.pricePerUnit, pricePerUnit > 0 {
+                    let totalCost = Double(truncating: pricePerUnit * item.quantity as NSDecimalNumber)
+                    Text(totalCost, format: .currency(code: settingsManager.currency.rawValue))
                         .font(DesignSystem.Typography.caption1)
                         .fontWeight(.bold)
                         .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
+            }
+            // Notes Section (if present)
+            if let notes = item.notes, !notes.isEmpty {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                    HStack(spacing: DesignSystem.Spacing.xs) {
+                        Image(systemName: "note.text")
+                            .font(DesignSystem.Typography.caption1)
+                            .foregroundColor(DesignSystem.Colors.primary)
+                        Text("Notes")
+                            .font(DesignSystem.Typography.caption1)
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignSystem.Colors.primary)
+                    }
+                    Text(notes)
+                        .font(DesignSystem.Typography.caption1)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.vertical, DesignSystem.Spacing.sm)
+                .padding(.horizontal, DesignSystem.Spacing.sm)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                        .fill(Color.blue.opacity(0.05))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                                .stroke(Color.blue.opacity(0.2), lineWidth: 1.5)
+                        )
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(.vertical, DesignSystem.Spacing.sm)
