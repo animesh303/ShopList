@@ -92,6 +92,12 @@ final class ShoppingList {
         }
     }
     
+    var totalSpentCost: Double {
+        completedItems.reduce(0) { total, item in
+            total + calculateItemTotal(item)
+        }
+    }
+    
     func addItem(_ item: Item) {
         items.append(item)
         lastModified = Date()
