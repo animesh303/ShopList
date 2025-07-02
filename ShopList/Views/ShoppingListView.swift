@@ -143,25 +143,25 @@ struct ListRow: View {
     }
     
     private var cardGradient: LinearGradient {
-        // Enhanced card background with much stronger contrast
+        // Enhanced card background with maximum contrast
         if colorScheme == .dark {
-            // Dark mode: Use much more contrasting background
+            // Dark mode: Use maximum contrasting background
             return LinearGradient(
                 colors: [
-                    Color(.secondarySystemBackground),
                     Color(.tertiarySystemBackground),
-                    list.category.color.opacity(0.05)
+                    Color(.tertiarySystemBackground).opacity(0.8),
+                    list.category.color.opacity(0.03)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         } else {
-            // Light mode: Use much more contrasting background
+            // Light mode: Use maximum contrasting background
             return LinearGradient(
                 colors: [
-                    Color(.secondarySystemBackground),
                     Color(.tertiarySystemBackground),
-                    list.category.color.opacity(0.05)
+                    Color(.tertiarySystemBackground).opacity(0.8),
+                    list.category.color.opacity(0.03)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -319,17 +319,17 @@ struct ListRow: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(cardGradient)
                 .shadow(
-                    color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.25),
-                    radius: 12,
+                    color: colorScheme == .dark ? Color.black.opacity(0.7) : Color.black.opacity(0.4),
+                    radius: 16,
                     x: 0,
-                    y: 6
+                    y: 8
                 )
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(
-                    colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.1),
-                    lineWidth: 2
+                    colorScheme == .dark ? Color.white.opacity(0.3) : Color.black.opacity(0.15),
+                    lineWidth: 2.5
                 )
         )
         .padding(.horizontal, 8)
