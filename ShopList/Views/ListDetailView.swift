@@ -74,7 +74,7 @@ struct ListDetailView: View {
                     Section {
                         BudgetProgressView(
                             budget: budget,
-                            spent: list.totalEstimatedCost,
+                            spent: list.totalSpentCost,
                             currency: settingsManager.currency
                         )
                         .padding(.vertical, 8)
@@ -97,10 +97,18 @@ struct ListDetailView: View {
                             }
                             
                             HStack {
+                                Label("Spent", systemImage: "checkmark.circle.fill")
+                                    .foregroundColor(DesignSystem.Colors.success)
+                                Spacer()
+                                Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalSpentCost))
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                            
+                            HStack {
                                 Label("Remaining", systemImage: "creditcard")
                                     .foregroundColor(DesignSystem.Colors.success)
                                 Spacer()
-                                let remaining = budget - list.totalEstimatedCost
+                                let remaining = budget - list.totalSpentCost
                                 Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
                                     .foregroundColor(remaining >= 0 ? DesignSystem.Colors.success : DesignSystem.Colors.error)
                             }
