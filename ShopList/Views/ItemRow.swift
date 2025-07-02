@@ -92,7 +92,7 @@ struct ItemRow: View {
                     if let brand = item.brand, !brand.isEmpty {
                         Text(brand)
                             .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor().opacity(0.85))
                             .lineLimit(1)
                     }
                     // Category & Priority Row
@@ -157,7 +157,7 @@ struct ItemRow: View {
                     Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
                         .font(DesignSystem.Typography.caption1)
                         .fontWeight(.bold)
-                        .foregroundColor(.blue)
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
@@ -166,7 +166,7 @@ struct ItemRow: View {
                     Text(price, format: .currency(code: settingsManager.currency.rawValue))
                         .font(DesignSystem.Typography.caption1)
                         .fontWeight(.bold)
-                        .foregroundColor(.green)
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
