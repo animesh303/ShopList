@@ -252,7 +252,6 @@ struct ListDetailView: View {
             .scrollContentBackground(.hidden)
             .listSectionSpacing(0)
             .listRowSpacing(0)
-            .listRowSeparator(.hidden)
             .enhancedNavigation(
                 title: list.name,
                 subtitle: "\(list.items.count) items • \(list.category.rawValue)",
