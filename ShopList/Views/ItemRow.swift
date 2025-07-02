@@ -30,6 +30,134 @@ struct ItemRow: View {
     }
     
     var body: some View {
+        Group {
+            if settingsManager.defaultItemViewStyle == .compact {
+                compactView
+            } else {
+                detailedView
+            }
+        }
+    }
+    
+    // MARK: - Compact View
+    private var compactView: some View {
+        let checkboxWidth: CGFloat = 28
+        let imageWidth: CGFloat = 40
+        let priorityWidth: CGFloat = 28
+        return VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: DesignSystem.Spacing.xs) {
+                // Checkbox
+                Button(action: toggleCompletion) {
+                    Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                        .font(.title3)
+                        .foregroundColor(item.isCompleted ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText)
+                        .frame(width: checkboxWidth, height: checkboxWidth)
+                        .animation(DesignSystem.Animations.spring, value: item.isCompleted)
+                }
+                .buttonStyle(.plain)
+                // Image or Category Icon
+                Group {
+                    if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
+                        if let imageData = item.imageData, let uiImage = UIImage(data: imageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: imageWidth, height: imageWidth)
+                                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs))
+                        } else {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs)
+                                    .fill(LinearGradient(
+                                        colors: [item.category.color.opacity(0.1), item.category.color.opacity(0.05)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: imageWidth, height: imageWidth)
+                                Image(systemName: item.category.icon)
+                                    .font(.body)
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .background(DesignSystem.Colors.categoryGradient(for: item.category))
+                                    .clipShape(Circle())
+                            }
+                        }
+                    } else {
+                        Image(systemName: item.category.icon)
+                            .font(.body)
+                            .foregroundColor(.white)
+                            .frame(width: imageWidth, height: imageWidth)
+                            .background(DesignSystem.Colors.categoryGradient(for: item.category))
+                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xs))
+                    }
+                }
+                // Name (single line)
+                Text(item.name)
+                    .font(DesignSystem.Typography.subheadline)
+                    .fontWeight(.medium)
+                    .strikethrough(item.isCompleted)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(item.isCompleted ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                // Priority
+                if item.priority != .normal {
+                    Image(systemName: priorityIcon)
+                        .foregroundColor(.white)
+                        .font(.caption)
+                        .frame(width: priorityWidth, height: priorityWidth)
+                        .background(
+                            LinearGradient(
+                                colors: [priorityColor, priorityColor.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(Circle())
+                } else {
+                    Spacer().frame(width: priorityWidth)
+                }
+            }
+            // Bottom row: Quantity (left) | Cost (right)
+            HStack(spacing: DesignSystem.Spacing.xs) {
+                Spacer().frame(width: checkboxWidth)
+                Spacer().frame(width: imageWidth)
+                if item.quantity > 0 {
+                    Text(String(format: "%.1f %@", NSDecimalNumber(decimal: item.quantity).doubleValue, item.unit ?? ""))
+                        .font(DesignSystem.Typography.caption1)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity * 0.25, alignment: .leading)
+                }
+                if let pricePerUnit = item.pricePerUnit, pricePerUnit > 0 {
+                    let totalCost = Double(truncating: pricePerUnit * item.quantity as NSDecimalNumber)
+                    Text(totalCost, format: .currency(code: settingsManager.currency.rawValue))
+                        .font(DesignSystem.Typography.caption1)
+                        .fontWeight(.bold)
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+                Spacer().frame(width: priorityWidth)
+            }
+        }
+        .padding(.vertical, DesignSystem.Spacing.xs)
+        .padding(.horizontal, DesignSystem.Spacing.xs)
+        .background(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .fill(DesignSystem.Colors.cardBackground(for: item.category))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .stroke(item.category.color.opacity(0.15), lineWidth: 1)
+        )
+        .padding(.horizontal, 4)
+        .padding(.vertical, 1)
+    }
+    
+    // MARK: - Detailed View
+    private var detailedView: some View {
         VStack(spacing: DesignSystem.Spacing.sm) {
             HStack(alignment: .top, spacing: DesignSystem.Spacing.md) {
                 // Left Column: Checkbox (top), Image (below)
@@ -41,7 +169,6 @@ struct ItemRow: View {
                             .animation(DesignSystem.Animations.spring, value: item.isCompleted)
                     }
                     .buttonStyle(.plain)
-                    
                     // Image or Category Icon
                     Group {
                         if subscriptionManager.canUseItemImages() && settingsManager.showItemImagesByDefault {
@@ -78,7 +205,6 @@ struct ItemRow: View {
                         }
                     }
                 }
-                
                 // Right Column: Details
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     // Item Name
