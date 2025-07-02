@@ -6,7 +6,7 @@ struct ContentView: View {
     @Query private var lists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingAddList = false
     @State private var showingSettings = false
     @State private var showingSortPicker = false
@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var showingUpgradePrompt = false
     @State private var showingPremiumUpgrade = false
     @State private var upgradePromptMessage = ""
+
     
     private var filteredLists: [ShoppingList] {
         if searchText.isEmpty {
@@ -60,30 +61,221 @@ struct ContentView: View {
                             .padding(.top, 16)
                     }
                     
-                    if settingsManager.defaultListViewStyle == .grid {
-                        ScrollView {
-                            LazyVGrid(columns: [
-                                GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
-                            ], spacing: DesignSystem.Spacing.lg) {
-                                ForEach(sortedLists) { list in
-                                    NavigationLink(value: list) {
-                                        GridListCard(list: list)
+                    if sortedLists.isEmpty {
+                        // Enhanced empty state view with card design
+                        VStack(spacing: 0) {
+                            Spacer()
+                            
+                            // Main empty state card
+                            VStack(spacing: DesignSystem.Spacing.xxl) {
+                                // Icon container with gradient background
+                                ZStack {
+                                    // Gradient background circle with enhanced contrast
+                                    Circle()
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [
+                                                    DesignSystem.Colors.primary.opacity(0.25),
+                                                    DesignSystem.Colors.secondary.opacity(0.2),
+                                                    DesignSystem.Colors.accent1.opacity(0.15)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 120, height: 120)
+                                        .shadow(
+                                            color: DesignSystem.Colors.primary.opacity(0.4),
+                                            radius: 25,
+                                            x: 0,
+                                            y: 15
+                                        )
+                                        .shadow(
+                                            color: Color.black.opacity(0.2),
+                                            radius: 15,
+                                            x: 0,
+                                            y: 8
+                                        )
+                                    
+                                    // Main icon with enhanced contrast
+                                    Image(systemName: "list.bullet.clipboard.fill")
+                                        .font(.system(size: 50, weight: .semibold))
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [
+                                                    DesignSystem.Colors.primary,
+                                                    DesignSystem.Colors.primary.opacity(0.8),
+                                                    DesignSystem.Colors.secondary
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .shadow(
+                                            color: Color.black.opacity(0.3),
+                                            radius: 8,
+                                            x: 0,
+                                            y: 4
+                                        )
+                                }
+                                
+                                // Text content with enhanced contrast
+                                VStack(spacing: DesignSystem.Spacing.md) {
+                                    Text("No Shopping Lists")
+                                        .font(DesignSystem.Typography.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                        .multilineTextAlignment(.center)
+                                        .shadow(
+                                            color: Color.black.opacity(0.1),
+                                            radius: 2,
+                                            x: 0,
+                                            y: 1
+                                        )
+                                    
+                                    Text("Start organizing your shopping by creating your first list")
+                                        .font(DesignSystem.Typography.body)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(3)
+                                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                                        .shadow(
+                                            color: Color.black.opacity(0.05),
+                                            radius: 1,
+                                            x: 0,
+                                            y: 0.5
+                                        )
+                                }
+                                
+                                // Action button with enhanced contrast and shadows
+                                Button {
+                                    if subscriptionManager.canCreateList() {
+                                        showingAddList = true
+                                    } else {
+                                        showingPremiumUpgrade = true
                                     }
+                                } label: {
+                                    HStack(spacing: DesignSystem.Spacing.sm) {
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.title2)
+                                        Text("Create First List")
+                                            .font(DesignSystem.Typography.headline)
+                                            .fontWeight(.bold)
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, DesignSystem.Spacing.xxl)
+                                    .padding(.vertical, DesignSystem.Spacing.lg)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [
+                                                DesignSystem.Colors.primary,
+                                                DesignSystem.Colors.primary.opacity(0.9),
+                                                DesignSystem.Colors.primary.opacity(0.7)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .cornerRadius(DesignSystem.CornerRadius.xl)
+                                    .shadow(
+                                        color: DesignSystem.Colors.primary.opacity(0.6),
+                                        radius: 15,
+                                        x: 0,
+                                        y: 8
+                                    )
+                                    .shadow(
+                                        color: Color.black.opacity(0.3),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xl)
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color.white.opacity(0.4),
+                                                        Color.white.opacity(0.1)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 1.5
+                                            )
+                                    )
                                 }
                             }
-                            .padding(DesignSystem.Spacing.lg)
+                            .padding(DesignSystem.Spacing.xxxl)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xl)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                Color(.systemBackground),
+                                                Color(.secondarySystemBackground).opacity(0.5)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xl)
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        Color(.separator).opacity(0.5),
+                                                        Color(.separator).opacity(0.2)
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 1.5
+                                            )
+                                    )
+                                    .shadow(
+                                        color: Color.black.opacity(0.25),
+                                        radius: 25,
+                                        x: 0,
+                                        y: 12
+                                    )
+                                    .shadow(
+                                        color: DesignSystem.Colors.primary.opacity(0.15),
+                                        radius: 35,
+                                        x: 0,
+                                        y: 18
+                                    )
+                            )
+                            .padding(.horizontal, DesignSystem.Spacing.xl)
+                            
+                            Spacer()
                         }
                     } else {
-                        List {
-                            ForEach(sortedLists) { list in
-                                NavigationLink(value: list) {
-                                    ListRow(list: list)
+                        if settingsManager.defaultListViewStyle == .grid {
+                            ScrollView {
+                                LazyVGrid(columns: [
+                                    GridItem(.adaptive(minimum: 160, maximum: 200), spacing: DesignSystem.Spacing.lg)
+                                ], spacing: DesignSystem.Spacing.lg) {
+                                    ForEach(sortedLists) { list in
+                                        NavigationLink(value: list) {
+                                            GridListCard(list: list)
+                                        }
+                                    }
                                 }
+                                .padding(DesignSystem.Spacing.lg)
                             }
-                            .onDelete(perform: deleteLists)
+                        } else {
+                            List {
+                                ForEach(sortedLists) { list in
+                                    NavigationLink(value: list) {
+                                        ListRow(list: list)
+                                    }
+                                }
+                                .onDelete(perform: deleteLists)
+                            }
+                            .listStyle(PlainListStyle())
+                            .scrollContentBackground(.hidden)
                         }
-                        .listStyle(PlainListStyle())
-                        .scrollContentBackground(.hidden)
                     }
                 }
                 
@@ -485,4 +677,5 @@ struct GridListCard: View {
 #Preview {
     ContentView()
         .modelContainer(for: ShoppingList.self, inMemory: true)
+        .environmentObject(SubscriptionManager.shared)
 } 

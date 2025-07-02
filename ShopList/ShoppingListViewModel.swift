@@ -53,60 +53,10 @@ final class ShoppingListViewModel: ObservableObject {
         // Load data asynchronously
         Task {
             await loadShoppingLists()
-            
-            // If no lists exist, create a sample list with some items
-            if shoppingLists.isEmpty {
-                await addSampleItems()
-            }
         }
     }
     
-    private func addSampleItems() async {
-        print("Adding sample items for testing...")
-        let sampleItems = [
-            ("Milk", ItemCategory.dairy, 1),
-            ("Eggs", ItemCategory.dairy, 2),
-            ("Bread", ItemCategory.bakery, 1),
-            ("Apples", ItemCategory.produce, 6),
-            ("Chicken", ItemCategory.meat, 1)
-        ]
-        
-        let sampleList = ShoppingList(
-            name: "Grocery List",
-            items: [],
-            dateCreated: Date(),
-            isShared: false,
-            category: .groceries
-        )
-        
-        // Create items and add them to the sample list
-        for (name, category, quantity) in sampleItems {
-            let item = Item(
-                name: name,
-                quantity: Decimal(quantity),
-                category: category,
-                isCompleted: false,
-                notes: nil,
-                dateAdded: Date(),
-                pricePerUnit: nil,
-                brand: nil,
-                unit: nil,
-                lastPurchasedPrice: nil,
-                lastPurchasedDate: nil,
-                imageData: nil,
-                priority: .normal
-            )
-            sampleList.addItem(item)
-            addOrUpdateSuggestion(item)
-        }
-        
-        do {
-            try await addShoppingList(sampleList)
-            print("Successfully added sample list with \(sampleList.items.count) items")
-        } catch {
-            print("Failed to add sample list: \(error.localizedDescription)")
-        }
-    }
+
     
     private func loadShoppingLists() async {
         print("Loading shopping lists from SwiftData...")

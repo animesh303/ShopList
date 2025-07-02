@@ -178,7 +178,7 @@ struct AddItemView: View {
     @Bindable var list: ShoppingList
     @Query private var allLists: [ShoppingList]
     @StateObject private var settingsManager = UserSettingsManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     @State private var name = ""
     @State private var quantity = 1.0

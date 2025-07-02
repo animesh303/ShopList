@@ -4,7 +4,7 @@ struct ListSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: ShoppingListViewModel
     @StateObject private var settingsManager = UserSettingsManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     let list: ShoppingList
     
     @State private var listName: String

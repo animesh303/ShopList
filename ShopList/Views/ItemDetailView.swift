@@ -8,7 +8,7 @@ struct ItemDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Bindable var item: Item
     @StateObject private var settingsManager = UserSettingsManager.shared
-    @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var name: String
     @State private var brand: String
     @State private var quantity: Double
