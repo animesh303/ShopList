@@ -61,11 +61,11 @@ struct BudgetProgressView: View {
             HStack {
                 Text("Budget Progress")
                     .font(DesignSystem.Typography.headline)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
+                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                 Spacer()
                 Text("\(Int(progress * 100))%")
                     .font(DesignSystem.Typography.subheadlineBold)
-                    .foregroundColor(progressColor)
+                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
             }
             
             GeometryReader { geometry in
@@ -94,10 +94,10 @@ struct BudgetProgressView: View {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
                     Text("Spent")
                         .font(DesignSystem.Typography.caption1)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                     Text(spent, format: .currency(code: currency.rawValue))
                         .font(DesignSystem.Typography.subheadlineBold)
-                        .foregroundColor(progressColor)
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                 }
                 
                 Spacer()
@@ -105,10 +105,10 @@ struct BudgetProgressView: View {
                 VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xs) {
                     Text("Remaining")
                         .font(DesignSystem.Typography.caption1)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                     Text(remaining, format: .currency(code: currency.rawValue))
                         .font(DesignSystem.Typography.subheadlineBold)
-                        .foregroundColor(remaining > 0 ? DesignSystem.Colors.success : DesignSystem.Colors.error)
+                        .foregroundColor(remaining > 0 ? DesignSystem.Colors.adaptiveTextColor() : DesignSystem.Colors.error)
                 }
             }
         }
