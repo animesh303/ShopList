@@ -130,6 +130,7 @@ struct ShoppingListView: View {
 struct ListRow: View {
     let list: ShoppingList
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @Environment(\.colorScheme) private var colorScheme
     
     private var completionPercentage: Double {
         guard !list.items.isEmpty else { return 0 }
@@ -142,7 +143,30 @@ struct ListRow: View {
     }
     
     private var cardGradient: LinearGradient {
-        DesignSystem.Colors.cardBackground(for: list.category)
+        // Enhanced card background with much stronger contrast
+        if colorScheme == .dark {
+            // Dark mode: Use much more contrasting background
+            return LinearGradient(
+                colors: [
+                    Color(.secondarySystemBackground),
+                    Color(.tertiarySystemBackground),
+                    list.category.color.opacity(0.05)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            // Light mode: Use much more contrasting background
+            return LinearGradient(
+                colors: [
+                    Color(.secondarySystemBackground),
+                    Color(.tertiarySystemBackground),
+                    list.category.color.opacity(0.05)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
     
     private var progressGradient: LinearGradient {
@@ -179,7 +203,7 @@ struct ListRow: View {
                     // Last modified date as subtitle
                     Text("Updated \(list.lastModified, style: .relative)")
                         .font(.footnote)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                        .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.7))
                 }
                 
                 Spacer()
@@ -233,7 +257,7 @@ struct ListRow: View {
                     BadgeView(
                         icon: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon,
                         text: settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost),
-                        color: isOverBudget ? DesignSystem.Colors.error : DesignSystem.Colors.success,
+                        color: isOverBudget ? Color.red.opacity(0.8) : Color(red: 0.1, green: 0.5, blue: 0.1),
                         isCompact: true
                     )
                 }
@@ -258,11 +282,11 @@ struct ListRow: View {
                         Text("Progress")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.8))
                         Spacer()
                         Text("\(list.completedItems.count) of \(list.items.count) completed")
                             .font(.footnote)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
+                            .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.7))
                     }
                     
                     GeometryReader { geometry in
@@ -295,15 +319,18 @@ struct ListRow: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(cardGradient)
                 .shadow(
-                    color: DesignSystem.Shadows.colorfulMedium.color,
-                    radius: DesignSystem.Shadows.colorfulMedium.radius,
-                    x: DesignSystem.Shadows.colorfulMedium.x,
-                    y: DesignSystem.Shadows.colorfulMedium.y
+                    color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.25),
+                    radius: 12,
+                    x: 0,
+                    y: 6
                 )
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(list.category.color.opacity(list.items.isEmpty ? 0.1 : 0.25), lineWidth: 1.5)
+                .stroke(
+                    colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.1),
+                    lineWidth: 2
+                )
         )
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
