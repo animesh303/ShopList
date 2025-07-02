@@ -171,14 +171,14 @@ struct ListRow: View {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(list.name)
-                        .font(.headline)
-                        .fontWeight(.semibold)
+                        .font(.title3)
+                        .fontWeight(.bold)
                         .lineLimit(1)
                         .foregroundColor(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
                     
                     // Last modified date as subtitle
                     Text("Updated \(list.lastModified, style: .relative)")
-                        .font(.caption)
+                        .font(.footnote)
                         .foregroundColor(DesignSystem.Colors.secondaryText)
                 }
                 
@@ -187,11 +187,11 @@ struct ListRow: View {
                 // Category Badge
                 HStack(spacing: 6) {
                     Image(systemName: list.category.icon)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.white)
                     Text(list.category.rawValue)
-                        .font(.caption)
-                        .fontWeight(.medium)
+                        .font(.footnote)
+                        .fontWeight(.semibold)
                         .foregroundColor(.white)
                 }
                 .padding(.horizontal, 12)
@@ -213,7 +213,7 @@ struct ListRow: View {
                 // Items count badge
                 BadgeView(
                     icon: "cart.fill",
-                    text: "\(list.items.count) items",
+                    text: "\(list.items.count)",
                     color: list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info,
                     isCompact: true
                 )
@@ -256,12 +256,12 @@ struct ListRow: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("Progress")
-                            .font(.caption)
-                            .fontWeight(.medium)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                         Spacer()
                         Text("\(list.completedItems.count) of \(list.items.count) completed")
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundColor(DesignSystem.Colors.secondaryText)
                     }
                     
@@ -321,15 +321,15 @@ struct BadgeView: View {
     private var badgeBackgroundColor: Color {
         switch color {
         case DesignSystem.Colors.success:
-            return Color.green.opacity(0.15)
+            return Color.green.opacity(0.9)
         case DesignSystem.Colors.error:
-            return Color.red.opacity(0.15)
+            return Color.red.opacity(0.9)
         case DesignSystem.Colors.info:
-            return Color.blue.opacity(0.15)
+            return Color.blue.opacity(0.9)
         case DesignSystem.Colors.tertiaryText:
-            return Color.gray.opacity(0.15)
+            return Color.gray.opacity(0.9)
         default:
-            return color.opacity(0.15)
+            return color.opacity(0.9)
         }
     }
     
@@ -349,24 +349,14 @@ struct BadgeView: View {
     }
     
     private var textColor: Color {
-        switch color {
-        case DesignSystem.Colors.success:
-            return Color.green
-        case DesignSystem.Colors.error:
-            return Color.red
-        case DesignSystem.Colors.info:
-            return Color.blue
-        case DesignSystem.Colors.tertiaryText:
-            return Color.gray
-        default:
-            return DesignSystem.Colors.secondaryText
-        }
+        // Use white text for better contrast against opaque backgrounds
+        return Color.white
     }
     
     var body: some View {
         HStack(spacing: isCompact ? 4 : 6) {
             Image(systemName: icon)
-                .font(isCompact ? .caption2 : .caption)
+                .font(isCompact ? .caption : .footnote)
                 .foregroundColor(.white)
                 .padding(isCompact ? 4 : 6)
                 .background(
@@ -381,7 +371,7 @@ struct BadgeView: View {
                 )
             
             Text(text)
-                .font(isCompact ? .caption2 : .caption)
+                .font(isCompact ? .footnote : .subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(textColor)
         }
