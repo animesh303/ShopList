@@ -87,7 +87,7 @@ struct ReminderSheet: View {
                         .foregroundColor(DesignSystem.Colors.info)
                     Text("This reminder will repeat every day at the selected time")
                         .font(DesignSystem.Typography.caption1)
-                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                         .multilineTextAlignment(.leading)
                 }
                 .padding(.top, 4)
@@ -180,7 +180,7 @@ struct ReminderSheet: View {
                             .foregroundColor(DesignSystem.Colors.info)
                         Text("Scheduled for: \(formatReminderDate(reminder))")
                             .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     }
                     
                     HStack {
@@ -189,7 +189,7 @@ struct ReminderSheet: View {
                             .foregroundColor(DesignSystem.Colors.info)
                         Text(reminder.identifier.contains("recurring") ? "Daily recurring reminder" : "One-time reminder")
                             .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     }
                 }
                 .padding(.horizontal, 4)
@@ -265,7 +265,7 @@ struct ReminderSheet: View {
                 
                 Text("Enable notifications in Settings to schedule reminders")
                     .font(DesignSystem.Typography.caption1)
-                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     .multilineTextAlignment(.leading)
             }
         }
@@ -304,7 +304,7 @@ struct ReminderSheet: View {
                 
                 Text("Please grant notification permissions in Settings")
                     .font(DesignSystem.Typography.caption1)
-                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     .multilineTextAlignment(.leading)
             }
         }
@@ -355,7 +355,7 @@ struct ReminderSheet: View {
                         } footer: {
                             Text(hasExistingReminder ? "Modify your existing reminder settings" : "Set a reminder for your shopping list")
                                 .font(DesignSystem.Typography.caption1)
-                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor().opacity(0.8))
                         }
                         
                         // Actions Section
