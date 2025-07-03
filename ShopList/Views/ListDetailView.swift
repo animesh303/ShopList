@@ -130,30 +130,56 @@ struct ListDetailView: View {
                 // Location Section
                 if let location = list.location {
                     Section {
-                        HStack {
-                            Label("Location", systemImage: "location")
-                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                            Spacer()
-                            Text(location.name)
-                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            HStack {
+                                Label("Location", systemImage: "location")
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                Spacer()
+                                Text(location.name)
+                                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                            }
+                            
+                            Button("Update Location Reminder") {
+                                showingLocationSetup = true
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
                         }
-                        
-                        Button("Update Location Reminder") {
-                            showingLocationSetup = true
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(DesignSystem.Colors.primary)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
                     } header: {
                         Text("Store Information")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     }
                 } else {
                     Section {
-                        Button("Set Up Location Reminder") {
-                            showingLocationSetup = true
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            Button("Set Up Location Reminder") {
+                                showingLocationSetup = true
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
                         }
-                        .buttonStyle(.bordered)
-                        .tint(DesignSystem.Colors.primary)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
                     } header: {
                         Text("Location Reminder")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
@@ -225,11 +251,11 @@ struct ListDetailView: View {
                         .padding(DesignSystem.Spacing.md)
                         .background(
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                .fill(Color(.systemBackground).opacity(0.8))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                        .stroke(DesignSystem.Colors.primary.opacity(0.2), lineWidth: 1)
-                                )
+                                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
                         )
                         .padding(.horizontal, 4)
                         .padding(.vertical, 2)
