@@ -163,6 +163,82 @@ struct ListDetailView: View {
                     }
                 }
                 
+                // Items Summary Section
+                if !filteredItems.isEmpty {
+                    Section {
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            // Progress bar
+                            let completedCount = filteredItems.filter { $0.isCompleted }.count
+                            let totalCount = filteredItems.count
+                            let progress = totalCount > 0 ? Double(completedCount) / Double(totalCount) : 0.0
+                            
+                            ProgressView(value: progress)
+                                .progressViewStyle(LinearProgressViewStyle(tint: DesignSystem.Colors.success))
+                                .scaleEffect(y: 2)
+                            
+                            // Summary stats
+                            HStack {
+                                // Total items
+                                HStack(spacing: DesignSystem.Spacing.xs) {
+                                    Image(systemName: "list.bullet")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.primary)
+                                    Text("\(totalCount)")
+                                        .font(DesignSystem.Typography.subheadlineBold)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                    Text("items")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                }
+                                
+                                Spacer()
+                                
+                                // Completed items
+                                HStack(spacing: DesignSystem.Spacing.xs) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.success)
+                                    Text("\(completedCount)")
+                                        .font(DesignSystem.Typography.subheadlineBold)
+                                        .foregroundColor(DesignSystem.Colors.success)
+                                    Text("completed")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                }
+                                
+                                Spacer()
+                                
+                                // Remaining items
+                                HStack(spacing: DesignSystem.Spacing.xs) {
+                                    Image(systemName: "circle")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                    Text("\(totalCount - completedCount)")
+                                        .font(DesignSystem.Typography.subheadlineBold)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                    Text("remaining")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                }
+                            }
+                        }
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(Color(.systemBackground).opacity(0.8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .stroke(DesignSystem.Colors.primary.opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                    } header: {
+                        Text("Progress Summary")
+                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                    }
+                }
+                
                 // Items Section
                 Section {
                     if filteredItems.isEmpty {
@@ -224,77 +300,6 @@ struct ListDetailView: View {
                                         .tint(item.isCompleted ? DesignSystem.Colors.warning : DesignSystem.Colors.success)
                                     }
                             }
-                        }
-                        
-                        // Enhanced Items Summary Footer
-                        if !filteredItems.isEmpty {
-                            VStack(spacing: DesignSystem.Spacing.sm) {
-                                // Progress bar
-                                let completedCount = filteredItems.filter { $0.isCompleted }.count
-                                let totalCount = filteredItems.count
-                                let progress = totalCount > 0 ? Double(completedCount) / Double(totalCount) : 0.0
-                                
-                                ProgressView(value: progress)
-                                    .progressViewStyle(LinearProgressViewStyle(tint: DesignSystem.Colors.success))
-                                    .scaleEffect(y: 2)
-                                
-                                // Summary stats
-                                HStack {
-                                    // Total items
-                                    HStack(spacing: DesignSystem.Spacing.xs) {
-                                        Image(systemName: "list.bullet")
-                                            .font(.caption)
-                                            .foregroundColor(DesignSystem.Colors.primary)
-                                        Text("\(totalCount)")
-                                            .font(DesignSystem.Typography.subheadlineBold)
-                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                        Text("items")
-                                            .font(DesignSystem.Typography.caption1)
-                                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    // Completed items
-                                    HStack(spacing: DesignSystem.Spacing.xs) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .font(.caption)
-                                            .foregroundColor(DesignSystem.Colors.success)
-                                        Text("\(completedCount)")
-                                            .font(DesignSystem.Typography.subheadlineBold)
-                                            .foregroundColor(DesignSystem.Colors.success)
-                                        Text("completed")
-                                            .font(DesignSystem.Typography.caption1)
-                                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    // Remaining items
-                                    HStack(spacing: DesignSystem.Spacing.xs) {
-                                        Image(systemName: "circle")
-                                            .font(.caption)
-                                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                                        Text("\(totalCount - completedCount)")
-                                            .font(DesignSystem.Typography.subheadlineBold)
-                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                        Text("remaining")
-                                            .font(DesignSystem.Typography.caption1)
-                                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                                    }
-                                }
-                            }
-                            .padding(DesignSystem.Spacing.md)
-                            .background(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                    .fill(Color(.systemBackground).opacity(0.8))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                            .stroke(DesignSystem.Colors.primary.opacity(0.2), lineWidth: 1)
-                                    )
-                            )
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
                         }
                     }
                 } header: {
