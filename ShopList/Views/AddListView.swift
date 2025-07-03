@@ -4,6 +4,7 @@ import SwiftData
 struct AddListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @StateObject private var settingsManager = UserSettingsManager.shared
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
@@ -37,213 +38,321 @@ struct AddListView: View {
         return filtered
     }
     
-    private var budgetRow: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text(settingsManager.currency.symbol)
-                    .font(DesignSystem.Typography.body)
-                    .foregroundColor(DesignSystem.Colors.primaryText)
-                TextField("Budget", text: Binding(
-                    get: { budgetString },
-                    set: { newValue in
-                        if budgetString == "0.00" && newValue == "0.00" {
-                            budgetString = ""
-                        } else {
-                            budgetString = validateBudgetString(newValue)
-                        }
-                    }
-                ))
-                .keyboardType(.decimalPad)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .disabled(!subscriptionManager.canUseBudgetTracking())
-                
-                if !subscriptionManager.canUseBudgetTracking() {
-                    Button(action: {
-                        showingPremiumUpgrade = true
-                    }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "crown.fill")
-                                .font(.caption)
-                            Text("Upgrade")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            LinearGradient(
-                                colors: [DesignSystem.Colors.warning, DesignSystem.Colors.warning.opacity(0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .clipShape(Capsule())
-                        .shadow(
-                            color: DesignSystem.Colors.warning.opacity(0.3),
-                            radius: 2,
-                            x: 0,
-                            y: 1
-                        )
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            
-            if !subscriptionManager.canUseBudgetTracking() {
-                HStack {
-                    Image(systemName: "crown.fill")
-                        .foregroundColor(.orange)
-                        .font(.caption)
-                    Text("Upgrade to Premium for budget tracking")
-                        .font(.caption)
-                        .foregroundColor(DesignSystem.Colors.secondaryText)
-                    Spacer()
-                }
-            }
-        }
-    }
-    
     var body: some View {
-        NavigationView {
-            ZStack {
-                // Enhanced background with vibrant gradient
-                DesignSystem.Colors.backgroundGradient
-                    .ignoresSafeArea()
-                
-                Form {
-                    Section {
-                        TextField("List Name", text: $listName)
-                            .font(DesignSystem.Typography.body)
+        ZStack {
+            // Enhanced background with vibrant gradient
+            DesignSystem.Colors.backgroundGradient
+                .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.lg) {
+                    // List Details Card
+                    VStack(spacing: DesignSystem.Spacing.md) {
+                        // Header
+                        HStack {
+                            Image(systemName: "plus.square")
+                                .font(.title2)
+                                .foregroundColor(DesignSystem.Colors.primary)
+                            Text("List Details")
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            Spacer()
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
                         
-                        Picker("Category", selection: $category) {
-                            ForEach(availableCategories.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { category in
+                        // List Name Field
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("List Name")
+                                .font(DesignSystem.Typography.subheadlineBold)
+                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            
+                            TextField("Enter list name", text: $listName)
+                                .font(DesignSystem.Typography.body)
+                                .padding(DesignSystem.Spacing.md)
+                                .background(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .fill(Color(.systemBackground).opacity(0.8))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                .stroke(DesignSystem.Colors.primary.opacity(0.3), lineWidth: 1)
+                                        )
+                                )
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        
+                        // Category Picker
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            Text("Category")
+                                .font(DesignSystem.Typography.subheadlineBold)
+                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            
+                            Menu {
+                                ForEach(availableCategories.sorted(by: { $0.rawValue.localizedCaseInsensitiveCompare($1.rawValue) == .orderedAscending }), id: \.self) { cat in
+                                    Button(action: {
+                                        if subscriptionManager.canUseCategory(cat) {
+                                            category = cat
+                                        } else {
+                                            showingPremiumUpgrade = true
+                                        }
+                                    }) {
+                                        HStack {
+                                            Image(systemName: cat.icon)
+                                                .foregroundColor(cat.color)
+                                            Text(cat.rawValue)
+                                            if !subscriptionManager.canUseCategory(cat) {
+                                                Image(systemName: "crown.fill")
+                                                    .foregroundColor(.orange)
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
                                 HStack {
                                     Image(systemName: category.icon)
                                         .foregroundColor(category.color)
-                                        .font(.title2)
+                                        .font(.title3)
                                     Text(category.rawValue)
                                         .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                    Spacer()
+                                    Image(systemName: "chevron.down")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                                 }
-                                .tag(category)
+                                .padding(DesignSystem.Spacing.md)
+                                .background(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .fill(Color(.systemBackground).opacity(0.8))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                                .stroke(category.color.opacity(0.3), lineWidth: 1)
+                                        )
+                                )
                             }
                         }
-                        .pickerStyle(MenuPickerStyle())
+                        .padding(.horizontal, DesignSystem.Spacing.md)
                         
-                        budgetRow
-                    } header: {
-                        Text("List Details")
-                            .font(DesignSystem.Typography.subheadlineBold)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                    } footer: {
-                        if !subscriptionManager.isPremium {
-                            Text("Free users can only use basic categories. Upgrade to Premium for all 20+ categories.")
-                                .font(.caption)
-                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        // Budget Field
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
+                            HStack {
+                                Text("Budget")
+                                    .font(DesignSystem.Typography.subheadlineBold)
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                
+                                if !subscriptionManager.canUseBudgetTracking() {
+                                    Button(action: {
+                                        showingPremiumUpgrade = true
+                                    }) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "crown.fill")
+                                                .font(.caption)
+                                            Text("Upgrade")
+                                                .font(.caption)
+                                                .fontWeight(.medium)
+                                        }
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(
+                                            LinearGradient(
+                                                colors: [DesignSystem.Colors.warning, DesignSystem.Colors.warning.opacity(0.8)],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
+                                        .clipShape(Capsule())
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                            
+                            HStack {
+                                Text(settingsManager.currency.symbol)
+                                    .font(DesignSystem.Typography.body)
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                
+                                TextField("0.00", text: Binding(
+                                    get: { budgetString },
+                                    set: { newValue in
+                                        if budgetString == "0.00" && newValue == "0.00" {
+                                            budgetString = ""
+                                        } else {
+                                            budgetString = validateBudgetString(newValue)
+                                        }
+                                        
+                                        if !newValue.isEmpty && !subscriptionManager.canUseBudgetTracking() {
+                                            budgetString = ""
+                                            showingPremiumUpgrade = true
+                                        }
+                                    }
+                                ))
+                                .keyboardType(.decimalPad)
+                                .font(DesignSystem.Typography.body)
+                                .disabled(!subscriptionManager.canUseBudgetTracking())
+                            }
+                            .padding(DesignSystem.Spacing.md)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                    .fill(Color(.systemBackground).opacity(0.8))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                            .stroke(DesignSystem.Colors.primary.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                            
+                            if !subscriptionManager.canUseBudgetTracking() {
+                                HStack {
+                                    Image(systemName: "crown.fill")
+                                        .foregroundColor(.orange)
+                                        .font(.caption)
+                                    Text("Upgrade to Premium for budget tracking")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                    Spacer()
+                                }
+                            }
                         }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
                     }
+                    .padding(DesignSystem.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                            .fill(Color(.systemBackground).opacity(0.92))
+                            .shadow(color: DesignSystem.Colors.primary.opacity(0.15), radius: 16, x: 0, y: 8)
+                    )
+                    .padding(.horizontal, DesignSystem.Spacing.md)
                     
-                    Section {
+                    // Preview Card
+                    VStack(spacing: DesignSystem.Spacing.md) {
                         HStack {
+                            Image(systemName: "eye")
+                                .font(.title2)
+                                .foregroundColor(DesignSystem.Colors.primary)
+                            Text("Preview")
+                                .font(DesignSystem.Typography.headline)
+                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            Spacer()
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.md)
+                        
+                        HStack(spacing: DesignSystem.Spacing.md) {
                             Image(systemName: category.icon)
-                                .foregroundColor(category.color)
                                 .font(.title)
+                                .foregroundColor(.white)
+                                .frame(width: 48, height: 48)
+                                .background(DesignSystem.Colors.categoryGradient(for: category))
+                                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm))
                             
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                Text("Preview")
+                                Text(listName.isEmpty ? "List Name" : listName)
                                     .font(DesignSystem.Typography.subheadlineBold)
-                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                
                                 Text("Category: \(category.rawValue)")
                                     .font(DesignSystem.Typography.caption1)
-                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                
                                 if let budget = budget, subscriptionManager.canUseBudgetTracking() {
                                     Text("Budget: \(budget, format: .currency(code: settingsManager.currency.rawValue))")
                                         .font(DesignSystem.Typography.caption1)
-                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                                 }
                             }
                             
                             Spacer()
                         }
-                        .padding(DesignSystem.Spacing.sm)
-                        .background(category.color.opacity(0.1))
-                        .cornerRadius(DesignSystem.CornerRadius.sm)
-                    } header: {
-                        Text("Preview")
-                            .font(DesignSystem.Typography.subheadlineBold)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(category.color.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                        .stroke(category.color.opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, DesignSystem.Spacing.md)
                     }
+                    .padding(DesignSystem.Spacing.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
+                            .fill(Color(.systemBackground).opacity(0.92))
+                            .shadow(color: DesignSystem.Colors.primary.opacity(0.15), radius: 16, x: 0, y: 8)
+                    )
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    
+                    // Bottom spacing for FABs
+                    Spacer(minLength: 100)
                 }
-                .scrollContentBackground(.hidden)
-                
-                // Back Button FAB at bottom left
-                VStack {
-                    Spacer()
-                    HStack {
-                        VStack {
-                            Spacer()
-                            BackButtonFAB {
-                                dismiss()
-                            }
-                        }
-                        .padding(.leading, DesignSystem.Spacing.lg)
-                        .padding(.bottom, DesignSystem.Spacing.lg)
-                        
+            }
+            
+            // Enhanced Floating Action Buttons
+            VStack {
+                Spacer()
+                HStack {
+                    // Back Button FAB
+                    VStack {
                         Spacer()
-                        
-                        // Add Button FAB at bottom right
-                        VStack {
-                            Spacer()
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .medium)
-                                generator.impactOccurred()
-                                addList()
-                            } label: {
-                                Image(systemName: "plus")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
-                                    .background(
-                                        isFormValid ? DesignSystem.Colors.primaryButtonGradient : LinearGradient(
-                                            colors: [
-                                                DesignSystem.Colors.tertiaryText.opacity(0.6),
-                                                DesignSystem.Colors.tertiaryText.opacity(0.4)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .clipShape(Circle())
-                                    .shadow(
-                                        color: isFormValid ? DesignSystem.Colors.primary.opacity(0.4) : DesignSystem.Colors.tertiaryText.opacity(0.2),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 4
-                                    )
-                            }
-                            .disabled(!isFormValid)
+                        BackButtonFAB {
+                            dismiss()
                         }
-                        .padding(.trailing, DesignSystem.Spacing.lg)
-                        .padding(.bottom, DesignSystem.Spacing.lg)
                     }
+                    .padding(.leading, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
+                    
+                    Spacer()
+                    
+                    // Add Button FAB
+                    VStack {
+                        Spacer()
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            addList()
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                .background(
+                                    isFormValid ? DesignSystem.Colors.primaryButtonGradient : LinearGradient(
+                                        colors: [
+                                            DesignSystem.Colors.tertiaryText.opacity(0.6),
+                                            DesignSystem.Colors.tertiaryText.opacity(0.4)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .clipShape(Circle())
+                                .shadow(
+                                    color: isFormValid ? DesignSystem.Colors.primary.opacity(0.4) : DesignSystem.Colors.tertiaryText.opacity(0.2),
+                                    radius: 8,
+                                    x: 0,
+                                    y: 4
+                                )
+                        }
+                        .disabled(!isFormValid)
+                    }
+                    .padding(.trailing, DesignSystem.Spacing.lg)
+                    .padding(.bottom, DesignSystem.Spacing.lg)
                 }
             }
-            .enhancedNavigation(
-                title: "New List",
-                subtitle: "Create a new shopping list",
-                icon: "plus.square",
-                style: .primary,
-                showBanner: true
-            )
-            .alert("Error", isPresented: $showingAlert) {
-                Button("OK") { }
-            } message: {
-                Text(alertMessage)
-            }
-            .sheet(isPresented: $showingPremiumUpgrade) {
-                PremiumUpgradeView()
-            }
+        }
+        .enhancedNavigation(
+            title: "New List",
+            subtitle: "Create a new shopping list",
+            icon: "plus.square",
+            style: .custom(DesignSystem.Colors.themeAwareCategoryGradient(for: category, colorScheme: colorScheme)),
+            showBanner: true
+        )
+        .alert("Error", isPresented: $showingAlert) {
+            Button("OK") { }
+        } message: {
+            Text(alertMessage)
+        }
+        .sheet(isPresented: $showingPremiumUpgrade) {
+            PremiumUpgradeView()
         }
     }
     
