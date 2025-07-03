@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct BudgetProgressView: View {
+    @Environment(\.colorScheme) private var colorScheme
     let budget: Double
     let spent: Double
     let currency: Currency
@@ -54,6 +55,12 @@ struct BudgetProgressView: View {
                 endPoint: .trailing
             )
         }
+    }
+    
+    private var adaptiveBackground: Color {
+        colorScheme == .dark
+            ? Color(.secondarySystemBackground).opacity(0.92)
+            : Color(.secondarySystemBackground).opacity(0.98)
     }
     
     var body: some View {
@@ -113,13 +120,14 @@ struct BudgetProgressView: View {
             }
         }
         .padding(DesignSystem.Spacing.lg)
-        .background(DesignSystem.Colors.cardGradient)
-        .cornerRadius(DesignSystem.CornerRadius.md)
-        .shadow(
-            color: DesignSystem.Shadows.colorfulMedium.color,
-            radius: DesignSystem.Shadows.colorfulMedium.radius,
-            x: DesignSystem.Shadows.colorfulMedium.x,
-            y: DesignSystem.Shadows.colorfulMedium.y
+        .background(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .fill(adaptiveBackground)
+                .shadow(color: DesignSystem.Colors.primary.opacity(0.10), radius: 8, x: 0, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.md)
+                .stroke(DesignSystem.Colors.primary.opacity(0.18), lineWidth: 1.5)
         )
     }
 } 

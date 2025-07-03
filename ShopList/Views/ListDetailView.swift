@@ -22,6 +22,7 @@ struct ListDetailView: View {
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
+    @State private var showBudgetDetails = false
     
     init(list: ShoppingList) {
         self.list = list
@@ -72,51 +73,54 @@ struct ListDetailView: View {
                 // Budget Section
                 if let budget = list.budget {
                     Section {
-                        BudgetProgressView(
-                            budget: budget,
-                            spent: list.totalSpentCost,
-                            currency: settingsManager.currency
+                        DisclosureGroup(
+                            isExpanded: $showBudgetDetails,
+                            content: {
+                                VStack(spacing: 4) {
+                                    HStack {
+                                        Label("Budget", systemImage: settingsManager.currency.icon)
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                        Spacer()
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                            .fontWeight(.semibold)
+                                    }
+                                    HStack {
+                                        Label("Estimated Cost", systemImage: "cart")
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                        Spacer()
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                            .fontWeight(.semibold)
+                                    }
+                                    HStack {
+                                        Label("Spent", systemImage: "checkmark.circle.fill")
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                        Spacer()
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalSpentCost))
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                            .fontWeight(.semibold)
+                                    }
+                                    HStack {
+                                        Label("Remaining", systemImage: "creditcard")
+                                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                        Spacer()
+                                        let remaining = budget - list.totalSpentCost
+                                        Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
+                                            .foregroundColor(remaining >= 0 ? DesignSystem.Colors.adaptiveTextColor() : DesignSystem.Colors.error)
+                                            .fontWeight(.semibold)
+                                    }
+                                }
+                            },
+                            label: {
+                                BudgetProgressView(
+                                    budget: budget,
+                                    spent: list.totalSpentCost,
+                                    currency: settingsManager.currency
+                                )
+                                .padding(.vertical, 2)
+                            }
                         )
-                        .padding(.vertical, 8)
-                        
-                        VStack(spacing: 12) {
-                            HStack {
-                                Label("Budget", systemImage: settingsManager.currency.icon)
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                Spacer()
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", budget))
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            HStack {
-                                Label("Estimated Cost", systemImage: "cart")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Spacer()
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalEstimatedCost))
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            HStack {
-                                Label("Spent", systemImage: "checkmark.circle.fill")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Spacer()
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", list.totalSpentCost))
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                    .fontWeight(.semibold)
-                            }
-                            
-                            HStack {
-                                Label("Remaining", systemImage: "creditcard")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Spacer()
-                                let remaining = budget - list.totalSpentCost
-                                Text(settingsManager.currency.symbol + String(format: "%.2f", remaining))
-                                    .foregroundColor(remaining >= 0 ? DesignSystem.Colors.adaptiveTextColor() : DesignSystem.Colors.error)
-                                    .fontWeight(.semibold)
-                            }
-                        }
                     } header: {
                         Text("Budget Overview")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
@@ -166,7 +170,7 @@ struct ListDetailView: View {
                             RoundedRectangle(cornerRadius: 24, style: .continuous)
                                 .fill(Color(.systemBackground).opacity(0.92))
                                 .shadow(color: DesignSystem.Colors.primary.opacity(0.35), radius: 24, x: 0, y: 12)
-                            VStack(spacing: 16) {
+                            VStack(spacing: 8) {
                                 Button(action: {
                                     showingAddItem = true
                                 }) {
@@ -188,12 +192,12 @@ struct ListDetailView: View {
                                     .font(.subheadline)
                                     .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                             }
-                            .padding(.vertical, 32)
-                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
+                            .padding(.horizontal, 8)
                         }
                         .frame(maxWidth: .infinity, minHeight: 180)
-                        .padding(.vertical, 24)
-                        .padding(.horizontal, 8)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 4)
                         .listRowBackground(Color.clear)
                     } else {
                         ForEach(filteredItems) { item in
@@ -246,6 +250,8 @@ struct ListDetailView: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .listSectionSpacing(0)
+            .listRowSpacing(0)
             .enhancedNavigation(
                 title: list.name,
                 subtitle: "\(list.items.count) items • \(list.category.rawValue)",
@@ -467,8 +473,8 @@ struct ListDetailView: View {
                                 )
                         }
                     }
-                    .padding(.trailing, DesignSystem.Spacing.lg)
-                    .padding(.bottom, DesignSystem.Spacing.lg)
+                    .padding(.trailing, DesignSystem.Spacing.md)
+                    .padding(.bottom, DesignSystem.Spacing.md)
                 }
             }
         }
