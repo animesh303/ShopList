@@ -14,8 +14,14 @@ struct ReminderSheet: View {
     @State private var showingSuccess = false
     @State private var showingError = false
     @State private var errorMessage = ""
+    @State private var existingReminder: UNNotificationRequest?
+    @State private var isLoading = true
     
     // MARK: - Computed Properties
+    private var hasExistingReminder: Bool {
+        existingReminder != nil
+    }
+    
     private var datePickerCard: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
             // Header with icon
@@ -113,10 +119,10 @@ struct ReminderSheet: View {
     private var scheduleButton: some View {
         Button(action: scheduleReminder) {
             HStack(spacing: DesignSystem.Spacing.sm) {
-                Image(systemName: "bell.badge")
+                Image(systemName: hasExistingReminder ? "arrow.clockwise" : "bell.badge")
                     .font(.title3)
                     .fontWeight(.semibold)
-                Text("Schedule Reminder")
+                Text(hasExistingReminder ? "Update Reminder" : "Schedule Reminder")
                     .font(DesignSystem.Typography.bodyBold)
             }
             .frame(maxWidth: .infinity)
@@ -150,6 +156,91 @@ struct ReminderSheet: View {
         } else {
             return DesignSystem.Colors.primaryButtonGradient
         }
+    }
+    
+    private var existingReminderCard: some View {
+        VStack(spacing: DesignSystem.Spacing.md) {
+            // Header with icon
+            HStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(DesignSystem.Colors.success)
+                Text("Current Reminder")
+                    .font(DesignSystem.Typography.subheadlineBold)
+                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                Spacer()
+            }
+            
+            // Reminder details
+            if let reminder = existingReminder {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
+                    HStack {
+                        Image(systemName: "clock.fill")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.info)
+                        Text("Scheduled for: \(formatReminderDate(reminder))")
+                            .font(DesignSystem.Typography.caption1)
+                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                    }
+                    
+                    HStack {
+                        Image(systemName: reminder.identifier.contains("recurring") ? "repeat" : "calendar")
+                            .font(.caption)
+                            .foregroundColor(DesignSystem.Colors.info)
+                        Text(reminder.identifier.contains("recurring") ? "Daily recurring reminder" : "One-time reminder")
+                            .font(DesignSystem.Typography.caption1)
+                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                    }
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(DesignSystem.Colors.success.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(DesignSystem.Colors.success.opacity(0.3), lineWidth: 1)
+                        )
+                )
+            }
+            
+            // Cancel button
+            Button(action: cancelExistingReminder) {
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    Image(systemName: "xmark.circle")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                    Text("Cancel Reminder")
+                        .font(DesignSystem.Typography.bodyBold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(DesignSystem.Spacing.md)
+                .background(
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                        .fill(DesignSystem.Colors.error.opacity(0.8))
+                )
+                .foregroundColor(.white)
+                .shadow(
+                    color: DesignSystem.Colors.error.opacity(0.3),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                )
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+        }
+        .padding(DesignSystem.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+        )
+        .padding(.horizontal, 4)
+        .padding(.vertical, 2)
     }
     
     private var notificationDisabledCard: some View {
@@ -237,59 +328,74 @@ struct ReminderSheet: View {
                 DesignSystem.Colors.backgroundGradient
                     .ignoresSafeArea()
                 
-                Form {
-                    // Reminder Details Section
-                    Section {
-                        VStack(spacing: DesignSystem.Spacing.md) {
-                            datePickerCard
-                            recurringToggleCard
+                if isLoading {
+                    ProgressView("Loading reminder...")
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                } else {
+                    Form {
+                        // Existing Reminder Section
+                        if hasExistingReminder {
+                            Section {
+                                existingReminderCard
+                            } header: {
+                                Text("Current Reminder")
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            }
                         }
-                    } header: {
-                        Text("Reminder Details")
-                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                    } footer: {
-                        Text("Set a reminder for your shopping list")
-                            .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                    }
-                    
-                    // Actions Section
-                    Section {
-                        VStack(spacing: DesignSystem.Spacing.md) {
-                            scheduleButton
-                        }
-                    } header: {
-                        Text("Actions")
-                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                    }
-                    
-                    // Notification Status Section
-                    if !settingsManager.notificationsEnabled {
+                        
+                        // Reminder Details Section
                         Section {
-                            notificationDisabledCard
+                            VStack(spacing: DesignSystem.Spacing.md) {
+                                datePickerCard
+                                recurringToggleCard
+                            }
                         } header: {
-                            Text("Notification Status")
+                            Text(hasExistingReminder ? "Update Reminder" : "Reminder Details")
+                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                        } footer: {
+                            Text(hasExistingReminder ? "Modify your existing reminder settings" : "Set a reminder for your shopping list")
+                                .font(DesignSystem.Typography.caption1)
+                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        }
+                        
+                        // Actions Section
+                        Section {
+                            VStack(spacing: DesignSystem.Spacing.md) {
+                                scheduleButton
+                            }
+                        } header: {
+                            Text("Actions")
                                 .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                         }
-                    } else if !notificationManager.isAuthorized {
-                        Section {
-                            permissionRequiredCard
-                        } header: {
-                            Text("Notification Status")
-                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                        
+                        // Notification Status Section
+                        if !settingsManager.notificationsEnabled {
+                            Section {
+                                notificationDisabledCard
+                            } header: {
+                                Text("Notification Status")
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            }
+                        } else if !notificationManager.isAuthorized {
+                            Section {
+                                permissionRequiredCard
+                            } header: {
+                                Text("Notification Status")
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                            }
                         }
                     }
+                    .scrollContentBackground(.hidden)
+                    .listSectionSpacing(0)
+                    .listRowSpacing(0)
+                    .enhancedNavigation(
+                        title: hasExistingReminder ? "Edit Reminder" : "Set Reminder",
+                        subtitle: "for \(list.name)",
+                        icon: "bell.badge",
+                        style: .custom(DesignSystem.Colors.themeAwareCategoryGradient(for: list.category, colorScheme: colorScheme)),
+                        showBanner: true
+                    )
                 }
-                .scrollContentBackground(.hidden)
-                .listSectionSpacing(0)
-                .listRowSpacing(0)
-                .enhancedNavigation(
-                    title: "Set Reminder",
-                    subtitle: "for \(list.name)",
-                    icon: "bell.badge",
-                    style: .custom(DesignSystem.Colors.themeAwareCategoryGradient(for: list.category, colorScheme: colorScheme)),
-                    showBanner: true
-                )
                 
                 // Enhanced Floating Action Button (FAB) for Cancel
                 VStack {
@@ -333,17 +439,89 @@ struct ReminderSheet: View {
                 dismiss()
             }
         } message: {
-            Text("Your reminder has been scheduled successfully!")
+            Text(hasExistingReminder ? "Your reminder has been updated successfully!" : "Your reminder has been scheduled successfully!")
         }
         .alert("Error", isPresented: $showingError) {
             Button("OK", role: .cancel) { }
         } message: {
             Text(errorMessage)
         }
+        .onAppear {
+            loadExistingReminder()
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func loadExistingReminder() {
+        Task {
+            await notificationManager.getPendingNotifications()
+            
+            await MainActor.run {
+                // Find existing reminder for this list
+                existingReminder = notificationManager.pendingNotifications.first { request in
+                    if let listId = request.content.userInfo["listId"] as? String {
+                        return listId == list.id.uuidString
+                    }
+                    return false
+                }
+                
+                // If found, populate the form with existing data
+                if let reminder = existingReminder {
+                    populateFormWithExistingReminder(reminder)
+                } else {
+                    // Set default time from settings
+                    reminderDate = settingsManager.defaultReminderTime
+                }
+                
+                isLoading = false
+            }
+        }
+    }
+    
+    private func populateFormWithExistingReminder(_ reminder: UNNotificationRequest) {
+        // Determine if it's recurring
+        isRecurring = reminder.identifier.contains("recurring")
+        
+        // Extract date from trigger
+        if let trigger = reminder.trigger as? UNCalendarNotificationTrigger {
+            if let nextTriggerDate = trigger.nextTriggerDate() {
+                reminderDate = nextTriggerDate
+            }
+        }
+    }
+    
+    private func formatReminderDate(_ reminder: UNNotificationRequest) -> String {
+        if let trigger = reminder.trigger as? UNCalendarNotificationTrigger,
+           let nextTriggerDate = trigger.nextTriggerDate() {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            return formatter.string(from: nextTriggerDate)
+        }
+        return "Unknown"
+    }
+    
+    private func cancelExistingReminder() {
+        guard let reminder = existingReminder else { return }
+        
+        Task {
+            notificationManager.cancelNotification(withIdentifier: reminder.identifier)
+            
+            await MainActor.run {
+                existingReminder = nil
+                showingSuccess = true
+            }
+        }
     }
     
     private func scheduleReminder() {
         Task {
+            // Cancel existing reminder if any
+            if let existing = existingReminder {
+                notificationManager.cancelNotification(withIdentifier: existing.identifier)
+            }
+            
             let success: Bool
             
             if isRecurring {
