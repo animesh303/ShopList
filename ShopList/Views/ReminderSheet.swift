@@ -470,8 +470,8 @@ struct ReminderSheet: View {
                 if let reminder = existingReminder {
                     populateFormWithExistingReminder(reminder)
                 } else {
-                    // Set default time from settings
-                    reminderDate = settingsManager.defaultReminderTime
+                    // Set current date and time as default
+                    reminderDate = Date()
                 }
                 
                 isLoading = false
