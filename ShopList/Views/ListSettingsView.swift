@@ -11,7 +11,6 @@ struct ListSettingsView: View {
     @State private var listName: String
     @State private var category: ListCategory
     @State private var budgetString: String
-    @State private var isTemplate: Bool
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var showingPremiumUpgrade = false
@@ -22,7 +21,6 @@ struct ListSettingsView: View {
         _listName = State(initialValue: list.name)
         _category = State(initialValue: list.category)
         _budgetString = State(initialValue: list.budget != nil ? String(format: "%.2f", list.budget!) : "")
-        _isTemplate = State(initialValue: list.isTemplate)
     }
     
     private var budget: Double? {
@@ -266,12 +264,6 @@ struct ListSettingsView: View {
                                         .font(DesignSystem.Typography.caption1)
                                         .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                                 }
-                                
-                                if isTemplate {
-                                    Text("Template: Yes")
-                                        .font(DesignSystem.Typography.caption1)
-                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                                }
                             }
                             
                             Spacer()
@@ -283,53 +275,6 @@ struct ListSettingsView: View {
                                 .overlay(
                                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
                                         .stroke(category.color.opacity(0.2), lineWidth: 1)
-                                )
-                        )
-                        .padding(.horizontal, DesignSystem.Spacing.md)
-                    }
-                    .padding(DesignSystem.Spacing.md)
-                    .background(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.lg)
-                            .fill(Color(.systemBackground).opacity(0.92))
-                            .shadow(color: DesignSystem.Colors.primary.opacity(0.15), radius: 16, x: 0, y: 8)
-                    )
-                    .padding(.horizontal, DesignSystem.Spacing.md)
-                    
-                    // Template Settings Card
-                    VStack(spacing: DesignSystem.Spacing.md) {
-                        HStack {
-                            Image(systemName: "doc.on.doc")
-                                .font(.title2)
-                                .foregroundColor(DesignSystem.Colors.primary)
-                            Text("Template Settings")
-                                .font(DesignSystem.Typography.headline)
-                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                            Spacer()
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.md)
-                        
-                        HStack {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xs) {
-                                Text("Save as Template")
-                                    .font(DesignSystem.Typography.subheadlineBold)
-                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                                Text("Templates can be used to quickly create new lists with predefined items")
-                                    .font(DesignSystem.Typography.caption1)
-                                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                            }
-                            
-                            Spacer()
-                            
-                            Toggle("", isOn: $isTemplate)
-                                .toggleStyle(SwitchToggleStyle(tint: DesignSystem.Colors.primary))
-                        }
-                        .padding(DesignSystem.Spacing.md)
-                        .background(
-                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                .fill(Color(.systemBackground).opacity(0.8))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
-                                        .stroke(DesignSystem.Colors.primary.opacity(0.3), lineWidth: 1)
                                 )
                         )
                         .padding(.horizontal, DesignSystem.Spacing.md)
@@ -448,7 +393,6 @@ struct ListSettingsView: View {
                 list.name = listName
                 list.category = category
                 list.budget = subscriptionManager.canUseBudgetTracking() ? budget : nil
-                list.isTemplate = isTemplate
                 
                 try await viewModel.updateShoppingList(list)
                 dismiss()
