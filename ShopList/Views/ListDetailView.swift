@@ -130,36 +130,138 @@ struct ListDetailView: View {
                 // Location Section
                 if let location = list.location {
                     Section {
-                        HStack {
-                            Label("Location", systemImage: "location")
-                                .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                            Spacer()
-                            Text(location.name)
-                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            HStack {
+                                Label("Location", systemImage: "location")
+                                    .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                Spacer()
+                                Text(location.name)
+                                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                            }
+                            
+                            Button("Update Location Reminder") {
+                                showingLocationSetup = true
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
                         }
-                        
-                        Button("Update Location Reminder") {
-                            showingLocationSetup = true
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(DesignSystem.Colors.primary)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
                     } header: {
                         Text("Store Information")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     }
                 } else {
                     Section {
-                        Button("Set Up Location Reminder") {
-                            showingLocationSetup = true
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            Button("Set Up Location Reminder") {
+                                showingLocationSetup = true
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
                         }
-                        .buttonStyle(.bordered)
-                        .tint(DesignSystem.Colors.primary)
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
                     } header: {
                         Text("Location Reminder")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     } footer: {
                         Text("Get notified when you're near the store")
                             .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                    }
+                }
+                
+                // Items Summary Section
+                if !filteredItems.isEmpty {
+                    Section {
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            // Progress bar
+                            let completedCount = filteredItems.filter { $0.isCompleted }.count
+                            let totalCount = filteredItems.count
+                            let progress = totalCount > 0 ? Double(completedCount) / Double(totalCount) : 0.0
+                            
+                            ProgressView(value: progress)
+                                .progressViewStyle(LinearProgressViewStyle(tint: DesignSystem.Colors.success))
+                                .scaleEffect(y: 2)
+                            
+                            // Summary stats
+                            HStack {
+                                // Total items
+                                HStack(spacing: DesignSystem.Spacing.xs) {
+                                    Image(systemName: "list.bullet")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.primary)
+                                    Text("\(totalCount)")
+                                        .font(DesignSystem.Typography.subheadlineBold)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                    Text("items")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                }
+                                
+                                Spacer()
+                                
+                                // Completed items
+                                HStack(spacing: DesignSystem.Spacing.xs) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.success)
+                                    Text("\(completedCount)")
+                                        .font(DesignSystem.Typography.subheadlineBold)
+                                        .foregroundColor(DesignSystem.Colors.success)
+                                    Text("completed")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                }
+                                
+                                Spacer()
+                                
+                                // Remaining items
+                                HStack(spacing: DesignSystem.Spacing.xs) {
+                                    Image(systemName: "circle")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                    Text("\(totalCount - completedCount)")
+                                        .font(DesignSystem.Typography.subheadlineBold)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
+                                    Text("remaining")
+                                        .font(DesignSystem.Typography.caption1)
+                                        .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                                }
+                            }
+                        }
+                        .padding(DesignSystem.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .fill(DesignSystem.Colors.cardBackground(for: list.category))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.sm)
+                                .stroke(list.category.color.opacity(0.15), lineWidth: 1)
+                        )
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                    } header: {
+                        Text("Progress Summary")
+                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     }
                 }
                 
@@ -225,28 +327,10 @@ struct ListDetailView: View {
                                     }
                             }
                         }
-                        
-                        if !filteredItems.isEmpty {
-                            HStack {
-                                Label("Total Items", systemImage: "list.bullet")
-                                    .foregroundColor(DesignSystem.Colors.primary)
-                                Spacer()
-                                Text("\(filteredItems.count) items")
-                                    .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                            }
-                        }
                     }
                 } header: {
-                    HStack {
-                        Text("Items")
-                            .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
-                        Spacer()
-                        if !filteredItems.isEmpty {
-                            Text("\(filteredItems.count)")
-                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
-                                .font(.caption)
-                        }
-                    }
+                    Text("Items")
+                        .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                 }
             }
             .scrollContentBackground(.hidden)
