@@ -376,7 +376,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
     case unlimitedNotifications = "Unlimited Notifications"
     case widgets = "iOS Widgets"
     case appShortcuts = "Siri Shortcuts"
-    case templates = "List Templates"
     case budgetTracking = "Budget Tracking"
     case itemImages = "Item Images"
     case exportImport = "Export/Import"
@@ -398,8 +397,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Home screen widgets"
         case .appShortcuts:
             return "Siri voice commands"
-        case .templates:
-            return "Save and reuse list templates"
         case .budgetTracking:
             return "Track spending with budgets"
         case .itemImages:
@@ -419,7 +416,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .unlimitedNotifications: return "bell.fill"
         case .widgets: return "rectangle.3.group.fill"
         case .appShortcuts: return "mic.fill"
-        case .templates: return "doc.on.doc.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
         case .itemImages: return "photo.fill"
         case .exportImport: return "square.and.arrow.up"
@@ -435,7 +431,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .unlimitedNotifications: return false
         case .widgets: return false
         case .appShortcuts: return false
-        case .templates: return false
         case .budgetTracking: return false
         case .itemImages: return false
         case .exportImport: return false

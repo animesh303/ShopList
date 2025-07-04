@@ -280,9 +280,7 @@ class UserSettingsManager: ObservableObject {
         case .appShortcuts:
             // This would be handled by ShortcutManager
             break
-        case .templates:
-            // This would be handled by TemplateManager
-            break
+
         case .exportImport:
             // This would be handled by ExportManager
             break
@@ -309,8 +307,7 @@ class UserSettingsManager: ObservableObject {
             return SubscriptionManager.shared.canUseWidgets()
         case .appShortcuts:
             return SubscriptionManager.shared.canUseAppShortcuts()
-        case .templates:
-            return SubscriptionManager.shared.canUseTemplates()
+
         case .exportImport:
             return SubscriptionManager.shared.canUseExportImport()
         case .prioritySupport:
@@ -327,7 +324,6 @@ enum PremiumSetting {
     case budgetTracking
     case widgets
     case appShortcuts
-    case templates
     case exportImport
     case prioritySupport
 } 

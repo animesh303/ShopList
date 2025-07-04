@@ -284,9 +284,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUseTemplates() -> Bool {
-        return isPremium
-    }
+
     
     func canUseBudgetTracking() -> Bool {
         return isPremium
@@ -345,8 +343,7 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to use home screen widgets"
         case .appShortcuts:
             return "Upgrade to Premium to use Siri shortcuts"
-        case .templates:
-            return "Upgrade to Premium to save list templates"
+
         case .budgetTracking:
             return "Upgrade to Premium to track budgets"
         case .itemImages:
@@ -411,9 +408,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return canUseBudgetTracking()
     }
     
-    func checkTemplateAccess() -> Bool {
-        return canUseTemplates()
-    }
+
     
     func checkLocationAccess() -> Bool {
         return canUseLocationReminders()
