@@ -258,4 +258,111 @@ final class ShoppingListViewModel: ObservableObject {
     func deleteImage(at url: URL) {
         try? FileManager.default.removeItem(at: url)
     }
+    
+    // MARK: - Sharing Methods
+    
+    func generateShareableContent(for list: ShoppingList) -> String {
+        var content = "🛒 \(list.name)\n"
+        content += "📅 Created: \(formatDate(list.dateCreated))\n"
+        content += "📊 Category: \(list.category.rawValue)\n\n"
+        
+        if let budget = list.budget {
+            content += "💰 Budget: $\(String(format: "%.2f", budget))\n"
+            content += "💳 Estimated Total: $\(String(format: "%.2f", list.totalEstimatedCost))\n"
+            content += "✅ Spent: $\(String(format: "%.2f", list.totalSpentCost))\n\n"
+        }
+        
+        if let location = list.location {
+            content += "📍 Store: \(location.name)\n\n"
+        }
+        
+        content += "📋 Items (\(list.items.count) total):\n"
+        
+        // Group items by category for better organization
+        let itemsByCategory = list.itemsByCategory
+        let sortedCategories = itemsByCategory.keys.sorted { $0.rawValue < $1.rawValue }
+        
+        for category in sortedCategories {
+            if let items = itemsByCategory[category] {
+                content += "\n\(category.rawValue):\n"
+                for item in items.sorted(by: { $0.name < $1.name }) {
+                    let checkmark = item.isCompleted ? "✅" : "⭕"
+                    let quantity = item.quantity > Decimal(1) ? " (\(item.quantity))" : ""
+                    let unit = (item.unit?.isEmpty == false) ? " \(item.unit!)" : ""
+                    let price = item.pricePerUnit != nil ? " - $\(String(format: "%.2f", NSDecimalNumber(decimal: item.pricePerUnit!)))" : ""
+                    let notes = (item.notes?.isEmpty == false) ? " (\(item.notes!))" : ""
+                    
+                    content += "\(checkmark) \(item.name)\(quantity)\(unit)\(price)\(notes)\n"
+                }
+            }
+        }
+        
+        content += "\n---\n"
+        content += "Shared from ShopList App"
+        
+        return content
+    }
+    
+    func generateCSVContent(for list: ShoppingList) -> String {
+        var csv = "Name,Quantity,Unit,Category,Price,Notes,Completed\n"
+        
+        for item in list.items.sorted(by: { $0.name < $1.name }) {
+            let name = item.name.replacingOccurrences(of: ",", with: ";")
+            let quantity = String(describing: item.quantity)
+            let unit = item.unit ?? ""
+            let category = item.category.rawValue
+            let price = item.pricePerUnit != nil ? String(format: "%.2f", NSDecimalNumber(decimal: item.pricePerUnit!)) : ""
+            let notes = item.notes?.replacingOccurrences(of: ",", with: ";") ?? ""
+            let completed = item.isCompleted ? "Yes" : "No"
+            
+            csv += "\(name),\(quantity),\(unit),\(category),\(price),\(notes),\(completed)\n"
+        }
+        
+        return csv
+    }
+    
+    func createCSVFile(for list: ShoppingList) -> URL? {
+        let csvContent = generateCSVContent(for: list)
+        let filename = "\(list.name.replacingOccurrences(of: " ", with: "_")).csv"
+        
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        let fileURL = documentsDirectory.appendingPathComponent(filename)
+        
+        do {
+            try csvContent.write(to: fileURL, atomically: true, encoding: .utf8)
+            return fileURL
+        } catch {
+            print("Error creating CSV file: \(error)")
+            return nil
+        }
+    }
+    
+    func shareList(_ list: ShoppingList) {
+        listToShare = list
+        showingShareSheet = true
+    }
+    
+    func getShareableItems(for list: ShoppingList) -> [Any] {
+        var items: [Any] = []
+        
+        // Add text content
+        items.append(generateShareableContent(for: list))
+        
+        // Add CSV file if available
+        if let csvURL = createCSVFile(for: list) {
+            items.append(csvURL)
+        }
+        
+        return items
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
 } 

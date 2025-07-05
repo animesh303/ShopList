@@ -19,6 +19,8 @@ struct ShoppingListView: View {
     @State private var showingPremiumUpgrade = false
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
+    @State private var showingShareSheet = false
+    @State private var listToShare: ShoppingList?
     
     private var filteredLists: [ShoppingList] {
         var filtered = lists
@@ -60,6 +62,15 @@ struct ShoppingListView: View {
                 ForEach(filteredLists) { list in
                     NavigationLink(destination: ListDetailView(list: list)) {
                         ListRow(list: list)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button {
+                            listToShare = list
+                            showingShareSheet = true
+                        } label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .tint(.blue)
                     }
                 }
                 .onDelete(perform: deleteLists)
@@ -115,6 +126,11 @@ struct ShoppingListView: View {
             }
             .sheet(isPresented: $showingPremiumUpgrade) {
                 PremiumUpgradeView()
+            }
+            .sheet(isPresented: $showingShareSheet) {
+                if let listToShare = listToShare {
+                    ShareSheet(activityItems: ShoppingListViewModel.shared.getShareableItems(for: listToShare))
+                }
             }
         }
     }

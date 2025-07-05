@@ -18,6 +18,8 @@ struct ContentView: View {
     @State private var showingUpgradePrompt = false
     @State private var showingPremiumUpgrade = false
     @State private var upgradePromptMessage = ""
+    @State private var showingShareSheet = false
+    @State private var listToShare: ShoppingList?
 
     
     private var filteredLists: [ShoppingList] {
@@ -328,6 +330,46 @@ struct ContentView: View {
                                 }
                                 .transition(.scale.combined(with: .opacity))
                                 
+                                // Share All Lists button with vibrant design
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    
+                                    // Create a combined list for sharing
+                                    let combinedContent = createCombinedShareContent()
+                                    let shareItems: [Any] = [combinedContent]
+                                    
+                                    // Present share sheet
+                                    let activityVC = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
+                                    
+                                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                       let window = windowScene.windows.first {
+                                        window.rootViewController?.present(activityVC, animated: true)
+                                    }
+                                    
+                                    withAnimation(DesignSystem.Animations.spring) {
+                                        isExpanded = false
+                                    }
+                                    stopFabTimer()
+                                } label: {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                        .background(
+                                            DesignSystem.Colors.success.opacity(0.8)
+                                        )
+                                        .clipShape(Circle())
+                                        .shadow(
+                                            color: DesignSystem.Colors.success.opacity(0.4),
+                                            radius: 8,
+                                            x: 0,
+                                            y: 4
+                                        )
+                                }
+                                .transition(.scale.combined(with: .opacity))
+                                
                                 // Settings button with vibrant design
                                 Button {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -465,6 +507,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingPremiumUpgrade) {
                 PremiumUpgradeView()
             }
+
             .navigationDestination(for: ShoppingList.self) { list in
                 ListDetailView(list: list)
             }
@@ -499,6 +542,45 @@ struct ContentView: View {
     private func stopFabTimer() {
         fabTimer?.invalidate()
         fabTimer = nil
+    }
+    
+    private func createCombinedShareContent() -> String {
+        var content = "🛒 My Shopping Lists\n"
+        content += "📅 Generated on: \(formatDate(Date()))\n"
+        content += "📊 Total Lists: \(sortedLists.count)\n\n"
+        
+        if sortedLists.isEmpty {
+            content += "No shopping lists found.\n"
+        } else {
+            for (index, list) in sortedLists.enumerated() {
+                content += "\(index + 1). \(list.name)\n"
+                content += "   📊 Category: \(list.category.rawValue)\n"
+                content += "   📋 Items: \(list.items.count) total, \(list.completedItems.count) completed\n"
+                
+                if let budget = list.budget {
+                    content += "   💰 Budget: $\(String(format: "%.2f", budget))\n"
+                    content += "   💳 Estimated: $\(String(format: "%.2f", list.totalEstimatedCost))\n"
+                }
+                
+                if let location = list.location {
+                    content += "   📍 Store: \(location.name)\n"
+                }
+                
+                content += "\n"
+            }
+        }
+        
+        content += "---\n"
+        content += "Shared from ShopList App"
+        
+        return content
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 
