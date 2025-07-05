@@ -263,8 +263,7 @@ final class ShoppingListViewModel: ObservableObject {
     
     func generateShareableContent(for list: ShoppingList, currency: Currency = .USD) -> String {
         var content = "🛒 \(list.name)\n"
-        content += "📅 Created: \(formatDate(list.dateCreated))\n"
-        content += "📊 Category: \(list.category.rawValue)\n\n"
+        content += "📅 Created: \(formatDate(list.dateCreated))\n\n"
         
         if let budget = list.budget {
             content += "💰 Budget: \(currency.symbol)\(formatDecimal(Decimal(budget)))\n"
@@ -276,29 +275,24 @@ final class ShoppingListViewModel: ObservableObject {
             content += "📍 Store: \(location.name)\n\n"
         }
         
-        content += "📋 Items (\(list.items.count) total):\n"
+        content += "📋 Items (\(list.items.count) total):\n\n"
         
-        // Group items by category for better organization
-        let itemsByCategory = list.itemsByCategory
-        let sortedCategories = itemsByCategory.keys.sorted { $0.rawValue < $1.rawValue }
+        // Sort items by name and add serial numbers
+        let sortedItems = list.items.sorted(by: { $0.name < $1.name })
         
-        for category in sortedCategories {
-            if let items = itemsByCategory[category] {
-                content += "\n\(category.rawValue):\n"
-                for item in items.sorted(by: { $0.name < $1.name }) {
-                    let checkmark = item.isCompleted ? "✅" : "⭕"
-                    let quantity = item.quantity > Decimal(1) ? " (\(item.quantity))" : ""
-                    let unit = (item.unit?.isEmpty == false) ? " \(item.unit!)" : ""
-                    
-                    // Debug logging
-                    print("DEBUG: Item '\(item.name)' - pricePerUnit: \(item.pricePerUnit?.description ?? "nil")")
-                    
-                    let price = item.pricePerUnit != nil ? " - \(currency.symbol)\(formatDecimal(item.pricePerUnit!))" : ""
-                    let notes = (item.notes?.isEmpty == false) ? " (\(item.notes!))" : ""
-                    
-                    content += "\(checkmark) \(item.name)\(quantity)\(unit)\(price)\(notes)\n"
-                }
-            }
+        for (index, item) in sortedItems.enumerated() {
+            let serialNumber = index + 1
+            let checkmark = item.isCompleted ? "✅" : "⭕"
+            let quantity = item.quantity > Decimal(1) ? " (\(item.quantity))" : ""
+            let unit = (item.unit?.isEmpty == false) ? " \(item.unit!)" : ""
+            
+            // Debug logging
+            print("DEBUG: Item '\(item.name)' - pricePerUnit: \(item.pricePerUnit?.description ?? "nil")")
+            
+            let price = item.pricePerUnit != nil ? " - \(currency.symbol)\(formatDecimal(item.pricePerUnit!))" : ""
+            let notes = (item.notes?.isEmpty == false) ? " (\(item.notes!))" : ""
+            
+            content += "\(serialNumber). \(checkmark) \(item.name)\(quantity)\(unit)\(price)\(notes)\n"
         }
         
         content += "\n---\n"
@@ -308,13 +302,15 @@ final class ShoppingListViewModel: ObservableObject {
     }
     
     func generateCSVContent(for list: ShoppingList, currency: Currency = .USD) -> String {
-        var csv = "Name,Quantity,Unit,Category,Price (\(currency.symbol)),Notes,Completed\n"
+        var csv = "No.,Name,Quantity,Unit,Price (\(currency.symbol)),Notes,Completed\n"
         
-        for item in list.items.sorted(by: { $0.name < $1.name }) {
+        let sortedItems = list.items.sorted(by: { $0.name < $1.name })
+        
+        for (index, item) in sortedItems.enumerated() {
+            let serialNumber = index + 1
             let name = item.name.replacingOccurrences(of: ",", with: ";")
             let quantity = String(describing: item.quantity)
             let unit = item.unit ?? ""
-            let category = item.category.rawValue
             
             // Debug logging
             print("DEBUG CSV: Item '\(item.name)' - pricePerUnit: \(item.pricePerUnit?.description ?? "nil")")
@@ -323,7 +319,7 @@ final class ShoppingListViewModel: ObservableObject {
             let notes = item.notes?.replacingOccurrences(of: ",", with: ";") ?? ""
             let completed = item.isCompleted ? "Yes" : "No"
             
-            csv += "\(name),\(quantity),\(unit),\(category),\(price),\(notes),\(completed)\n"
+            csv += "\(serialNumber),\(name),\(quantity),\(unit),\(price),\(notes),\(completed)\n"
         }
         
         return csv
