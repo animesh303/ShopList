@@ -274,16 +274,8 @@ class UserSettingsManager: ObservableObject {
         case .budgetTracking:
             // This would be handled by BudgetManager
             break
-        case .widgets:
-            // This would be handled by WidgetManager
-            break
-
-
         case .exportImport:
             // This would be handled by ExportManager
-            break
-        case .prioritySupport:
-            // This would be handled by SupportManager
             break
         }
         
@@ -301,12 +293,8 @@ class UserSettingsManager: ObservableObject {
             return SubscriptionManager.shared.canUseUnlimitedNotifications()
         case .budgetTracking:
             return SubscriptionManager.shared.canUseBudgetTracking()
-        case .widgets:
-            return SubscriptionManager.shared.canUseWidgets()
         case .exportImport:
             return SubscriptionManager.shared.canUseExportImport()
-        case .prioritySupport:
-            return SubscriptionManager.shared.canUsePrioritySupport()
         }
     }
 }
@@ -317,7 +305,5 @@ enum PremiumSetting {
     case locationReminders
     case unlimitedNotifications
     case budgetTracking
-    case widgets
     case exportImport
-    case prioritySupport
 } 

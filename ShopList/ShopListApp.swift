@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftData
-import WidgetKit
 
 @main
 struct ShopListApp: App {
@@ -56,34 +55,13 @@ struct ShopListApp: App {
                         // Set up model context for subscription manager
                         SubscriptionManager.shared.setModelContext(container.mainContext)
                     }
-                    .onChange(of: container.mainContext.hasChanges) { _, hasChanges in
-                        if hasChanges {
-                            updateWidgetData()
-                        }
-                    }
+
             }
         }
         .modelContainer(container)
     }
     
-    private func updateWidgetData() {
-        Task {
-            let context = container.mainContext
-            let descriptor = FetchDescriptor<ShoppingList>()
-            
-            do {
-                let lists = try context.fetch(descriptor)
-                let widgetLists = lists.map { WidgetShoppingList(from: $0) }
-                
-                if let encodedData = try? JSONEncoder().encode(widgetLists) {
-                    UserDefaults.standard.set(encodedData, forKey: "shoppingLists")
-                    WidgetCenter.shared.reloadAllTimelines()
-                }
-            } catch {
-                print("Failed to update widget data: \(error)")
-            }
-        }
-    }
+
 }
 
 struct iOSVersionCheck: ViewModifier {

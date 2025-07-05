@@ -18,7 +18,7 @@ The app now implements a freemium model with the following tiers:
 - **Lists**: Unlimited shopping lists
 - **Categories**: All 20+ categories
 - **Notifications**: Unlimited notifications
-- **Features**: All premium features including location reminders, widgets, templates, budget tracking, etc.
+- **Features**: All premium features including location reminders, templates, budget tracking, etc.
 
 ## Implementation Details
 
@@ -41,13 +41,11 @@ Defines premium features and their availability:
 - All Categories
 - Location Reminders
 - Unlimited Notifications
-- iOS Widgets
 
 - List Templates
 - Budget Tracking
 - Item Images
 - Export/Import
-- Priority Support
 
 ### 3. UI Components
 
