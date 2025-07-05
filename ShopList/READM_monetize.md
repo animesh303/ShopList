@@ -24,7 +24,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 5. **Location-Based Reminders** - Get notified when near stores
 6. **Smart Notifications** - Time-based and recurring reminders
 7. **Widgets** - iOS home screen widgets for quick access
-8. **App Shortcuts** - Siri integration for voice commands
+8. **Voice Commands** - App integration for voice commands
 9. **Multi-Currency Support** - USD, EUR, GBP, INR
 10. **Dark/Light Mode** - Customizable appearance
 11. **Search & Filtering** - Find lists and items quickly
@@ -54,7 +54,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - Standard notifications (5 per day)
 - No location reminders
 - No widgets
-- No app shortcuts
+- No voice commands
 - No templates
 - No budget tracking
 - No item images
@@ -67,7 +67,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - Unlimited notifications
 - Location-based reminders
 - iOS widgets
-- Siri app shortcuts
+
 - List templates
 - Budget tracking with analytics
 - Item images
@@ -85,7 +85,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - **Unlimited Lists:** $1.99
 - **Location Reminders:** $0.99
 - **Budget Tracking:** $0.99
-- **Widgets & Shortcuts:** $0.99
+- **Widgets & Voice Commands:** $0.99
 - **Templates:** $0.99
 - **Export/Import:** $0.99
 - **Premium Themes:** $0.99 each

@@ -42,7 +42,7 @@ Defines premium features and their availability:
 - Location Reminders
 - Unlimited Notifications
 - iOS Widgets
-- Siri Shortcuts
+
 - List Templates
 - Budget Tracking
 - Item Images

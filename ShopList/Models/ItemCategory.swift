@@ -1,7 +1,6 @@
 import Foundation
-import AppIntents
 
-enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable, Identifiable {
+enum ItemCategory: String, Codable, CaseIterable, Comparable, Identifiable {
     // Sorted alphabetically for better organization
     case automotive = "Automotive"
     case babyCare = "Baby Care"
@@ -34,35 +33,7 @@ enum ItemCategory: String, Codable, CaseIterable, AppEnum, Comparable, Identifia
         return lhs.rawValue.localizedStandardCompare(rhs.rawValue) == .orderedAscending
     }
     
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Item Category"
-    
-    static let caseDisplayRepresentations: [ItemCategory: DisplayRepresentation] = [
-        .groceries: DisplayRepresentation(stringLiteral: "Groceries"),
-        .dairy: DisplayRepresentation(stringLiteral: "Dairy"),
-        .bakery: DisplayRepresentation(stringLiteral: "Bakery"),
-        .produce: DisplayRepresentation(stringLiteral: "Produce"),
-        .meat: DisplayRepresentation(stringLiteral: "Meat & Seafood"),
-        .frozenFoods: DisplayRepresentation(stringLiteral: "Frozen Foods"),
-        .beverages: DisplayRepresentation(stringLiteral: "Beverages"),
-        .snacks: DisplayRepresentation(stringLiteral: "Snacks"),
-        .spices: DisplayRepresentation(stringLiteral: "Spices & Herbs"),
-        .household: DisplayRepresentation(stringLiteral: "Household"),
-        .cleaning: DisplayRepresentation(stringLiteral: "Cleaning"),
-        .laundry: DisplayRepresentation(stringLiteral: "Laundry"),
-        .kitchen: DisplayRepresentation(stringLiteral: "Kitchen"),
-        .bathroom: DisplayRepresentation(stringLiteral: "Bathroom"),
-        .office: DisplayRepresentation(stringLiteral: "Office"),
-        .personalCare: DisplayRepresentation(stringLiteral: "Personal Care"),
-        .beauty: DisplayRepresentation(stringLiteral: "Beauty"),
-        .health: DisplayRepresentation(stringLiteral: "Health"),
-        .babyCare: DisplayRepresentation(stringLiteral: "Baby Care"),
-        .petCare: DisplayRepresentation(stringLiteral: "Pet Care"),
-        .electronics: DisplayRepresentation(stringLiteral: "Electronics"),
-        .clothing: DisplayRepresentation(stringLiteral: "Clothing"),
-        .automotive: DisplayRepresentation(stringLiteral: "Automotive"),
-        .garden: DisplayRepresentation(stringLiteral: "Garden"),
-        .other: DisplayRepresentation(stringLiteral: "Other")
-    ]
+
     
     var icon: String {
         switch self {

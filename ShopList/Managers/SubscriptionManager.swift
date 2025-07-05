@@ -280,9 +280,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUseAppShortcuts() -> Bool {
-        return isPremium
-    }
+
     
 
     
@@ -341,9 +339,6 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium for unlimited notifications"
         case .widgets:
             return "Upgrade to Premium to use home screen widgets"
-        case .appShortcuts:
-            return "Upgrade to Premium to use Siri shortcuts"
-
         case .budgetTracking:
             return "Upgrade to Premium to track budgets"
         case .itemImages:
@@ -418,9 +413,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return canUseWidgets()
     }
     
-    func checkShortcutAccess() -> Bool {
-        return canUseAppShortcuts()
-    }
+
     
     func checkImageAccess() -> Bool {
         return canUseItemImages()

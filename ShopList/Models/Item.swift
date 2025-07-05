@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import AppIntents
 import SwiftUI
 
 @Model
@@ -51,18 +50,10 @@ final class Item {
     }
 }
 
-enum ItemPriority: Int, Codable, CaseIterable, AppEnum {
+enum ItemPriority: Int, Codable, CaseIterable {
     case low = 0
     case normal = 1
     case high = 2
-    
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Item Priority"
-    
-    static var caseDisplayRepresentations: [ItemPriority: DisplayRepresentation] = [
-        .low: "Low",
-        .normal: "Normal",
-        .high: "High"
-    ]
     
     var displayName: String {
         switch self {

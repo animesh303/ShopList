@@ -375,7 +375,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
     case locationReminders = "Location Reminders"
     case unlimitedNotifications = "Unlimited Notifications"
     case widgets = "iOS Widgets"
-    case appShortcuts = "Siri Shortcuts"
     case budgetTracking = "Budget Tracking"
     case itemImages = "Item Images"
     case exportImport = "Export/Import"
@@ -395,8 +394,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Unlimited daily notifications"
         case .widgets:
             return "Home screen widgets"
-        case .appShortcuts:
-            return "Siri voice commands"
         case .budgetTracking:
             return "Track spending with budgets"
         case .itemImages:
@@ -415,7 +412,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .locationReminders: return "location.circle.fill"
         case .unlimitedNotifications: return "bell.fill"
         case .widgets: return "rectangle.3.group.fill"
-        case .appShortcuts: return "mic.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
         case .itemImages: return "photo.fill"
         case .exportImport: return "square.and.arrow.up"
@@ -430,7 +426,6 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .locationReminders: return false
         case .unlimitedNotifications: return false
         case .widgets: return false
-        case .appShortcuts: return false
         case .budgetTracking: return false
         case .itemImages: return false
         case .exportImport: return false

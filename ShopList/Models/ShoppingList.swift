@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import AppIntents
 import SwiftUI
 
 @Model
@@ -128,7 +127,7 @@ final class ShoppingList {
     }
 }
 
-enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
+enum ListCategory: String, Codable, CaseIterable, Comparable {
     // Shopping Categories
     case groceries = "Groceries"
     case household = "Household"
@@ -254,31 +253,7 @@ enum ListCategory: String, Codable, CaseIterable, AppEnum, Comparable {
         }
     }
     
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "List Category"
-    
-    static let caseDisplayRepresentations: [ListCategory: DisplayRepresentation] = [
-        .automotive: DisplayRepresentation(stringLiteral: "Automotive"),
-        .baby: DisplayRepresentation(stringLiteral: "Baby & Kids"),
-        .business: DisplayRepresentation(stringLiteral: "Business"),
-        .clothing: DisplayRepresentation(stringLiteral: "Clothing"),
-        .electronics: DisplayRepresentation(stringLiteral: "Electronics"),
-        .garden: DisplayRepresentation(stringLiteral: "Garden & Outdoors"),
-        .gifts: DisplayRepresentation(stringLiteral: "Gifts"),
-        .groceries: DisplayRepresentation(stringLiteral: "Groceries"),
-        .health: DisplayRepresentation(stringLiteral: "Health & Pharmacy"),
-        .holiday: DisplayRepresentation(stringLiteral: "Holiday Shopping"),
-        .homeImprovement: DisplayRepresentation(stringLiteral: "Home Improvement"),
-        .household: DisplayRepresentation(stringLiteral: "Household"),
-        .office: DisplayRepresentation(stringLiteral: "Office Supplies"),
-        .party: DisplayRepresentation(stringLiteral: "Party Supplies"),
-        .personal: DisplayRepresentation(stringLiteral: "Personal"),
-        .personalCare: DisplayRepresentation(stringLiteral: "Personal Care"),
-        .pet: DisplayRepresentation(stringLiteral: "Pet Supplies"),
-        .travel: DisplayRepresentation(stringLiteral: "Travel"),
-        .vacation: DisplayRepresentation(stringLiteral: "Vacation"),
-        .work: DisplayRepresentation(stringLiteral: "Work"),
-        .other: DisplayRepresentation(stringLiteral: "Other")
-    ]
+
     
     // Make the enum Comparable for sorting
     static func < (lhs: ListCategory, rhs: ListCategory) -> Bool {
