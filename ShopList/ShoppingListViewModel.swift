@@ -261,15 +261,15 @@ final class ShoppingListViewModel: ObservableObject {
     
     // MARK: - Sharing Methods
     
-    func generateShareableContent(for list: ShoppingList) -> String {
+    func generateShareableContent(for list: ShoppingList, currency: Currency = .USD) -> String {
         var content = "🛒 \(list.name)\n"
         content += "📅 Created: \(formatDate(list.dateCreated))\n"
         content += "📊 Category: \(list.category.rawValue)\n\n"
         
         if let budget = list.budget {
-            content += "💰 Budget: $\(String(format: "%.2f", budget))\n"
-            content += "💳 Estimated Total: $\(String(format: "%.2f", list.totalEstimatedCost))\n"
-            content += "✅ Spent: $\(String(format: "%.2f", list.totalSpentCost))\n\n"
+            content += "💰 Budget: \(currency.symbol)\(String(format: "%.2f", budget))\n"
+            content += "💳 Estimated Total: \(currency.symbol)\(String(format: "%.2f", list.totalEstimatedCost))\n"
+            content += "✅ Spent: \(currency.symbol)\(String(format: "%.2f", list.totalSpentCost))\n\n"
         }
         
         if let location = list.location {
@@ -289,7 +289,7 @@ final class ShoppingListViewModel: ObservableObject {
                     let checkmark = item.isCompleted ? "✅" : "⭕"
                     let quantity = item.quantity > Decimal(1) ? " (\(item.quantity))" : ""
                     let unit = (item.unit?.isEmpty == false) ? " \(item.unit!)" : ""
-                    let price = item.pricePerUnit != nil ? " - $\(String(format: "%.2f", NSDecimalNumber(decimal: item.pricePerUnit!)))" : ""
+                    let price = item.pricePerUnit != nil ? " - \(currency.symbol)\(String(format: "%.2f", NSDecimalNumber(decimal: item.pricePerUnit!)))" : ""
                     let notes = (item.notes?.isEmpty == false) ? " (\(item.notes!))" : ""
                     
                     content += "\(checkmark) \(item.name)\(quantity)\(unit)\(price)\(notes)\n"
@@ -303,8 +303,8 @@ final class ShoppingListViewModel: ObservableObject {
         return content
     }
     
-    func generateCSVContent(for list: ShoppingList) -> String {
-        var csv = "Name,Quantity,Unit,Category,Price,Notes,Completed\n"
+    func generateCSVContent(for list: ShoppingList, currency: Currency = .USD) -> String {
+        var csv = "Name,Quantity,Unit,Category,Price (\(currency.symbol)),Notes,Completed\n"
         
         for item in list.items.sorted(by: { $0.name < $1.name }) {
             let name = item.name.replacingOccurrences(of: ",", with: ";")
@@ -321,8 +321,8 @@ final class ShoppingListViewModel: ObservableObject {
         return csv
     }
     
-    func createCSVFile(for list: ShoppingList) -> URL? {
-        let csvContent = generateCSVContent(for: list)
+    func createCSVFile(for list: ShoppingList, currency: Currency = .USD) -> URL? {
+        let csvContent = generateCSVContent(for: list, currency: currency)
         let filename = "\(list.name.replacingOccurrences(of: " ", with: "_")).csv"
         
         guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
@@ -345,14 +345,14 @@ final class ShoppingListViewModel: ObservableObject {
         showingShareSheet = true
     }
     
-    func getShareableItems(for list: ShoppingList) -> [Any] {
+    func getShareableItems(for list: ShoppingList, currency: Currency = .USD) -> [Any] {
         var items: [Any] = []
         
         // Add text content
-        items.append(generateShareableContent(for: list))
+        items.append(generateShareableContent(for: list, currency: currency))
         
         // Add CSV file if available
-        if let csvURL = createCSVFile(for: list) {
+        if let csvURL = createCSVFile(for: list, currency: currency) {
             items.append(csvURL)
         }
         

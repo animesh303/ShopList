@@ -558,8 +558,8 @@ struct ContentView: View {
                 content += "   📋 Items: \(list.items.count) total, \(list.completedItems.count) completed\n"
                 
                 if let budget = list.budget {
-                    content += "   💰 Budget: $\(String(format: "%.2f", budget))\n"
-                    content += "   💳 Estimated: $\(String(format: "%.2f", list.totalEstimatedCost))\n"
+                    content += "   💰 Budget: \(settingsManager.currency.symbol)\(String(format: "%.2f", budget))\n"
+                    content += "   💳 Estimated: \(settingsManager.currency.symbol)\(String(format: "%.2f", list.totalEstimatedCost))\n"
                 }
                 
                 if let location = list.location {

@@ -46,7 +46,7 @@ final class SharingTests: XCTestCase {
         )
         
         // Generate shareable content
-        let content = viewModel.generateShareableContent(for: list)
+        let content = viewModel.generateShareableContent(for: list, currency: .USD)
         
         // Verify content contains expected elements
         XCTAssertTrue(content.contains("🛒 Grocery List"))
@@ -91,7 +91,7 @@ final class SharingTests: XCTestCase {
         )
         
         // Generate CSV content
-        let csv = viewModel.generateCSVContent(for: list)
+        let csv = viewModel.generateCSVContent(for: list, currency: .USD)
         
         // Verify CSV contains expected elements
         XCTAssertTrue(csv.contains("Name,Quantity,Unit,Category,Price,Notes,Completed"))
@@ -130,7 +130,7 @@ final class SharingTests: XCTestCase {
             category: .other
         )
         
-        let shareableItems = viewModel.getShareableItems(for: list)
+        let shareableItems = viewModel.getShareableItems(for: list, currency: .USD)
         
         // Should contain at least the text content
         XCTAssertGreaterThan(shareableItems.count, 0)

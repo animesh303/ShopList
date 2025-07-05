@@ -129,7 +129,7 @@ struct ShoppingListView: View {
             }
             .sheet(isPresented: $showingShareSheet) {
                 if let listToShare = listToShare {
-                    ShareSheet(activityItems: ShoppingListViewModel.shared.getShareableItems(for: listToShare))
+                    ShareSheet(activityItems: ShoppingListViewModel.shared.getShareableItems(for: listToShare, currency: settingsManager.currency))
                 }
             }
         }

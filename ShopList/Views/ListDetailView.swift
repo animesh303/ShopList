@@ -607,7 +607,7 @@ struct ListDetailView: View {
         }
         .sheet(isPresented: $viewModel.showingShareSheet) {
             if let listToShare = viewModel.listToShare {
-                ShareSheet(activityItems: viewModel.getShareableItems(for: listToShare))
+                ShareSheet(activityItems: viewModel.getShareableItems(for: listToShare, currency: settingsManager.currency))
             }
         }
         .navigationDestination(for: Item.self) { item in
