@@ -6,42 +6,75 @@ struct ItemSortPickerView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
+            ZStack {
                 // Enhanced background with vibrant gradient
                 DesignSystem.Colors.backgroundGradient
                     .ignoresSafeArea()
                 
-                VStack(spacing: DesignSystem.Spacing.lg) {
-                    // Header
-                    VStack(spacing: DesignSystem.Spacing.sm) {
-                        Image(systemName: "arrow.up.arrow.down")
-                            .font(.largeTitle)
-                            .foregroundColor(DesignSystem.Colors.primary)
+                VStack(spacing: 0) {
+                    VStack(spacing: DesignSystem.Spacing.lg) {
+                        // Header
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            Image(systemName: "arrow.up.arrow.down")
+                                .font(.largeTitle)
+                                .foregroundColor(DesignSystem.Colors.primary)
+                            
+                            Text("Sort Items")
+                                .font(DesignSystem.Typography.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            Text("Choose how to organize items in this list")
+                                .font(DesignSystem.Typography.caption1)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.top, DesignSystem.Spacing.xl)
                         
-                        Text("Sort Items")
-                            .font(DesignSystem.Typography.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        Text("Choose how to organize items in this list")
-                            .font(DesignSystem.Typography.caption1)
-                            .foregroundColor(DesignSystem.Colors.secondaryText)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.top, DesignSystem.Spacing.xl)
-                    
-                    // Sort Options
-                    VStack(spacing: DesignSystem.Spacing.sm) {
-                        ForEach(ListSortOrder.allCases, id: \.self) { order in
-                            ItemSortOptionRow(order: order, selectedOrder: sortOrder) {
-                                sortOrder = order
-                                dismiss()
+                        // Sort Options
+                        VStack(spacing: DesignSystem.Spacing.sm) {
+                            ForEach(ListSortOrder.allCases, id: \.self) { order in
+                                ItemSortOptionRow(order: order, selectedOrder: sortOrder) {
+                                    sortOrder = order
+                                }
                             }
                         }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        
+                        Spacer()
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.lg)
                     
-                    Spacer()
+                    // FAB Button at bottom right
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            
+                            Button(action: {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                dismiss()
+                            }) {
+                                Image(systemName: "checkmark")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.success.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.success.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                        }
+                        .padding(.trailing, DesignSystem.Spacing.lg)
+                        .padding(.bottom, DesignSystem.Spacing.lg)
+                    }
                 }
             }
             .enhancedNavigation(
@@ -51,14 +84,6 @@ struct ItemSortPickerView: View {
                 style: .info,
                 showBanner: true
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignSystem.Colors.primary)
-                }
-            }
         }
     }
 }
