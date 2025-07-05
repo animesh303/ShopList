@@ -254,7 +254,7 @@ final class ShoppingListViewModel: ObservableObject {
         try imageData.write(to: fileURL)
         return fileURL
     }
-    
+     
     func deleteImage(at url: URL) {
         try? FileManager.default.removeItem(at: url)
     }
@@ -267,9 +267,9 @@ final class ShoppingListViewModel: ObservableObject {
         content += "📊 Category: \(list.category.rawValue)\n\n"
         
         if let budget = list.budget {
-            content += "💰 Budget: \(currency.symbol)\(String(format: "%.2f", budget))\n"
-            content += "💳 Estimated Total: \(currency.symbol)\(String(format: "%.2f", list.totalEstimatedCost))\n"
-            content += "✅ Spent: \(currency.symbol)\(String(format: "%.2f", list.totalSpentCost))\n\n"
+            content += "💰 Budget: \(currency.symbol)\(formatDecimal(Decimal(budget)))\n"
+            content += "💳 Estimated Total: \(currency.symbol)\(formatDecimal(Decimal(list.totalEstimatedCost)))\n"
+            content += "✅ Spent: \(currency.symbol)\(formatDecimal(Decimal(list.totalSpentCost)))\n\n"
         }
         
         if let location = list.location {
@@ -289,7 +289,11 @@ final class ShoppingListViewModel: ObservableObject {
                     let checkmark = item.isCompleted ? "✅" : "⭕"
                     let quantity = item.quantity > Decimal(1) ? " (\(item.quantity))" : ""
                     let unit = (item.unit?.isEmpty == false) ? " \(item.unit!)" : ""
-                    let price = item.pricePerUnit != nil ? " - \(currency.symbol)\(String(format: "%.2f", NSDecimalNumber(decimal: item.pricePerUnit!)))" : ""
+                    
+                    // Debug logging
+                    print("DEBUG: Item '\(item.name)' - pricePerUnit: \(item.pricePerUnit?.description ?? "nil")")
+                    
+                    let price = item.pricePerUnit != nil ? " - \(currency.symbol)\(formatDecimal(item.pricePerUnit!))" : ""
                     let notes = (item.notes?.isEmpty == false) ? " (\(item.notes!))" : ""
                     
                     content += "\(checkmark) \(item.name)\(quantity)\(unit)\(price)\(notes)\n"
@@ -311,7 +315,11 @@ final class ShoppingListViewModel: ObservableObject {
             let quantity = String(describing: item.quantity)
             let unit = item.unit ?? ""
             let category = item.category.rawValue
-            let price = item.pricePerUnit != nil ? String(format: "%.2f", NSDecimalNumber(decimal: item.pricePerUnit!)) : ""
+            
+            // Debug logging
+            print("DEBUG CSV: Item '\(item.name)' - pricePerUnit: \(item.pricePerUnit?.description ?? "nil")")
+            
+            let price = item.pricePerUnit != nil ? formatDecimal(item.pricePerUnit!) : ""
             let notes = item.notes?.replacingOccurrences(of: ",", with: ";") ?? ""
             let completed = item.isCompleted ? "Yes" : "No"
             
@@ -364,5 +372,13 @@ final class ShoppingListViewModel: ObservableObject {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+    
+    private func formatDecimal(_ decimal: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSDecimalNumber(decimal: decimal)) ?? "0.00"
     }
 } 

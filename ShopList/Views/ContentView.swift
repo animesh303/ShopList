@@ -558,8 +558,8 @@ struct ContentView: View {
                 content += "   📋 Items: \(list.items.count) total, \(list.completedItems.count) completed\n"
                 
                 if let budget = list.budget {
-                    content += "   💰 Budget: \(settingsManager.currency.symbol)\(String(format: "%.2f", budget))\n"
-                    content += "   💳 Estimated: \(settingsManager.currency.symbol)\(String(format: "%.2f", list.totalEstimatedCost))\n"
+                    content += "   💰 Budget: \(settingsManager.currency.symbol)\(formatDecimal(Decimal(budget)))\n"
+                    content += "   💳 Estimated: \(settingsManager.currency.symbol)\(formatDecimal(Decimal(list.totalEstimatedCost)))\n"
                 }
                 
                 if let location = list.location {
@@ -581,6 +581,14 @@ struct ContentView: View {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+    
+    private func formatDecimal(_ decimal: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSDecimalNumber(decimal: decimal)) ?? "0.00"
     }
 }
 
