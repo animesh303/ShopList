@@ -150,7 +150,7 @@ struct PremiumUpgradeView: View {
                         )
                     )
                 
-                Text("Get unlimited lists, location reminders, widgets, item images, and much more!")
+                Text("Get unlimited lists, location reminders, item images, and much more!")
                     .font(.body)
                     .foregroundColor(DesignSystem.Colors.secondaryText)
                     .multilineTextAlignment(.center)

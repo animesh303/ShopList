@@ -6,9 +6,5 @@
     <array>
         <string>group.com.yourdomain.ShopList</string>
     </array>
-    <key>com.apple.developer.siri</key>
-    <true/>
-    <key>com.apple.developer.siri-app-shortcuts</key>
-    <true/>
 </dict>
 </plist> 

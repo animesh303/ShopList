@@ -374,12 +374,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
     case allCategories = "All Categories"
     case locationReminders = "Location Reminders"
     case unlimitedNotifications = "Unlimited Notifications"
-    case widgets = "iOS Widgets"
-    case appShortcuts = "Siri Shortcuts"
     case budgetTracking = "Budget Tracking"
     case itemImages = "Item Images"
     case exportImport = "Export/Import"
-    case prioritySupport = "Priority Support"
     
     var id: String { rawValue }
     
@@ -393,18 +390,12 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Get notified when near stores"
         case .unlimitedNotifications:
             return "Unlimited daily notifications"
-        case .widgets:
-            return "Home screen widgets"
-        case .appShortcuts:
-            return "Siri voice commands"
         case .budgetTracking:
             return "Track spending with budgets"
         case .itemImages:
             return "Add photos to items"
         case .exportImport:
             return "Backup and restore data"
-        case .prioritySupport:
-            return "Priority customer support"
         }
     }
     
@@ -414,12 +405,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .allCategories: return "folder.fill"
         case .locationReminders: return "location.circle.fill"
         case .unlimitedNotifications: return "bell.fill"
-        case .widgets: return "rectangle.3.group.fill"
-        case .appShortcuts: return "mic.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
         case .itemImages: return "photo.fill"
         case .exportImport: return "square.and.arrow.up"
-        case .prioritySupport: return "person.crop.circle.badge.questionmark"
         }
     }
     
@@ -429,12 +417,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .allCategories: return false
         case .locationReminders: return false
         case .unlimitedNotifications: return false
-        case .widgets: return false
-        case .appShortcuts: return false
         case .budgetTracking: return false
         case .itemImages: return false
         case .exportImport: return false
-        case .prioritySupport: return false
         }
     }
 } 

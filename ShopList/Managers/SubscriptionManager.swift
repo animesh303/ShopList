@@ -276,13 +276,9 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUseWidgets() -> Bool {
-        return isPremium
-    }
+
     
-    func canUseAppShortcuts() -> Bool {
-        return isPremium
-    }
+
     
 
     
@@ -298,9 +294,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUsePrioritySupport() -> Bool {
-        return isPremium
-    }
+
     
     func getNotificationLimit() -> Int {
         return isPremium ? Int.max : maxFreeNotifications
@@ -339,19 +333,12 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to get location-based reminders"
         case .unlimitedNotifications:
             return "Upgrade to Premium for unlimited notifications"
-        case .widgets:
-            return "Upgrade to Premium to use home screen widgets"
-        case .appShortcuts:
-            return "Upgrade to Premium to use Siri shortcuts"
-
         case .budgetTracking:
             return "Upgrade to Premium to track budgets"
         case .itemImages:
             return "Upgrade to Premium to add photos to items"
         case .exportImport:
             return "Upgrade to Premium to export/import data"
-        case .prioritySupport:
-            return "Upgrade to Premium for priority support"
         }
     }
     
@@ -414,13 +401,9 @@ class SubscriptionManager: NSObject, ObservableObject {
         return canUseLocationReminders()
     }
     
-    func checkWidgetAccess() -> Bool {
-        return canUseWidgets()
-    }
+
     
-    func checkShortcutAccess() -> Bool {
-        return canUseAppShortcuts()
-    }
+
     
     func checkImageAccess() -> Bool {
         return canUseItemImages()
