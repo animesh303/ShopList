@@ -6,6 +6,7 @@ struct LocationSetupView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var locationManager = LocationManager.shared
     @StateObject private var settingsManager = UserSettingsManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     let list: ShoppingList
     
@@ -16,6 +17,7 @@ struct LocationSetupView: View {
     @State private var reminderMessage = ""
     @State private var showingLocationPermissionAlert = false
     @State private var showingMap = false
+    @State private var showingPremiumUpgrade = false
     @State private var searchResults: [MKMapItem] = []
     @State private var isSearching = false
     @State private var userLocation: CLLocationCoordinate2D?
@@ -197,6 +199,16 @@ struct LocationSetupView: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("Location-based reminders require 'Always' location access to work in the background. Please enable this in Settings.")
+            }
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
+            }
+            .onAppear {
+                // Check premium access for location reminders
+                if !subscriptionManager.canUseLocationReminders() {
+                    showingPremiumUpgrade = true
+                    dismiss()
+                }
             }
             .alert("Location Error", isPresented: $showingLocationError) {
                 Button("OK", role: .cancel) { }

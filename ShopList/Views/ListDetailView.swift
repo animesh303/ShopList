@@ -10,6 +10,7 @@ struct ListDetailView: View {
     @StateObject private var viewModel: ShoppingListViewModel
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var locationManager = LocationManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     @State private var showingAddItem = false
     @State private var showingDeleteConfirmation = false
@@ -17,6 +18,7 @@ struct ListDetailView: View {
     @State private var showingReminderSheet = false
     @State private var showingLocationSetup = false
     @State private var showingSortPicker = false
+    @State private var showingPremiumUpgrade = false
     @State private var isFabExpanded = false
     @State private var fabTimer: Timer?
     @State private var searchText = ""
@@ -139,11 +141,19 @@ struct ListDetailView: View {
                                     .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                             }
                             
-                            Button("Update Location Reminder") {
-                                showingLocationSetup = true
+                            if subscriptionManager.canUseLocationReminders() {
+                                Button("Update Location Reminder") {
+                                    showingLocationSetup = true
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(DesignSystem.Colors.primary)
+                            } else {
+                                Button("Upgrade for Location Reminders") {
+                                    showingPremiumUpgrade = true
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.orange)
                             }
-                            .buttonStyle(.bordered)
-                            .tint(DesignSystem.Colors.primary)
                         }
                         .padding(DesignSystem.Spacing.md)
                         .background(
@@ -163,11 +173,19 @@ struct ListDetailView: View {
                 } else {
                     Section {
                         VStack(spacing: DesignSystem.Spacing.md) {
-                            Button("Set Up Location Reminder") {
-                                showingLocationSetup = true
+                            if subscriptionManager.canUseLocationReminders() {
+                                Button("Set Up Location Reminder") {
+                                    showingLocationSetup = true
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(DesignSystem.Colors.primary)
+                            } else {
+                                Button("Upgrade for Location Reminders") {
+                                    showingPremiumUpgrade = true
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.orange)
                             }
-                            .buttonStyle(.bordered)
-                            .tint(DesignSystem.Colors.primary)
                         }
                         .padding(DesignSystem.Spacing.md)
                         .background(
@@ -184,8 +202,13 @@ struct ListDetailView: View {
                         Text("Location Reminder")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     } footer: {
-                        Text("Get notified when you're near the store")
-                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        if subscriptionManager.canUseLocationReminders() {
+                            Text("Get notified when you're near the store")
+                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        } else {
+                            Text("Upgrade to Premium for location-based reminders")
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
                     }
                 }
                 
@@ -601,6 +624,9 @@ struct ListDetailView: View {
         }
         .sheet(isPresented: $showingLocationSetup) {
             LocationSetupView(list: list)
+        }
+        .sheet(isPresented: $showingPremiumUpgrade) {
+            PremiumUpgradeView()
         }
         .sheet(isPresented: $showingSortPicker) {
             ItemSortPickerView(sortOrder: $sortOrder)
