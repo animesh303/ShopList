@@ -500,6 +500,34 @@ struct ListDetailView: View {
                             }
                             .transition(.scale.combined(with: .opacity))
                             
+                            // Share button
+                            Button {
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                viewModel.shareList(list)
+                                withAnimation(DesignSystem.Animations.spring) {
+                                    isFabExpanded = false
+                                }
+                                stopFabTimer()
+                            } label: {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
+                                    .background(
+                                        DesignSystem.Colors.success.opacity(0.8)
+                                    )
+                                    .clipShape(Circle())
+                                    .shadow(
+                                        color: DesignSystem.Colors.success.opacity(0.4),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                            }
+                            .transition(.scale.combined(with: .opacity))
+                            
                             // Add Item button
                             Button {
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -576,6 +604,11 @@ struct ListDetailView: View {
         }
         .sheet(isPresented: $showingSortPicker) {
             ItemSortPickerView(sortOrder: $sortOrder)
+        }
+        .sheet(isPresented: $viewModel.showingShareSheet) {
+            if let listToShare = viewModel.listToShare {
+                ShareSheet(activityItems: viewModel.getShareableItems(for: listToShare, currency: settingsManager.currency))
+            }
         }
         .navigationDestination(for: Item.self) { item in
             ItemDetailView(item: item)
