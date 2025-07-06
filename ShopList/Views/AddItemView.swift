@@ -579,39 +579,70 @@ struct AddItemView: View {
                             .labelsHidden()
                     }
 
-                    // Unit Picker - Settings Style
-                    Picker(selection: $unit) {
-                        ForEach(subscriptionManager.getAvailableUnits(), id: \.self) { unit in
+                    // Unit Picker - Custom Menu Style (no auto-scroll)
+                    HStack {
+                        Text("Unit")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        Spacer()
+                        
+                        Menu {
+                            ForEach(subscriptionManager.getAvailableUnits(), id: \.self) { unitOption in
+                                Button(action: {
+                                    if subscriptionManager.canUseUnit(unitOption) {
+                                        unit = unitOption.rawValue
+                                    } else {
+                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allUnits)
+                                        showingUpgradePrompt = true
+                                    }
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: unitOption.icon)
+                                            .foregroundColor(unitOption.color)
+                                            .font(.title3)
+                                            .frame(width: 20)
+                                        Text(unitOption.displayName)
+                                            .font(DesignSystem.Typography.body)
+                                        
+                                        if unit == unitOption.rawValue {
+                                            Spacer()
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(DesignSystem.Colors.primary)
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
                             HStack(spacing: 8) {
-                                Image(systemName: unit.icon)
-                                    .foregroundColor(unit.color)
-                                    .font(.title3)
-                                    .frame(width: 20)
-                                Text(unit.displayName)
-                                    .font(DesignSystem.Typography.body)
-                            }
-                            .tag(unit.rawValue)
-                        }
-                    } label: {
-                        HStack {
-                            Text("Unit")
-                                .font(DesignSystem.Typography.body)
-                                .foregroundColor(DesignSystem.Colors.primaryText)
-                            
-                            if !subscriptionManager.isPremium {
-                                Image(systemName: "crown.fill")
+                                if let currentUnit = Unit(rawValue: unit) {
+                                    Image(systemName: currentUnit.icon)
+                                        .foregroundColor(currentUnit.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(currentUnit.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                } else {
+                                    Image(systemName: "circle")
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text("None")
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                
+                                if !subscriptionManager.isPremium {
+                                    Image(systemName: "crown.fill")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.premium)
+                                }
+                                
+                                Image(systemName: "chevron.down")
                                     .font(.caption)
-                                    .foregroundColor(DesignSystem.Colors.premium)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
                             }
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .onChange(of: unit) { _, newUnit in
-                        if let unitEnum = Unit(rawValue: newUnit), !subscriptionManager.canUseUnit(unitEnum) {
-                            upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allUnits)
-                            showingUpgradePrompt = true
-                            // Reset to a free unit
-                            unit = subscriptionManager.getAvailableUnits().first?.rawValue ?? ""
                         }
                     }
                 }
@@ -693,9 +724,41 @@ struct AddItemView: View {
                     )
                 }
                 
-                // Category Picker - Settings Style
-                Picker(selection: $category) {
-                    ForEach(subscriptionManager.getAvailableItemCategories(), id: \.self) { category in
+                // Category Picker - Custom Menu Style (no auto-scroll)
+                HStack {
+                    Text("Category")
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    
+                    Spacer()
+                    
+                    Menu {
+                        ForEach(subscriptionManager.getAvailableItemCategories(), id: \.self) { categoryOption in
+                            Button(action: {
+                                if subscriptionManager.canUseItemCategory(categoryOption) {
+                                    category = categoryOption
+                                } else {
+                                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allCategories)
+                                    showingUpgradePrompt = true
+                                }
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: categoryOption.icon)
+                                        .foregroundColor(categoryOption.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(categoryOption.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                    
+                                    if category == categoryOption {
+                                        Spacer()
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
                         HStack(spacing: 8) {
                             Image(systemName: category.icon)
                                 .foregroundColor(category.color)
@@ -703,35 +766,52 @@ struct AddItemView: View {
                                 .frame(width: 20)
                             Text(category.rawValue)
                                 .font(DesignSystem.Typography.body)
-                        }
-                        .tag(category)
-                    }
-                } label: {
-                    HStack {
-                        Text("Category")
-                            .font(DesignSystem.Typography.body)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
-                        
-                        if !subscriptionManager.isPremium {
-                            Image(systemName: "crown.fill")
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            if !subscriptionManager.isPremium {
+                                Image(systemName: "crown.fill")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.premium)
+                            }
+                            
+                            Image(systemName: "chevron.down")
                                 .font(.caption)
-                                .foregroundColor(DesignSystem.Colors.premium)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
-                    }
-                }
-                .pickerStyle(MenuPickerStyle())
-                .onChange(of: category) { _, newCategory in
-                    if !subscriptionManager.canUseItemCategory(newCategory) {
-                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allCategories)
-                        showingUpgradePrompt = true
-                        // Reset to a free category
-                        category = subscriptionManager.getAvailableItemCategories().first ?? .other
                     }
                 }
                 
-                // Priority Picker - Settings Style
-                Picker(selection: $priority) {
-                    ForEach(ItemPriority.allCases, id: \.self) { priority in
+                // Priority Picker - Custom Menu Style (no auto-scroll)
+                HStack {
+                    Text("Priority")
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    
+                    Spacer()
+                    
+                    Menu {
+                        ForEach(ItemPriority.allCases, id: \.self) { priorityOption in
+                            Button(action: {
+                                priority = priorityOption
+                            }) {
+                                HStack(spacing: 8) {
+                                    let (iconName, iconColor) = getPriorityIconAndColor(for: priorityOption)
+                                    Image(systemName: iconName)
+                                        .foregroundColor(iconColor)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(priorityOption.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                    
+                                    if priority == priorityOption {
+                                        Spacer()
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
                         HStack(spacing: 8) {
                             let (iconName, iconColor) = getPriorityIconAndColor(for: priority)
                             Image(systemName: iconName)
@@ -740,15 +820,14 @@ struct AddItemView: View {
                                 .frame(width: 20)
                             Text(priority.displayName)
                                 .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
-                        .tag(priority)
                     }
-                } label: {
-                    Text("Priority")
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
                 }
-                .pickerStyle(MenuPickerStyle())
             }
         } header: {
             Text("Additional Information")

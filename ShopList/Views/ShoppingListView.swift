@@ -33,17 +33,17 @@ struct ShoppingListView: View {
     private func applySearchFilter(_ lists: [ShoppingList]) -> [ShoppingList] {
         guard !searchText.isEmpty else { return lists }
         return lists.filter { list in
-            list.name.localizedCaseInsensitiveContains(searchText)
+                list.name.localizedCaseInsensitiveContains(searchText)
+            }
         }
-    }
-    
+        
     private func applyCompletedFilter(_ lists: [ShoppingList]) -> [ShoppingList] {
         guard !settingsManager.showCompletedItemsByDefault else { return lists }
         return lists.filter { list in
             !list.items.allSatisfy { $0.isCompleted }
         }
-    }
-    
+        }
+        
     private func applySorting(_ lists: [ShoppingList]) -> [ShoppingList] {
         var sorted = lists
         switch sortOrder {
@@ -70,8 +70,8 @@ struct ShoppingListView: View {
     }
     
     private var mainListView: some View {
-        List {
-            ForEach(filteredLists) { list in
+            List {
+                ForEach(filteredLists) { list in
                 listRowView(for: list)
             }
             .onDelete(perform: deleteLists)
@@ -100,10 +100,10 @@ struct ShoppingListView: View {
     }
     
     private func listRowView(for list: ShoppingList) -> some View {
-        NavigationLink(destination: ListDetailView(list: list)) {
-            ListRow(list: list)
-        }
-        .swipeActions(edge: .trailing) {
+                    NavigationLink(destination: ListDetailView(list: list)) {
+                        ListRow(list: list)
+                    }
+                    .swipeActions(edge: .trailing) {
             swipeActionButtons(for: list)
         }
     }
@@ -111,13 +111,13 @@ struct ShoppingListView: View {
     @ViewBuilder
     private func swipeActionButtons(for list: ShoppingList) -> some View {
         if subscriptionManager.canUseDataSharing() {
-            Button {
-                listToShare = list
-                showingShareSheet = true
-            } label: {
-                Label("Share", systemImage: "square.and.arrow.up")
-            }
-            .tint(.blue)
+                        Button {
+                            listToShare = list
+                            showingShareSheet = true
+                        } label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .tint(.blue)
         } else {
             Button {
                 upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
@@ -130,29 +130,29 @@ struct ShoppingListView: View {
     }
     
     private var searchRestrictionOverlay: some View {
-        Group {
-            if settingsManager.restrictSearchToLocality && !searchText.isEmpty {
-                VStack {
-                    Spacer()
-                    HStack {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(.blue)
-                        Text("Search restricted to local area")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
+                Group {
+                    if settingsManager.restrictSearchToLocality && !searchText.isEmpty {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundColor(.blue)
+                                Text("Search restricted to local area")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            .padding(.bottom, 8)
+                        }
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
                 }
-            }
-        }
     }
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Menu {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
                 addListButton
                 sortPicker
                 showCompletedToggle
@@ -163,32 +163,32 @@ struct ShoppingListView: View {
     }
     
     private var addListButton: some View {
-        Button(action: { 
-            if subscriptionManager.canCreateList() {
-                showingAddList = true
-            } else {
-                showingPremiumUpgrade = true
-            }
-        }) {
-            Label("Add List", systemImage: "plus")
+                        Button(action: { 
+                            if subscriptionManager.canCreateList() {
+                                showingAddList = true
+                            } else {
+                                showingPremiumUpgrade = true
+                            }
+                        }) {
+                            Label("Add List", systemImage: "plus")
         }
-    }
-    
+                        }
+                        
     private var sortPicker: some View {
-        Picker("Sort By", selection: $sortOrder) {
-            ForEach(ListSortOrder.allCases, id: \.self) { order in
-                Text(order.rawValue).tag(order)
+                        Picker("Sort By", selection: $sortOrder) {
+                            ForEach(ListSortOrder.allCases, id: \.self) { order in
+                                Text(order.rawValue).tag(order)
             }
-        }
-    }
-    
+                            }
+                        }
+                        
     private var showCompletedToggle: some View {
-        Toggle("Show Completed", isOn: $settingsManager.showCompletedItemsByDefault)
+                        Toggle("Show Completed", isOn: $settingsManager.showCompletedItemsByDefault)
     }
     
     @ViewBuilder
     private var shareSheetContent: some View {
-        if let listToShare = listToShare {
+                if let listToShare = listToShare {
             ShareSheet(
                 activityItems: ShoppingListViewModel.shared.getShareableItems(for: listToShare, currency: settingsManager.currency),
                 onDismiss: {
@@ -227,14 +227,14 @@ struct ListRow: View {
         let colors = [
             backgroundColor,
             backgroundColor.opacity(0.8),
-            list.category.color.opacity(0.03)
+                    list.category.color.opacity(0.03)
         ]
         
-        return LinearGradient(
+            return LinearGradient(
             colors: colors,
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
     }
     
     private var progressGradient: LinearGradient {
@@ -246,9 +246,9 @@ struct ListRow: View {
             colors = [DesignSystem.Colors.success, DesignSystem.Colors.accent2]
         } else {
             colors = [
-                list.category.color,
-                list.category.color.opacity(0.8),
-                list.category.color.opacity(0.6)
+                    list.category.color,
+                    list.category.color.opacity(0.8),
+                    list.category.color.opacity(0.6)
             ]
         }
         
@@ -259,8 +259,8 @@ struct ListRow: View {
             colors: colors,
             startPoint: startPoint,
             endPoint: endPoint
-        )
-    }
+            )
+        }
     
     private var progressShadowColor: Color {
         return completionPercentage == 1.0 ? DesignSystem.Colors.success : list.category.color
@@ -289,7 +289,7 @@ struct ListRow: View {
     }
     
     private var headerSection: some View {
-        HStack(alignment: .center) {
+            HStack(alignment: .center) {
             headerTextSection
             Spacer()
             categoryBadge
@@ -297,43 +297,43 @@ struct ListRow: View {
     }
     
     private var headerTextSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(list.name)
-                .font(.title3)
-                .fontWeight(.bold)
-                .lineLimit(1)
-                .foregroundColor(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
-            
-            Text("Updated \(list.lastModified, style: .relative)")
-                .font(.footnote)
-                .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.7))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(list.name)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .foregroundColor(list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.primaryText)
+                    
+                    Text("Updated \(list.lastModified, style: .relative)")
+                        .font(.footnote)
+                        .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.7))
         }
-    }
-    
+                }
+                
     private var categoryBadge: some View {
-        HStack(spacing: 6) {
-            Image(systemName: list.category.icon)
-                .font(.caption)
-                .foregroundColor(.white)
-            Text(list.category.rawValue)
-                .font(.footnote)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+                HStack(spacing: 6) {
+                    Image(systemName: list.category.icon)
+                        .font(.caption)
+                        .foregroundColor(.white)
+                    Text(list.category.rawValue)
+                        .font(.footnote)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
         .background(DesignSystem.Colors.categoryGradient(for: list.category))
-        .cornerRadius(12)
-        .shadow(
-            color: list.category.color.opacity(0.4),
-            radius: 4,
-            x: 0,
-            y: 2
-        )
-    }
-    
+                .cornerRadius(12)
+                .shadow(
+                    color: list.category.color.opacity(0.4),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                )
+            }
+            
     private var statusBadgesSection: some View {
-        HStack(spacing: 12) {
+            HStack(spacing: 12) {
             itemsCountBadge
             completionBadge
             budgetBadge
@@ -343,54 +343,54 @@ struct ListRow: View {
     }
     
     private var itemsCountBadge: some View {
-        BadgeView(
-            icon: "cart.fill",
-            text: "\(list.items.count)",
-            color: list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info,
-            isCompact: true
-        )
+                BadgeView(
+                    icon: "cart.fill",
+                    text: "\(list.items.count)",
+                    color: list.items.isEmpty ? DesignSystem.Colors.tertiaryText : DesignSystem.Colors.info,
+                    isCompact: true
+                )
     }
-    
+                
     @ViewBuilder
     private var completionBadge: some View {
-        if !list.items.isEmpty {
-            BadgeView(
-                icon: completionPercentage == 1.0 ? "checkmark.circle.fill" : "circle",
-                text: "\(Int(completionPercentage * 100))%",
-                color: completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText,
-                isCompact: true
-            )
+                if !list.items.isEmpty {
+                    BadgeView(
+                        icon: completionPercentage == 1.0 ? "checkmark.circle.fill" : "circle",
+                        text: "\(Int(completionPercentage * 100))%",
+                        color: completionPercentage == 1.0 ? DesignSystem.Colors.success : DesignSystem.Colors.secondaryText,
+                        isCompact: true
+                    )
         }
-    }
-    
+                }
+                
     @ViewBuilder
     private var budgetBadge: some View {
-        if list.budget != nil {
-            BadgeView(
-                icon: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon,
-                text: settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost),
-                color: isOverBudget ? Color.red.opacity(0.8) : Color(red: 0.1, green: 0.5, blue: 0.1),
-                isCompact: true
-            )
+                if list.budget != nil {
+                    BadgeView(
+                        icon: isOverBudget ? "exclamationmark.circle.fill" : settingsManager.currency.icon,
+                        text: settingsManager.currency.symbol + String(format: "%.0f", list.totalEstimatedCost),
+                        color: isOverBudget ? Color.red.opacity(0.8) : Color(red: 0.1, green: 0.5, blue: 0.1),
+                        isCompact: true
+                    )
         }
-    }
-    
+                }
+                
     @ViewBuilder
     private var emptyListBadge: some View {
-        if list.items.isEmpty {
-            BadgeView(
-                icon: "tray",
-                text: "Empty",
-                color: DesignSystem.Colors.tertiaryText,
-                isCompact: true
-            )
-        }
-    }
-    
+                if list.items.isEmpty {
+                    BadgeView(
+                        icon: "tray",
+                        text: "Empty",
+                        color: DesignSystem.Colors.tertiaryText,
+                        isCompact: true
+                    )
+                }
+            }
+            
     @ViewBuilder
     private var progressSection: some View {
-        if !list.items.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+            if !list.items.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
                 progressHeader
                 progressBar
             }
@@ -398,21 +398,21 @@ struct ListRow: View {
     }
     
     private var progressHeader: some View {
-        HStack {
-            Text("Progress")
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.8))
-            Spacer()
-            Text("\(list.completedItems.count) of \(list.items.count) completed")
-                .font(.footnote)
-                .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.7))
+                    HStack {
+                        Text("Progress")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.8))
+                        Spacer()
+                        Text("\(list.completedItems.count) of \(list.items.count) completed")
+                            .font(.footnote)
+                            .foregroundColor(DesignSystem.Colors.primaryText.opacity(0.7))
         }
-    }
-    
+                    }
+                    
     private var progressBar: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .leading) {
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
                 progressBackground
                 progressFill(geometry: geometry)
             }
@@ -421,41 +421,41 @@ struct ListRow: View {
     }
     
     private var progressBackground: some View {
-        RoundedRectangle(cornerRadius: 8)
-            .fill(DesignSystem.Colors.tertiaryBackground)
-            .frame(height: 12)
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(DesignSystem.Colors.tertiaryBackground)
+                                .frame(height: 12)
     }
-    
+                            
     private func progressFill(geometry: GeometryProxy) -> some View {
-        RoundedRectangle(cornerRadius: 8)
-            .fill(progressGradient)
-            .frame(width: geometry.size.width * completionPercentage, height: 12)
-            .animation(.easeInOut(duration: 0.3), value: completionPercentage)
-            .shadow(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(progressGradient)
+                                .frame(width: geometry.size.width * completionPercentage, height: 12)
+                                .animation(.easeInOut(duration: 0.3), value: completionPercentage)
+                                .shadow(
                 color: progressShadowColor.opacity(0.5),
-                radius: 3,
-                x: 0,
-                y: 2
-            )
-    }
+                                    radius: 3,
+                                    x: 0,
+                                    y: 2
+                                )
+                        }
     
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .fill(cardGradient)
-            .shadow(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(cardGradient)
+                .shadow(
                 color: cardShadowColor,
-                radius: 16,
-                x: 0,
-                y: 8
-            )
+                    radius: 16,
+                    x: 0,
+                    y: 8
+                )
     }
     
     private var cardBorder: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .stroke(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(
                 cardBorderColor,
-                lineWidth: 2.5
-            )
+                    lineWidth: 2.5
+                )
     }
 }
 
@@ -518,41 +518,41 @@ struct BadgeView: View {
     }
     
     private var iconView: some View {
-        Image(systemName: icon)
-            .font(isCompact ? .caption : .footnote)
-            .foregroundColor(.white)
-            .padding(isCompact ? 4 : 6)
+            Image(systemName: icon)
+                .font(isCompact ? .caption : .footnote)
+                .foregroundColor(.white)
+                .padding(isCompact ? 4 : 6)
             .background(iconBackground)
     }
     
     private var iconBackground: some View {
-        Circle()
-            .fill(iconBackgroundColor)
-            .shadow(
-                color: iconBackgroundColor.opacity(0.6),
-                radius: 3,
-                x: 0,
-                y: 2
-            )
+                    Circle()
+                        .fill(iconBackgroundColor)
+                        .shadow(
+                            color: iconBackgroundColor.opacity(0.6),
+                            radius: 3,
+                            x: 0,
+                            y: 2
+                        )
     }
-    
+            
     private var textView: some View {
-        Text(text)
-            .font(isCompact ? .footnote : .subheadline)
-            .fontWeight(.semibold)
-            .foregroundColor(textColor)
-    }
+            Text(text)
+                .font(isCompact ? .footnote : .subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(textColor)
+        }
     
     private var badgeBackground: some View {
         RoundedRectangle(cornerRadius: badgeCornerRadius)
-            .fill(badgeBackgroundColor)
+                .fill(badgeBackgroundColor)
             .overlay(badgeBorder)
-            .shadow(
-                color: iconBackgroundColor.opacity(0.2),
-                radius: 4,
-                x: 0,
-                y: 2
-            )
+                .shadow(
+                    color: iconBackgroundColor.opacity(0.2),
+                    radius: 4,
+                    x: 0,
+                    y: 2
+                )
     }
     
     private var badgeBorder: some View {

@@ -203,3 +203,4 @@ func resetPremiumOnlySettings() {
 - `ShopList/Managers/UserSettingsManager.swift`: Added default category protection
 
 The implementation ensures that item categories are now properly restricted for free users while maintaining a smooth upgrade experience and protecting user data.
+ 

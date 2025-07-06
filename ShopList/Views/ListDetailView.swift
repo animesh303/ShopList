@@ -144,11 +144,11 @@ struct ListDetailView: View {
                             }
                             
                             if subscriptionManager.canUseLocationReminders() {
-                                Button("Update Location Reminder") {
-                                    showingLocationSetup = true
-                                }
-                                .buttonStyle(.bordered)
-                                .tint(DesignSystem.Colors.primary)
+                            Button("Update Location Reminder") {
+                                showingLocationSetup = true
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
                             } else {
                                 Button("Upgrade for Location Reminders") {
                                     showingPremiumUpgrade = true
@@ -176,11 +176,11 @@ struct ListDetailView: View {
                     Section {
                         VStack(spacing: DesignSystem.Spacing.md) {
                             if subscriptionManager.canUseLocationReminders() {
-                                Button("Set Up Location Reminder") {
-                                    showingLocationSetup = true
-                                }
-                                .buttonStyle(.bordered)
-                                .tint(DesignSystem.Colors.primary)
+                            Button("Set Up Location Reminder") {
+                                showingLocationSetup = true
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
                             } else {
                                 Button("Upgrade for Location Reminders") {
                                     showingPremiumUpgrade = true
@@ -205,8 +205,8 @@ struct ListDetailView: View {
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     } footer: {
                         if subscriptionManager.canUseLocationReminders() {
-                            Text("Get notified when you're near the store")
-                                .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        Text("Get notified when you're near the store")
+                            .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                         } else {
                             Text("Upgrade to Premium for location-based reminders")
                                 .foregroundColor(DesignSystem.Colors.secondaryText)
@@ -531,7 +531,7 @@ struct ListDetailView: View {
                                 generator.impactOccurred()
                                 
                                 if subscriptionManager.canUseDataSharing() {
-                                    viewModel.shareList(list)
+                                viewModel.shareList(list)
                                 } else {
                                     upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
                                     showingUpgradePrompt = true

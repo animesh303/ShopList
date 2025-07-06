@@ -336,21 +336,21 @@ struct ContentView: View {
                                     generator.impactOccurred()
                                     
                                     if subscriptionManager.canUseDataSharing() {
-                                        // Create a combined list for sharing
-                                        let combinedContent = createCombinedShareContent()
-                                        let shareItems: [Any] = [combinedContent]
-                                        
-                                        // Present share sheet
-                                        let activityVC = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
+                                    // Create a combined list for sharing
+                                    let combinedContent = createCombinedShareContent()
+                                    let shareItems: [Any] = [combinedContent]
+                                    
+                                    // Present share sheet
+                                    let activityVC = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
                                         
                                         // Add completion handler to dismiss the activity view controller
                                         activityVC.completionWithItemsHandler = { _, _, _, _ in
                                             // The activity view controller will dismiss itself
                                         }
-                                        
-                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                           let window = windowScene.windows.first {
-                                            window.rootViewController?.present(activityVC, animated: true)
+                                    
+                                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                       let window = windowScene.windows.first {
+                                        window.rootViewController?.present(activityVC, animated: true)
                                         }
                                     } else {
                                         upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)

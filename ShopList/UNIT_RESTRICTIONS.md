@@ -303,3 +303,4 @@ The unit restrictions work seamlessly with:
 - **Data Protection**: Automatic fallback prevents data corruption
 
 The implementation ensures that measurement units are now properly restricted for free users while maintaining a smooth upgrade experience and protecting user data.
+ 
