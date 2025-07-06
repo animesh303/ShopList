@@ -414,7 +414,10 @@ class SubscriptionManager: NSObject, ObservableObject {
     }
     
     func getAvailableUnits() -> [Unit] {
-        return isPremium ? Unit.allUnits : freeUnits
+        let units = isPremium ? Unit.allUnits : freeUnits
+        return units.sorted { first, second in
+            return first.displayName < second.displayName
+        }
     }
     
     func checkUnitAccess(_ unit: Unit) -> Bool {

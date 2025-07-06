@@ -316,6 +316,35 @@ enum Unit: String, CaseIterable, Identifiable {
     static var allUnits: [Unit] {
         [.none] + allCases.filter { $0 != .none }
     }
+    
+    // Sort order for logical grouping
+    var sortOrder: Int {
+        switch self {
+        case .none: return 0
+        case .piece: return 1
+        case .kilogram, .gram, .pound, .ounce: return 2
+        case .liter, .milliliter, .gallon, .quart, .pint, .cup, .tablespoon, .teaspoon: return 3
+        case .pack, .bottle, .can, .jar, .bag, .box, .dozen: return 4
+        }
+    }
+    
+    // Group name for section headers
+    var groupName: String {
+        switch self {
+        case .none: return "None"
+        case .piece: return "Basic"
+        case .kilogram, .gram, .pound, .ounce: return "Weight"
+        case .liter, .milliliter, .gallon, .quart, .pint, .cup, .tablespoon, .teaspoon: return "Volume"
+        case .pack, .bottle, .can, .jar, .bag, .box, .dozen: return "Packaging"
+        }
+    }
+    
+    // Get sorted units
+    static var sortedUnits: [Unit] {
+        return allUnits.sorted { first, second in
+            return first.displayName < second.displayName
+        }
+    }
 }
 
 // MARK: - Subscription Enums

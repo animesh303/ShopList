@@ -26,9 +26,12 @@ func canUseUnit(_ unit: Unit) -> Bool {
     return freeUnits.contains(unit)
 }
 
-// Get available units based on subscription status
+// Get available units based on subscription status (sorted)
 func getAvailableUnits() -> [Unit] {
-    return isPremium ? Unit.allUnits : freeUnits
+    let units = isPremium ? Unit.allUnits : freeUnits
+    return units.sorted { first, second in
+        return first.displayName < second.displayName
+    }
 }
 
 // Check unit access for validation
@@ -37,7 +40,42 @@ func checkUnitAccess(_ unit: Unit) -> Bool {
 }
 ```
 
-### 2. PremiumFeature Enum Updates
+### 2. Unit Enum Updates
+
+#### Added Sorting and Grouping
+
+```swift
+// Sort order for logical grouping
+var sortOrder: Int {
+    switch self {
+    case .none: return 0
+    case .piece: return 1
+    case .kilogram, .gram, .pound, .ounce: return 2
+    case .liter, .milliliter, .gallon, .quart, .pint, .cup, .tablespoon, .teaspoon: return 3
+    case .pack, .bottle, .can, .jar, .bag, .box, .dozen: return 4
+    }
+}
+
+// Group name for section headers
+var groupName: String {
+    switch self {
+    case .none: return "None"
+    case .piece: return "Basic"
+    case .kilogram, .gram, .pound, .ounce: return "Weight"
+    case .liter, .milliliter, .gallon, .quart, .pint, .cup, .tablespoon, .teaspoon: return "Volume"
+    case .pack, .bottle, .can, .jar, .bag, .box, .dozen: return "Packaging"
+    }
+}
+
+// Get sorted units
+static var sortedUnits: [Unit] {
+    return allUnits.sorted { first, second in
+        return first.displayName < second.displayName
+    }
+}
+```
+
+### 3. PremiumFeature Enum Updates
 
 #### Added All Units Feature
 
@@ -61,7 +99,7 @@ case .allUnits:
     return "Upgrade to Premium to access all measurement units"
 ```
 
-### 3. AddItemView Updates
+### 4. AddItemView Updates
 
 #### Restricted Unit Picker
 
@@ -99,7 +137,7 @@ private var filteredUnits: [Unit] {
 }
 ```
 
-### 4. ItemDetailView Updates
+### 5. ItemDetailView Updates
 
 Applied the same restrictions as AddItemView:
 
@@ -107,7 +145,7 @@ Applied the same restrictions as AddItemView:
 - Added premium indicator
 - Added unit change validation with upgrade prompt
 
-### 5. UserSettingsManager Updates
+### 6. UserSettingsManager Updates
 
 #### Default Unit Validation
 
@@ -155,6 +193,24 @@ func resetPremiumOnlySettings() {
     }
 }
 ```
+
+## Unit Sorting and Organization
+
+### Logical Grouping
+
+Units are now sorted into logical groups for better user experience:
+
+1. **None** (0): No unit specified
+2. **Basic** (1): piece
+3. **Weight** (2): kilogram, gram, pound, ounce
+4. **Volume** (3): liter, milliliter, gallon, quart, pint, cup, tablespoon, teaspoon
+5. **Packaging** (4): pack, bottle, can, jar, bag, box, dozen
+
+### Sorting Logic
+
+- Units are sorted alphabetically by displayName
+- This creates a predictable, easy-to-navigate order for users
+- Users can quickly find units by their name
 
 ## Free vs Premium Units
 
@@ -231,8 +287,8 @@ func resetPremiumOnlySettings() {
 
 ## Files Modified
 
-- `ShopList/Managers/SubscriptionManager.swift`: Added unit restrictions
-- `ShopList/Models/AppEnums.swift`: Added allUnits premium feature
+- `ShopList/Managers/SubscriptionManager.swift`: Added unit restrictions and sorting
+- `ShopList/Models/AppEnums.swift`: Added allUnits premium feature and unit sorting
 - `ShopList/Views/AddItemView.swift`: Updated unit picker with restrictions
 - `ShopList/Views/ItemDetailView.swift`: Updated unit picker with restrictions
 - `ShopList/Managers/UserSettingsManager.swift`: Added default unit protection
