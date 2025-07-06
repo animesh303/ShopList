@@ -53,7 +53,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     private let maxFreeLists = 3
     private let maxFreeNotifications = 5
     private let freeCategories: [ListCategory] = [.groceries, .household, .personal]
-    private let freeItemCategories: [ItemCategory] = [.groceries, .dairy, .bakery, .produce, .meat, .frozenFoods, .beverages, .snacks, .household, .cleaning, .laundry, .kitchen, .bathroom, .personalCare, .beauty, .health, .other]
+    private let freeItemCategories: [ItemCategory] = [.groceries, .dairy, .produce, .household, .personalCare, .other]
     
     private var updateListenerTask: Task<Void, Error>?
     private var modelContext: ModelContext?

@@ -11,11 +11,9 @@ Previously, only shopping list categories were restricted for free users, while 
 #### Added Free Item Categories
 
 ```swift
-// Free item categories for non-premium users
+// Free item categories for non-premium users (6 most common)
 private let freeItemCategories: [ItemCategory] = [
-    .groceries, .dairy, .bakery, .produce, .meat, .frozenFoods,
-    .beverages, .snacks, .household, .cleaning, .laundry,
-    .kitchen, .bathroom, .personalCare, .beauty, .health, .other
+    .groceries, .dairy, .produce, .household, .personalCare, .other
 ]
 ```
 
@@ -118,15 +116,20 @@ func resetPremiumOnlySettings() {
 
 ## Free vs Premium Item Categories
 
-### Free Categories (17 categories)
+### Free Categories (6 most common categories)
 
-- **Food & Beverages**: groceries, dairy, bakery, produce, meat, frozenFoods, beverages, snacks
-- **Household**: household, cleaning, laundry, kitchen, bathroom
-- **Personal Care**: personalCare, beauty, health
+- **Groceries**: groceries
+- **Dairy**: dairy
+- **Produce**: produce
+- **Household**: household
+- **Personal Care**: personalCare
 - **Other**: other
 
-### Premium Categories (8 additional categories)
+### Premium Categories (19 additional categories)
 
+- **Food & Beverages**: bakery, meat, frozenFoods, beverages, snacks, spices
+- **Household**: cleaning, laundry, kitchen, bathroom
+- **Personal Care**: beauty, health
 - **Electronics**: electronics
 - **Clothing**: clothing
 - **Automotive**: automotive
@@ -134,14 +137,13 @@ func resetPremiumOnlySettings() {
 - **Baby Care**: babyCare
 - **Pet Care**: petCare
 - **Office**: office
-- **Spices**: spices
 
 ## User Experience Flow
 
 ### Free User - Adding Item
 
 1. **Open Add Item**: User opens add item view
-2. **Category Picker**: Shows only 17 free categories with crown icon
+2. **Category Picker**: Shows only 6 free categories with crown icon
 3. **Select Category**: User can select from available categories
 4. **Premium Category Attempt**: If somehow a premium category is selected, shows upgrade prompt
 5. **Upgrade Flow**: User can upgrade to access all 25 categories
@@ -160,10 +162,10 @@ func resetPremiumOnlySettings() {
 ## Benefits
 
 1. **Consistent Premium Model**: Item categories now follow the same restriction pattern as list categories
-2. **Revenue Opportunity**: Premium categories provide additional value for subscription
+2. **Revenue Opportunity**: 19 premium categories provide significant additional value for subscription
 3. **User Experience**: Clear visual indicators (crown icons) show what's premium
 4. **Data Protection**: Automatic fallback to free categories prevents data corruption
-5. **Upgrade Incentive**: Access to 8 additional categories encourages premium subscription
+5. **Upgrade Incentive**: Access to 19 additional categories provides strong incentive for premium subscription
 
 ## Testing Scenarios
 
@@ -171,8 +173,8 @@ func resetPremiumOnlySettings() {
 
 1. Create new item
 2. Open category picker
-3. **Expected**: See only 17 free categories with crown icon
-4. **Actual**: See only 17 free categories with crown icon ✅
+3. **Expected**: See only 6 free categories with crown icon
+4. **Actual**: See only 6 free categories with crown icon ✅
 
 ### ✅ Premium User - Item Category Access
 
