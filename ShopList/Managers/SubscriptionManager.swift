@@ -53,6 +53,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     private let maxFreeLists = 3
     private let maxFreeNotifications = 5
     private let freeCategories: [ListCategory] = [.groceries, .household, .personal]
+    private let freeItemCategories: [ItemCategory] = [.groceries, .dairy, .bakery, .produce, .meat, .frozenFoods, .beverages, .snacks, .household, .cleaning, .laundry, .kitchen, .bathroom, .personalCare, .beauty, .health, .other]
     
     private var updateListenerTask: Task<Void, Error>?
     private var modelContext: ModelContext?
@@ -268,6 +269,11 @@ class SubscriptionManager: NSObject, ObservableObject {
         return freeCategories.contains(category)
     }
     
+    func canUseItemCategory(_ category: ItemCategory) -> Bool {
+        if isPremium { return true }
+        return freeItemCategories.contains(category)
+    }
+    
     func canUseLocationReminders() -> Bool {
         return isPremium
     }
@@ -306,6 +312,10 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     func getAvailableCategories() -> [ListCategory] {
         return isPremium ? ListCategory.allCases : freeCategories
+    }
+    
+    func getAvailableItemCategories() -> [ItemCategory] {
+        return isPremium ? ItemCategory.allCases : freeItemCategories
     }
     
     // MARK: - Helper Methods
@@ -389,6 +399,10 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     func checkCategoryAccess(_ category: ListCategory) -> Bool {
         return canUseCategory(category)
+    }
+    
+    func checkItemCategoryAccess(_ category: ItemCategory) -> Bool {
+        return canUseItemCategory(category)
     }
     
     func checkBudgetAccess() -> Bool {

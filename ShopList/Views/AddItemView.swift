@@ -678,7 +678,7 @@ struct AddItemView: View {
                 
                 // Category Picker - Settings Style
                 Picker(selection: $category) {
-                    ForEach(ItemCategory.allCases, id: \.self) { category in
+                    ForEach(subscriptionManager.getAvailableItemCategories(), id: \.self) { category in
                         HStack(spacing: 8) {
                             Image(systemName: category.icon)
                                 .foregroundColor(category.color)
@@ -690,11 +690,27 @@ struct AddItemView: View {
                         .tag(category)
                     }
                 } label: {
-                    Text("Category")
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    HStack {
+                        Text("Category")
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        if !subscriptionManager.isPremium {
+                            Image(systemName: "crown.fill")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.premium)
+                        }
+                    }
                 }
                 .pickerStyle(MenuPickerStyle())
+                .onChange(of: category) { _, newCategory in
+                    if !subscriptionManager.canUseItemCategory(newCategory) {
+                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allCategories)
+                        showingUpgradePrompt = true
+                        // Reset to a free category
+                        category = subscriptionManager.getAvailableItemCategories().first ?? .other
+                    }
+                }
                 
                 // Priority Picker - Settings Style
                 Picker(selection: $priority) {

@@ -45,6 +45,11 @@ class UserSettingsManager: ObservableObject {
     
     @Published var defaultItemCategory: ItemCategory {
         didSet {
+            // Ensure the default category is always available for free users
+            if !SubscriptionManager.shared.canUseItemCategory(defaultItemCategory) {
+                // Reset to a free category
+                defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
+            }
             UserDefaults.standard.set(defaultItemCategory.rawValue, forKey: "defaultItemCategory")
         }
     }
@@ -183,7 +188,14 @@ class UserSettingsManager: ObservableObject {
         
         // Default to groceries category for items
         let savedItemCategory = UserDefaults.standard.string(forKey: "defaultItemCategory") ?? ItemCategory.groceries.rawValue
-        self.defaultItemCategory = ItemCategory(rawValue: savedItemCategory) ?? .groceries
+        let initialCategory = ItemCategory(rawValue: savedItemCategory) ?? .groceries
+        
+        // Ensure the default category is available for free users
+        if SubscriptionManager.shared.canUseItemCategory(initialCategory) {
+            self.defaultItemCategory = initialCategory
+        } else {
+            self.defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
+        }
         
         // Default to kilogram unit
         self.defaultUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue
@@ -252,6 +264,11 @@ class UserSettingsManager: ObservableObject {
         // Reset showItemImagesByDefault if user doesn't have premium access
         if !SubscriptionManager.shared.canUseItemImages() && showItemImagesByDefault {
             showItemImagesByDefault = false
+        }
+        
+        // Reset defaultItemCategory if it's not available for free users
+        if !SubscriptionManager.shared.canUseItemCategory(defaultItemCategory) {
+            defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
         }
     }
     
