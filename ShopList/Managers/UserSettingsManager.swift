@@ -56,6 +56,11 @@ class UserSettingsManager: ObservableObject {
     
     @Published var defaultUnit: String {
         didSet {
+            // Ensure the default unit is always available for free users
+            if let unitEnum = Unit(rawValue: defaultUnit), !SubscriptionManager.shared.canUseUnit(unitEnum) {
+                // Reset to a free unit
+                defaultUnit = SubscriptionManager.shared.getAvailableUnits().first?.rawValue ?? ""
+            }
             UserDefaults.standard.set(defaultUnit, forKey: "defaultUnit")
         }
     }
@@ -198,7 +203,15 @@ class UserSettingsManager: ObservableObject {
         }
         
         // Default to kilogram unit
-        self.defaultUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue
+        let savedUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue
+        let initialUnit = Unit(rawValue: savedUnit) ?? .kilogram
+        
+        // Ensure the default unit is available for free users
+        if SubscriptionManager.shared.canUseUnit(initialUnit) {
+            self.defaultUnit = initialUnit.rawValue
+        } else {
+            self.defaultUnit = SubscriptionManager.shared.getAvailableUnits().first?.rawValue ?? ""
+        }
         
         // Default to system number format
         let savedNumberFormat = UserDefaults.standard.string(forKey: "numberFormat") ?? NumberFormat.system.rawValue
@@ -269,6 +282,11 @@ class UserSettingsManager: ObservableObject {
         // Reset defaultItemCategory if it's not available for free users
         if !SubscriptionManager.shared.canUseItemCategory(defaultItemCategory) {
             defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
+        }
+        
+        // Reset defaultUnit if it's not available for free users
+        if let unitEnum = Unit(rawValue: defaultUnit), !SubscriptionManager.shared.canUseUnit(unitEnum) {
+            defaultUnit = SubscriptionManager.shared.getAvailableUnits().first?.rawValue ?? ""
         }
     }
     

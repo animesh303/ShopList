@@ -54,6 +54,7 @@ class SubscriptionManager: NSObject, ObservableObject {
     private let maxFreeNotifications = 5
     private let freeCategories: [ListCategory] = [.groceries, .household, .personal]
     private let freeItemCategories: [ItemCategory] = [.groceries, .dairy, .produce, .household, .personalCare, .other]
+    private let freeUnits: [Unit] = [.none, .piece, .kilogram, .gram, .liter, .milliliter, .pack, .bottle]
     
     private var updateListenerTask: Task<Void, Error>?
     private var modelContext: ModelContext?
@@ -339,6 +340,8 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to create unlimited shopping lists"
         case .allCategories:
             return "Upgrade to Premium to access all 20+ categories"
+        case .allUnits:
+            return "Upgrade to Premium to access all measurement units"
         case .locationReminders:
             return "Upgrade to Premium to get location-based reminders"
         case .unlimitedNotifications:
@@ -403,6 +406,19 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     func checkItemCategoryAccess(_ category: ItemCategory) -> Bool {
         return canUseItemCategory(category)
+    }
+    
+    func canUseUnit(_ unit: Unit) -> Bool {
+        if isPremium { return true }
+        return freeUnits.contains(unit)
+    }
+    
+    func getAvailableUnits() -> [Unit] {
+        return isPremium ? Unit.allUnits : freeUnits
+    }
+    
+    func checkUnitAccess(_ unit: Unit) -> Bool {
+        return canUseUnit(unit)
     }
     
     func checkBudgetAccess() -> Bool {

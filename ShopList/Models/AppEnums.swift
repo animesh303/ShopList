@@ -372,6 +372,7 @@ enum SubscriptionPeriod: String, CaseIterable, Identifiable {
 enum PremiumFeature: String, CaseIterable, Identifiable {
     case unlimitedLists = "Unlimited Lists"
     case allCategories = "All Categories"
+    case allUnits = "All Units"
     case locationReminders = "Location Reminders"
     case unlimitedNotifications = "Unlimited Notifications"
     case budgetTracking = "Budget Tracking"
@@ -386,6 +387,8 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Create unlimited shopping lists"
         case .allCategories:
             return "Access to all 20+ categories"
+        case .allUnits:
+            return "Access to all measurement units"
         case .locationReminders:
             return "Get notified when near stores"
         case .unlimitedNotifications:
@@ -403,6 +406,7 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         switch self {
         case .unlimitedLists: return "list.bullet"
         case .allCategories: return "folder.fill"
+        case .allUnits: return "ruler.fill"
         case .locationReminders: return "location.circle.fill"
         case .unlimitedNotifications: return "bell.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
@@ -415,6 +419,7 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         switch self {
         case .unlimitedLists: return false
         case .allCategories: return false
+        case .allUnits: return false
         case .locationReminders: return false
         case .unlimitedNotifications: return false
         case .budgetTracking: return false

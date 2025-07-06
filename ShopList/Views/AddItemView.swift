@@ -268,10 +268,11 @@ struct AddItemView: View {
     }
     
     private var filteredUnits: [Unit] {
+        let availableUnits = subscriptionManager.getAvailableUnits()
         if unitSearchText.isEmpty {
-            return Unit.allUnits
+            return availableUnits
         } else {
-            return Unit.allUnits.filter { $0.displayName.localizedCaseInsensitiveContains(unitSearchText) }
+            return availableUnits.filter { $0.displayName.localizedCaseInsensitiveContains(unitSearchText) }
         }
     }
     
@@ -580,7 +581,7 @@ struct AddItemView: View {
 
                     // Unit Picker - Settings Style
                     Picker(selection: $unit) {
-                        ForEach(Unit.allUnits, id: \.self) { unit in
+                        ForEach(subscriptionManager.getAvailableUnits(), id: \.self) { unit in
                             HStack(spacing: 8) {
                                 Image(systemName: unit.icon)
                                     .foregroundColor(unit.color)
@@ -592,11 +593,27 @@ struct AddItemView: View {
                             .tag(unit.rawValue)
                         }
                     } label: {
-                        Text("Unit")
-                            .font(DesignSystem.Typography.body)
-                            .foregroundColor(DesignSystem.Colors.primaryText)
+                        HStack {
+                            Text("Unit")
+                                .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            if !subscriptionManager.isPremium {
+                                Image(systemName: "crown.fill")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.premium)
+                            }
+                        }
                     }
                     .pickerStyle(MenuPickerStyle())
+                    .onChange(of: unit) { _, newUnit in
+                        if let unitEnum = Unit(rawValue: newUnit), !subscriptionManager.canUseUnit(unitEnum) {
+                            upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allUnits)
+                            showingUpgradePrompt = true
+                            // Reset to a free unit
+                            unit = subscriptionManager.getAvailableUnits().first?.rawValue ?? ""
+                        }
+                    }
                 }
             }
         } header: {
