@@ -251,6 +251,18 @@ struct ContentView: View {
                             .padding(.horizontal, DesignSystem.Spacing.xl)
                             
                             Spacer()
+                            
+                            // Subtle footer for empty state
+                            VStack(spacing: DesignSystem.Spacing.xs) {
+                                Text("Made with ❤️ by Animesh Naskar")
+                                    .font(DesignSystem.Typography.caption2)
+                                    .foregroundColor(DesignSystem.Colors.tertiaryText.opacity(0.7))
+                                
+                                Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
+                                    .font(DesignSystem.Typography.caption2)
+                                    .foregroundColor(DesignSystem.Colors.tertiaryText.opacity(0.5))
+                            }
+                            .padding(.bottom, DesignSystem.Spacing.lg)
                         }
                     } else {
                         if settingsManager.defaultListViewStyle == .grid {

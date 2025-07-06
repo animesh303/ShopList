@@ -8,6 +8,7 @@ struct SettingsView: View {
     @StateObject private var locationManager = LocationManager.shared
     @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingPremiumUpgrade = false
+    @State private var showingShareSheet = false
     
     var body: some View {
         NavigationView {
@@ -701,7 +702,7 @@ struct SettingsView: View {
                             }
                             Spacer()
                             Button("Share") {
-                                shareApp()
+                                showingShareSheet = true
                             }
                             .buttonStyle(.bordered)
                             .tint(DesignSystem.Colors.primary)
@@ -747,6 +748,9 @@ struct SettingsView: View {
             .sheet(isPresented: $showingPremiumUpgrade) {
                 PremiumUpgradeView()
             }
+            .sheet(isPresented: $showingShareSheet) {
+                ShareSheet(activityItems: [createShareText()])
+            }
         }
     }
     
@@ -768,26 +772,16 @@ struct SettingsView: View {
         }
     }
     
-    private func shareApp() {
+    private func createShareText() -> String {
         let appName = "ShopList"
         let appDescription = "Smart shopping list manager with budgets, reminders, and location features"
         let appStoreURL = "https://apps.apple.com/app/shoplist/id123456789"
         
-        let shareText = """
+        return """
         Check out \(appName) - \(appDescription)
         
         Download here: \(appStoreURL)
         """
-        
-        let activityVC = UIActivityViewController(
-            activityItems: [shareText],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.rootViewController?.present(activityVC, animated: true)
-        }
     }
 }
 
