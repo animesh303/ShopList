@@ -639,6 +639,84 @@ struct SettingsView: View {
                             endPoint: .bottomTrailing
                         )
                     )
+                    
+                    // About & Support Section - Info Blue Gradient
+                    Section(header: Text("About & Support").foregroundColor(DesignSystem.Colors.primaryText)) {
+                        NavigationLink(destination: AboutView()) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("About ShopList")
+                                        .headlineStyle()
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                    Text("App information, developer details & support")
+                                        .captionStyle()
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                Spacer()
+                                HStack(spacing: 8) {
+                                    Image(systemName: "info.circle")
+                                        .foregroundColor(DesignSystem.Colors.info)
+                                        .font(.title)
+                                        .frame(width: 32, height: 32)
+                                    Text("View")
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.info)
+                                }
+                            }
+                            .padding(.vertical, 8)
+                        }
+                        
+                        HStack {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                                .font(.title3)
+                            VStack(alignment: .leading) {
+                                Text("Rate ShopList")
+                                    .headlineStyle()
+                                Text("Help others discover the app")
+                                    .captionStyle()
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                            Spacer()
+                            Button("Rate") {
+                                if let url = URL(string: "https://apps.apple.com/app/shoplist/id123456789") {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.info)
+                        }
+                        
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(DesignSystem.Colors.primary)
+                                .font(.title3)
+                            VStack(alignment: .leading) {
+                                Text("Share ShopList")
+                                    .headlineStyle()
+                                Text("Tell friends about the app")
+                                    .captionStyle()
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                            Spacer()
+                            Button("Share") {
+                                shareApp()
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(DesignSystem.Colors.primary)
+                        }
+                    }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.info.opacity(0.1),
+                                DesignSystem.Colors.info.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                 }
                 .scrollContentBackground(.hidden)
                 
@@ -687,6 +765,28 @@ struct SettingsView: View {
             return "Always"
         @unknown default:
             return "Unknown"
+        }
+    }
+    
+    private func shareApp() {
+        let appName = "ShopList"
+        let appDescription = "Smart shopping list manager with budgets, reminders, and location features"
+        let appStoreURL = "https://apps.apple.com/app/shoplist/id123456789"
+        
+        let shareText = """
+        Check out \(appName) - \(appDescription)
+        
+        Download here: \(appStoreURL)
+        """
+        
+        let activityVC = UIActivityViewController(
+            activityItems: [shareText],
+            applicationActivities: nil
+        )
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(activityVC, animated: true)
         }
     }
 }
