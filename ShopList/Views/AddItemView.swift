@@ -200,6 +200,7 @@ struct AddItemView: View {
     @State private var showingImageOptions = false
     @State private var showingUpgradePrompt = false
     @State private var upgradePromptMessage = ""
+    @State private var showingPremiumUpgrade = false
     @State private var isUnitSheetPresented = false
     @State private var unitSearchText = ""
     
@@ -267,10 +268,11 @@ struct AddItemView: View {
     }
     
     private var filteredUnits: [Unit] {
+        let availableUnits = subscriptionManager.getAvailableUnits()
         if unitSearchText.isEmpty {
-            return Unit.allUnits
+            return availableUnits
         } else {
-            return Unit.allUnits.filter { $0.displayName.localizedCaseInsensitiveContains(unitSearchText) }
+            return availableUnits.filter { $0.displayName.localizedCaseInsensitiveContains(unitSearchText) }
         }
     }
     
@@ -367,11 +369,14 @@ struct AddItemView: View {
         }
         .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
             Button("Upgrade") {
-                // Show premium upgrade view
+                showingPremiumUpgrade = true
             }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text(upgradePromptMessage)
+        }
+        .sheet(isPresented: $showingPremiumUpgrade) {
+            PremiumUpgradeView()
         }
         .onAppear {
             if unit.isEmpty {
@@ -574,25 +579,72 @@ struct AddItemView: View {
                             .labelsHidden()
                     }
 
-                    // Unit Picker - Settings Style
-                    Picker(selection: $unit) {
-                        ForEach(Unit.allUnits, id: \.self) { unit in
-                            HStack(spacing: 8) {
-                                Image(systemName: unit.icon)
-                                    .foregroundColor(unit.color)
-                                    .font(.title3)
-                                    .frame(width: 20)
-                                Text(unit.displayName)
-                                    .font(DesignSystem.Typography.body)
-                            }
-                            .tag(unit.rawValue)
-                        }
-                    } label: {
+                    // Unit Picker - Custom Menu Style (no auto-scroll)
+                    HStack {
                         Text("Unit")
                             .font(DesignSystem.Typography.body)
                             .foregroundColor(DesignSystem.Colors.primaryText)
+                        
+                        Spacer()
+                        
+                        Menu {
+                            ForEach(subscriptionManager.getAvailableUnits(), id: \.self) { unitOption in
+                                Button(action: {
+                                    if subscriptionManager.canUseUnit(unitOption) {
+                                        unit = unitOption.rawValue
+                                    } else {
+                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allUnits)
+                                        showingUpgradePrompt = true
+                                    }
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: unitOption.icon)
+                                            .foregroundColor(unitOption.color)
+                                            .font(.title3)
+                                            .frame(width: 20)
+                                        Text(unitOption.displayName)
+                                            .font(DesignSystem.Typography.body)
+                                        
+                                        if unit == unitOption.rawValue {
+                                            Spacer()
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(DesignSystem.Colors.primary)
+                                        }
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                if let currentUnit = Unit(rawValue: unit) {
+                                    Image(systemName: currentUnit.icon)
+                                        .foregroundColor(currentUnit.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(currentUnit.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.primaryText)
+                                } else {
+                                    Image(systemName: "circle")
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text("None")
+                                        .font(DesignSystem.Typography.body)
+                                        .foregroundColor(DesignSystem.Colors.secondaryText)
+                                }
+                                
+                                if !subscriptionManager.isPremium {
+                                    Image(systemName: "crown.fill")
+                                        .font(.caption)
+                                        .foregroundColor(DesignSystem.Colors.premium)
+                                }
+                                
+                                Image(systemName: "chevron.down")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.secondaryText)
+                            }
+                        }
                     }
-                    .pickerStyle(MenuPickerStyle())
                 }
             }
         } header: {
@@ -672,9 +724,41 @@ struct AddItemView: View {
                     )
                 }
                 
-                // Category Picker - Settings Style
-                Picker(selection: $category) {
-                    ForEach(ItemCategory.allCases, id: \.self) { category in
+                // Category Picker - Custom Menu Style (no auto-scroll)
+                HStack {
+                    Text("Category")
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.primaryText)
+                    
+                    Spacer()
+                    
+                    Menu {
+                        ForEach(subscriptionManager.getAvailableItemCategories(), id: \.self) { categoryOption in
+                            Button(action: {
+                                if subscriptionManager.canUseItemCategory(categoryOption) {
+                                    category = categoryOption
+                                } else {
+                                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .allCategories)
+                                    showingUpgradePrompt = true
+                                }
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: categoryOption.icon)
+                                        .foregroundColor(categoryOption.color)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(categoryOption.rawValue)
+                                        .font(DesignSystem.Typography.body)
+                                    
+                                    if category == categoryOption {
+                                        Spacer()
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
                         HStack(spacing: 8) {
                             Image(systemName: category.icon)
                                 .foregroundColor(category.color)
@@ -682,19 +766,52 @@ struct AddItemView: View {
                                 .frame(width: 20)
                             Text(category.rawValue)
                                 .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            if !subscriptionManager.isPremium {
+                                Image(systemName: "crown.fill")
+                                    .font(.caption)
+                                    .foregroundColor(DesignSystem.Colors.premium)
+                            }
+                            
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
-                        .tag(category)
                     }
-                } label: {
-                    Text("Category")
+                }
+                
+                // Priority Picker - Custom Menu Style (no auto-scroll)
+                HStack {
+                    Text("Priority")
                         .font(DesignSystem.Typography.body)
                         .foregroundColor(DesignSystem.Colors.primaryText)
-                }
-                .pickerStyle(MenuPickerStyle())
-                
-                // Priority Picker - Settings Style
-                Picker(selection: $priority) {
-                    ForEach(ItemPriority.allCases, id: \.self) { priority in
+                    
+                    Spacer()
+                    
+                    Menu {
+                        ForEach(ItemPriority.allCases, id: \.self) { priorityOption in
+                            Button(action: {
+                                priority = priorityOption
+                            }) {
+                                HStack(spacing: 8) {
+                                    let (iconName, iconColor) = getPriorityIconAndColor(for: priorityOption)
+                                    Image(systemName: iconName)
+                                        .foregroundColor(iconColor)
+                                        .font(.title3)
+                                        .frame(width: 20)
+                                    Text(priorityOption.displayName)
+                                        .font(DesignSystem.Typography.body)
+                                    
+                                    if priority == priorityOption {
+                                        Spacer()
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(DesignSystem.Colors.primary)
+                                    }
+                                }
+                            }
+                        }
+                    } label: {
                         HStack(spacing: 8) {
                             let (iconName, iconColor) = getPriorityIconAndColor(for: priority)
                             Image(systemName: iconName)
@@ -703,15 +820,14 @@ struct AddItemView: View {
                                 .frame(width: 20)
                             Text(priority.displayName)
                                 .font(DesignSystem.Typography.body)
+                                .foregroundColor(DesignSystem.Colors.primaryText)
+                            
+                            Image(systemName: "chevron.down")
+                                .font(.caption)
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
                         }
-                        .tag(priority)
                     }
-                } label: {
-                    Text("Priority")
-                        .font(DesignSystem.Typography.body)
-                        .foregroundColor(DesignSystem.Colors.primaryText)
                 }
-                .pickerStyle(MenuPickerStyle())
             }
         } header: {
             Text("Additional Information")

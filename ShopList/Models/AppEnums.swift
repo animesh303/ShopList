@@ -316,6 +316,35 @@ enum Unit: String, CaseIterable, Identifiable {
     static var allUnits: [Unit] {
         [.none] + allCases.filter { $0 != .none }
     }
+    
+    // Sort order for logical grouping
+    var sortOrder: Int {
+        switch self {
+        case .none: return 0
+        case .piece: return 1
+        case .kilogram, .gram, .pound, .ounce: return 2
+        case .liter, .milliliter, .gallon, .quart, .pint, .cup, .tablespoon, .teaspoon: return 3
+        case .pack, .bottle, .can, .jar, .bag, .box, .dozen: return 4
+        }
+    }
+    
+    // Group name for section headers
+    var groupName: String {
+        switch self {
+        case .none: return "None"
+        case .piece: return "Basic"
+        case .kilogram, .gram, .pound, .ounce: return "Weight"
+        case .liter, .milliliter, .gallon, .quart, .pint, .cup, .tablespoon, .teaspoon: return "Volume"
+        case .pack, .bottle, .can, .jar, .bag, .box, .dozen: return "Packaging"
+        }
+    }
+    
+    // Get sorted units
+    static var sortedUnits: [Unit] {
+        return allUnits.sorted { first, second in
+            return first.displayName < second.displayName
+        }
+    }
 }
 
 // MARK: - Subscription Enums
@@ -372,11 +401,12 @@ enum SubscriptionPeriod: String, CaseIterable, Identifiable {
 enum PremiumFeature: String, CaseIterable, Identifiable {
     case unlimitedLists = "Unlimited Lists"
     case allCategories = "All Categories"
+    case allUnits = "All Units"
     case locationReminders = "Location Reminders"
     case unlimitedNotifications = "Unlimited Notifications"
     case budgetTracking = "Budget Tracking"
     case itemImages = "Item Images"
-    case exportImport = "Export/Import"
+    case dataSharing = "Data Sharing"
     
     var id: String { rawValue }
     
@@ -386,6 +416,8 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Create unlimited shopping lists"
         case .allCategories:
             return "Access to all 20+ categories"
+        case .allUnits:
+            return "Access to all measurement units"
         case .locationReminders:
             return "Get notified when near stores"
         case .unlimitedNotifications:
@@ -394,8 +426,8 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Track spending with budgets"
         case .itemImages:
             return "Add photos to items"
-        case .exportImport:
-            return "Backup and restore data"
+        case .dataSharing:
+            return "Share and export shopping lists"
         }
     }
     
@@ -403,11 +435,12 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         switch self {
         case .unlimitedLists: return "list.bullet"
         case .allCategories: return "folder.fill"
+        case .allUnits: return "ruler.fill"
         case .locationReminders: return "location.circle.fill"
         case .unlimitedNotifications: return "bell.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
         case .itemImages: return "photo.fill"
-        case .exportImport: return "square.and.arrow.up"
+        case .dataSharing: return "square.and.arrow.up"
         }
     }
     
@@ -415,11 +448,12 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         switch self {
         case .unlimitedLists: return false
         case .allCategories: return false
+        case .allUnits: return false
         case .locationReminders: return false
         case .unlimitedNotifications: return false
         case .budgetTracking: return false
         case .itemImages: return false
-        case .exportImport: return false
+        case .dataSharing: return false
         }
     }
 } 

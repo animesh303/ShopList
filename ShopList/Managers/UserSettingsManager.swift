@@ -45,12 +45,22 @@ class UserSettingsManager: ObservableObject {
     
     @Published var defaultItemCategory: ItemCategory {
         didSet {
+            // Ensure the default category is always available for free users
+            if !SubscriptionManager.shared.canUseItemCategory(defaultItemCategory) {
+                // Reset to a free category
+                defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
+            }
             UserDefaults.standard.set(defaultItemCategory.rawValue, forKey: "defaultItemCategory")
         }
     }
     
     @Published var defaultUnit: String {
         didSet {
+            // Ensure the default unit is always available for free users
+            if let unitEnum = Unit(rawValue: defaultUnit), !SubscriptionManager.shared.canUseUnit(unitEnum) {
+                // Reset to a free unit
+                defaultUnit = SubscriptionManager.shared.getAvailableUnits().first?.rawValue ?? ""
+            }
             UserDefaults.standard.set(defaultUnit, forKey: "defaultUnit")
         }
     }
@@ -183,10 +193,25 @@ class UserSettingsManager: ObservableObject {
         
         // Default to groceries category for items
         let savedItemCategory = UserDefaults.standard.string(forKey: "defaultItemCategory") ?? ItemCategory.groceries.rawValue
-        self.defaultItemCategory = ItemCategory(rawValue: savedItemCategory) ?? .groceries
+        let initialCategory = ItemCategory(rawValue: savedItemCategory) ?? .groceries
+        
+        // Ensure the default category is available for free users
+        if SubscriptionManager.shared.canUseItemCategory(initialCategory) {
+            self.defaultItemCategory = initialCategory
+        } else {
+            self.defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
+        }
         
         // Default to kilogram unit
-        self.defaultUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue
+        let savedUnit = UserDefaults.standard.string(forKey: "defaultUnit") ?? Unit.kilogram.rawValue
+        let initialUnit = Unit(rawValue: savedUnit) ?? .kilogram
+        
+        // Ensure the default unit is available for free users
+        if SubscriptionManager.shared.canUseUnit(initialUnit) {
+            self.defaultUnit = initialUnit.rawValue
+        } else {
+            self.defaultUnit = SubscriptionManager.shared.getAvailableUnits().first?.rawValue ?? ""
+        }
         
         // Default to system number format
         let savedNumberFormat = UserDefaults.standard.string(forKey: "numberFormat") ?? NumberFormat.system.rawValue
@@ -253,6 +278,16 @@ class UserSettingsManager: ObservableObject {
         if !SubscriptionManager.shared.canUseItemImages() && showItemImagesByDefault {
             showItemImagesByDefault = false
         }
+        
+        // Reset defaultItemCategory if it's not available for free users
+        if !SubscriptionManager.shared.canUseItemCategory(defaultItemCategory) {
+            defaultItemCategory = SubscriptionManager.shared.getAvailableItemCategories().first ?? .other
+        }
+        
+        // Reset defaultUnit if it's not available for free users
+        if let unitEnum = Unit(rawValue: defaultUnit), !SubscriptionManager.shared.canUseUnit(unitEnum) {
+            defaultUnit = SubscriptionManager.shared.getAvailableUnits().first?.rawValue ?? ""
+        }
     }
     
     /// Safely sets a premium-only setting with validation
@@ -274,8 +309,8 @@ class UserSettingsManager: ObservableObject {
         case .budgetTracking:
             // This would be handled by BudgetManager
             break
-        case .exportImport:
-            // This would be handled by ExportManager
+        case .dataSharing:
+            // This would be handled by DataSharingManager
             break
         }
         
@@ -293,8 +328,8 @@ class UserSettingsManager: ObservableObject {
             return SubscriptionManager.shared.canUseUnlimitedNotifications()
         case .budgetTracking:
             return SubscriptionManager.shared.canUseBudgetTracking()
-        case .exportImport:
-            return SubscriptionManager.shared.canUseExportImport()
+        case .dataSharing:
+            return SubscriptionManager.shared.canUseDataSharing()
         }
     }
 }
@@ -305,5 +340,5 @@ enum PremiumSetting {
     case locationReminders
     case unlimitedNotifications
     case budgetTracking
-    case exportImport
+    case dataSharing
 } 

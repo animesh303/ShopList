@@ -53,6 +53,8 @@ class SubscriptionManager: NSObject, ObservableObject {
     private let maxFreeLists = 3
     private let maxFreeNotifications = 5
     private let freeCategories: [ListCategory] = [.groceries, .household, .personal]
+    private let freeItemCategories: [ItemCategory] = [.groceries, .dairy, .produce, .household, .personalCare, .other]
+    private let freeUnits: [Unit] = [.none, .piece, .kilogram, .gram, .liter, .milliliter, .pack, .bottle]
     
     private var updateListenerTask: Task<Void, Error>?
     private var modelContext: ModelContext?
@@ -268,6 +270,11 @@ class SubscriptionManager: NSObject, ObservableObject {
         return freeCategories.contains(category)
     }
     
+    func canUseItemCategory(_ category: ItemCategory) -> Bool {
+        if isPremium { return true }
+        return freeItemCategories.contains(category)
+    }
+    
     func canUseLocationReminders() -> Bool {
         return isPremium
     }
@@ -290,7 +297,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUseExportImport() -> Bool {
+    func canUseDataSharing() -> Bool {
         return isPremium
     }
     
@@ -306,6 +313,10 @@ class SubscriptionManager: NSObject, ObservableObject {
     
     func getAvailableCategories() -> [ListCategory] {
         return isPremium ? ListCategory.allCases : freeCategories
+    }
+    
+    func getAvailableItemCategories() -> [ItemCategory] {
+        return isPremium ? ItemCategory.allCases : freeItemCategories
     }
     
     // MARK: - Helper Methods
@@ -329,6 +340,8 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to create unlimited shopping lists"
         case .allCategories:
             return "Upgrade to Premium to access all 20+ categories"
+        case .allUnits:
+            return "Upgrade to Premium to access all measurement units"
         case .locationReminders:
             return "Upgrade to Premium to get location-based reminders"
         case .unlimitedNotifications:
@@ -337,8 +350,8 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to track budgets"
         case .itemImages:
             return "Upgrade to Premium to add photos to items"
-        case .exportImport:
-            return "Upgrade to Premium to export/import data"
+        case .dataSharing:
+            return "Upgrade to Premium to share and export shopping lists"
         }
     }
     
@@ -391,6 +404,26 @@ class SubscriptionManager: NSObject, ObservableObject {
         return canUseCategory(category)
     }
     
+    func checkItemCategoryAccess(_ category: ItemCategory) -> Bool {
+        return canUseItemCategory(category)
+    }
+    
+    func canUseUnit(_ unit: Unit) -> Bool {
+        if isPremium { return true }
+        return freeUnits.contains(unit)
+    }
+    
+    func getAvailableUnits() -> [Unit] {
+        let units = isPremium ? Unit.allUnits : freeUnits
+        return units.sorted { first, second in
+            return first.displayName < second.displayName
+        }
+    }
+    
+    func checkUnitAccess(_ unit: Unit) -> Bool {
+        return canUseUnit(unit)
+    }
+    
     func checkBudgetAccess() -> Bool {
         return canUseBudgetTracking()
     }
@@ -409,8 +442,8 @@ class SubscriptionManager: NSObject, ObservableObject {
         return canUseItemImages()
     }
     
-    func checkExportAccess() -> Bool {
-        return canUseExportImport()
+    func checkDataSharingAccess() -> Bool {
+        return canUseDataSharing()
     }
     
     // MARK: - Mock Subscription for Testing

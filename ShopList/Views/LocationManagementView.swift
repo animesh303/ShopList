@@ -3,7 +3,9 @@ import CoreLocation
 
 struct LocationManagementView: View {
     @StateObject private var locationManager = LocationManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     @State private var showingLocationPermissionAlert = false
+    @State private var showingPremiumUpgrade = false
     
     var body: some View {
         NavigationView {
@@ -34,7 +36,32 @@ struct LocationManagementView: View {
                     Text("Permission Status")
                 }
                 
-                if locationManager.locationReminders.isEmpty {
+                if !subscriptionManager.canUseLocationReminders() {
+                    Section {
+                        VStack(spacing: 12) {
+                            Image(systemName: "crown.fill")
+                                .font(.largeTitle)
+                                .foregroundColor(.orange)
+                            
+                            Text("Premium Feature")
+                                .font(.headline)
+                            
+                            Text("Upgrade to Premium to access location-based reminders and get notified when you're near stores.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                            
+                            Button("Upgrade to Premium") {
+                                showingPremiumUpgrade = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.orange)
+                            .padding(.top, 8)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 20)
+                    }
+                } else if locationManager.locationReminders.isEmpty {
                     Section {
                         VStack(spacing: 12) {
                             Image(systemName: "location.slash")
@@ -95,6 +122,15 @@ struct LocationManagementView: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("Location-based reminders require 'Always' location access to work in the background. Please enable this in Settings.")
+            }
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
+            }
+            .onAppear {
+                // Check premium access for location reminders
+                if !subscriptionManager.canUseLocationReminders() {
+                    showingPremiumUpgrade = true
+                }
             }
         }
     }

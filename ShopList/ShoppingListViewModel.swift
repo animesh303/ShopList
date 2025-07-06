@@ -345,6 +345,7 @@ final class ShoppingListViewModel: ObservableObject {
     }
     
     func shareList(_ list: ShoppingList) {
+        // Premium validation is handled at the UI level before calling this method
         listToShare = list
         showingShareSheet = true
     }

@@ -335,16 +335,26 @@ struct ContentView: View {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     
+                                    if subscriptionManager.canUseDataSharing() {
                                     // Create a combined list for sharing
                                     let combinedContent = createCombinedShareContent()
                                     let shareItems: [Any] = [combinedContent]
                                     
                                     // Present share sheet
                                     let activityVC = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
+                                        
+                                        // Add completion handler to dismiss the activity view controller
+                                        activityVC.completionWithItemsHandler = { _, _, _, _ in
+                                            // The activity view controller will dismiss itself
+                                        }
                                     
                                     if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                                        let window = windowScene.windows.first {
                                         window.rootViewController?.present(activityVC, animated: true)
+                                        }
+                                    } else {
+                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
+                                        showingUpgradePrompt = true
                                     }
                                     
                                     withAnimation(DesignSystem.Animations.spring) {
@@ -352,17 +362,17 @@ struct ContentView: View {
                                     }
                                     stopFabTimer()
                                 } label: {
-                                    Image(systemName: "square.and.arrow.up")
+                                    Image(systemName: subscriptionManager.canUseDataSharing() ? "square.and.arrow.up" : "crown.fill")
                                         .font(.title2)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
                                         .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                         .background(
-                                            DesignSystem.Colors.success.opacity(0.8)
+                                            subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
                                         )
                                         .clipShape(Circle())
                                         .shadow(
-                                            color: DesignSystem.Colors.success.opacity(0.4),
+                                            color: subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
                                             radius: 8,
                                             x: 0,
                                             y: 4
@@ -506,6 +516,14 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingPremiumUpgrade) {
                 PremiumUpgradeView()
+            }
+            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+                Button("Upgrade") {
+                    showingPremiumUpgrade = true
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(upgradePromptMessage)
             }
 
             .navigationDestination(for: ShoppingList.self) { list in

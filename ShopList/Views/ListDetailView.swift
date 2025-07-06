@@ -10,6 +10,7 @@ struct ListDetailView: View {
     @StateObject private var viewModel: ShoppingListViewModel
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var locationManager = LocationManager.shared
+    @EnvironmentObject private var subscriptionManager: SubscriptionManager
     
     @State private var showingAddItem = false
     @State private var showingDeleteConfirmation = false
@@ -17,8 +18,11 @@ struct ListDetailView: View {
     @State private var showingReminderSheet = false
     @State private var showingLocationSetup = false
     @State private var showingSortPicker = false
+    @State private var showingPremiumUpgrade = false
     @State private var isFabExpanded = false
     @State private var fabTimer: Timer?
+    @State private var showingUpgradePrompt = false
+    @State private var upgradePromptMessage = ""
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
@@ -139,11 +143,19 @@ struct ListDetailView: View {
                                     .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
                             }
                             
+                            if subscriptionManager.canUseLocationReminders() {
                             Button("Update Location Reminder") {
                                 showingLocationSetup = true
                             }
                             .buttonStyle(.bordered)
                             .tint(DesignSystem.Colors.primary)
+                            } else {
+                                Button("Upgrade for Location Reminders") {
+                                    showingPremiumUpgrade = true
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.orange)
+                            }
                         }
                         .padding(DesignSystem.Spacing.md)
                         .background(
@@ -163,11 +175,19 @@ struct ListDetailView: View {
                 } else {
                     Section {
                         VStack(spacing: DesignSystem.Spacing.md) {
+                            if subscriptionManager.canUseLocationReminders() {
                             Button("Set Up Location Reminder") {
                                 showingLocationSetup = true
                             }
                             .buttonStyle(.bordered)
                             .tint(DesignSystem.Colors.primary)
+                            } else {
+                                Button("Upgrade for Location Reminders") {
+                                    showingPremiumUpgrade = true
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.orange)
+                            }
                         }
                         .padding(DesignSystem.Spacing.md)
                         .background(
@@ -184,8 +204,13 @@ struct ListDetailView: View {
                         Text("Location Reminder")
                             .foregroundColor(DesignSystem.Colors.adaptiveTextColor())
                     } footer: {
+                        if subscriptionManager.canUseLocationReminders() {
                         Text("Get notified when you're near the store")
                             .foregroundColor(DesignSystem.Colors.adaptiveSecondaryTextColor())
+                        } else {
+                            Text("Upgrade to Premium for location-based reminders")
+                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                        }
                     }
                 }
                 
@@ -504,23 +529,30 @@ struct ListDetailView: View {
                             Button {
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                 generator.impactOccurred()
+                                
+                                if subscriptionManager.canUseDataSharing() {
                                 viewModel.shareList(list)
+                                } else {
+                                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
+                                    showingUpgradePrompt = true
+                                }
+                                
                                 withAnimation(DesignSystem.Animations.spring) {
                                     isFabExpanded = false
                                 }
                                 stopFabTimer()
                             } label: {
-                                Image(systemName: "square.and.arrow.up")
+                                Image(systemName: subscriptionManager.canUseDataSharing() ? "square.and.arrow.up" : "crown.fill")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
-                                        DesignSystem.Colors.success.opacity(0.8)
+                                        subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
                                     )
                                     .clipShape(Circle())
                                     .shadow(
-                                        color: DesignSystem.Colors.success.opacity(0.4),
+                                        color: subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
                                         radius: 8,
                                         x: 0,
                                         y: 4
@@ -602,12 +634,21 @@ struct ListDetailView: View {
         .sheet(isPresented: $showingLocationSetup) {
             LocationSetupView(list: list)
         }
+        .sheet(isPresented: $showingPremiumUpgrade) {
+            PremiumUpgradeView()
+        }
         .sheet(isPresented: $showingSortPicker) {
             ItemSortPickerView(sortOrder: $sortOrder)
         }
         .sheet(isPresented: $viewModel.showingShareSheet) {
             if let listToShare = viewModel.listToShare {
-                ShareSheet(activityItems: viewModel.getShareableItems(for: listToShare, currency: settingsManager.currency))
+                ShareSheet(
+                    activityItems: viewModel.getShareableItems(for: listToShare, currency: settingsManager.currency),
+                    onDismiss: {
+                        viewModel.showingShareSheet = false
+                        viewModel.listToShare = nil
+                    }
+                )
             }
         }
         .navigationDestination(for: Item.self) { item in
@@ -622,6 +663,14 @@ struct ListDetailView: View {
             }
         } message: {
             Text("Are you sure you want to delete this list? This action cannot be undone.")
+        }
+        .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+            Button("Upgrade") {
+                showingPremiumUpgrade = true
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(upgradePromptMessage)
         }
     }
     

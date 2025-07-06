@@ -45,7 +45,7 @@ Defines premium features and their availability:
 - List Templates
 - Budget Tracking
 - Item Images
-- Export/Import
+- Data Sharing
 
 ### 3. UI Components
 
