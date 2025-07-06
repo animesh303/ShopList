@@ -23,6 +23,7 @@ struct ItemDetailView: View {
     @State private var errorMessage = ""
     @State private var showingUpgradePrompt = false
     @State private var upgradePromptMessage = ""
+    @State private var showingPremiumUpgrade = false
     @State private var showingImageOptions = false
     @State private var showingCamera = false
     @State private var itemImage: Image?
@@ -145,11 +146,14 @@ struct ItemDetailView: View {
             }
             .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
                 Button("Upgrade") {
-                    // Show premium upgrade view
+                    showingPremiumUpgrade = true
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text(upgradePromptMessage)
+            }
+            .sheet(isPresented: $showingPremiumUpgrade) {
+                PremiumUpgradeView()
             }
         .onChange(of: selectedImage) { _, newValue in
             Task {

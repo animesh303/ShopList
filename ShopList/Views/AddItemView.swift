@@ -200,6 +200,7 @@ struct AddItemView: View {
     @State private var showingImageOptions = false
     @State private var showingUpgradePrompt = false
     @State private var upgradePromptMessage = ""
+    @State private var showingPremiumUpgrade = false
     @State private var isUnitSheetPresented = false
     @State private var unitSearchText = ""
     
@@ -367,11 +368,14 @@ struct AddItemView: View {
         }
         .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
             Button("Upgrade") {
-                // Show premium upgrade view
+                showingPremiumUpgrade = true
             }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text(upgradePromptMessage)
+        }
+        .sheet(isPresented: $showingPremiumUpgrade) {
+            PremiumUpgradeView()
         }
         .onAppear {
             if unit.isEmpty {
