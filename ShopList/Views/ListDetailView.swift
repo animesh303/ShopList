@@ -21,6 +21,8 @@ struct ListDetailView: View {
     @State private var showingPremiumUpgrade = false
     @State private var isFabExpanded = false
     @State private var fabTimer: Timer?
+    @State private var showingUpgradePrompt = false
+    @State private var upgradePromptMessage = ""
     @State private var searchText = ""
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var editingBudget: String = ""
@@ -527,23 +529,30 @@ struct ListDetailView: View {
                             Button {
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                 generator.impactOccurred()
-                                viewModel.shareList(list)
+                                
+                                if subscriptionManager.canUseExportImport() {
+                                    viewModel.shareList(list)
+                                } else {
+                                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .exportImport)
+                                    showingUpgradePrompt = true
+                                }
+                                
                                 withAnimation(DesignSystem.Animations.spring) {
                                     isFabExpanded = false
                                 }
                                 stopFabTimer()
                             } label: {
-                                Image(systemName: "square.and.arrow.up")
+                                Image(systemName: subscriptionManager.canUseExportImport() ? "square.and.arrow.up" : "crown.fill")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
-                                        DesignSystem.Colors.success.opacity(0.8)
+                                        subscriptionManager.canUseExportImport() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
                                     )
                                     .clipShape(Circle())
                                     .shadow(
-                                        color: DesignSystem.Colors.success.opacity(0.4),
+                                        color: subscriptionManager.canUseExportImport() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
                                         radius: 8,
                                         x: 0,
                                         y: 4
@@ -648,6 +657,14 @@ struct ListDetailView: View {
             }
         } message: {
             Text("Are you sure you want to delete this list? This action cannot be undone.")
+        }
+        .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+            Button("Upgrade") {
+                showingPremiumUpgrade = true
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text(upgradePromptMessage)
         }
     }
     

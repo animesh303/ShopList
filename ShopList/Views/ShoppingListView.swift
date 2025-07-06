@@ -21,6 +21,8 @@ struct ShoppingListView: View {
     @State private var sortOrder: ListSortOrder = .dateDesc
     @State private var showingShareSheet = false
     @State private var listToShare: ShoppingList?
+    @State private var showingUpgradePrompt = false
+    @State private var upgradePromptMessage = ""
     
     private var filteredLists: [ShoppingList] {
         var filtered = lists
@@ -64,13 +66,23 @@ struct ShoppingListView: View {
                         ListRow(list: list)
                     }
                     .swipeActions(edge: .trailing) {
-                        Button {
-                            listToShare = list
-                            showingShareSheet = true
-                        } label: {
-                            Label("Share", systemImage: "square.and.arrow.up")
+                        if subscriptionManager.canUseExportImport() {
+                            Button {
+                                listToShare = list
+                                showingShareSheet = true
+                            } label: {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            .tint(.blue)
+                        } else {
+                            Button {
+                                upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .exportImport)
+                                showingUpgradePrompt = true
+                            } label: {
+                                Label("Upgrade to Share", systemImage: "crown.fill")
+                            }
+                            .tint(.orange)
                         }
-                        .tint(.blue)
                     }
                 }
                 .onDelete(perform: deleteLists)
@@ -131,6 +143,14 @@ struct ShoppingListView: View {
                 if let listToShare = listToShare {
                     ShareSheet(activityItems: ShoppingListViewModel.shared.getShareableItems(for: listToShare, currency: settingsManager.currency))
                 }
+            }
+            .alert("Upgrade to Premium", isPresented: $showingUpgradePrompt) {
+                Button("Upgrade") {
+                    showingPremiumUpgrade = true
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text(upgradePromptMessage)
             }
         }
     }
