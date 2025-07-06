@@ -274,8 +274,8 @@ class UserSettingsManager: ObservableObject {
         case .budgetTracking:
             // This would be handled by BudgetManager
             break
-        case .exportImport:
-            // This would be handled by ExportManager
+        case .dataSharing:
+            // This would be handled by DataSharingManager
             break
         }
         
@@ -293,8 +293,8 @@ class UserSettingsManager: ObservableObject {
             return SubscriptionManager.shared.canUseUnlimitedNotifications()
         case .budgetTracking:
             return SubscriptionManager.shared.canUseBudgetTracking()
-        case .exportImport:
-            return SubscriptionManager.shared.canUseExportImport()
+        case .dataSharing:
+            return SubscriptionManager.shared.canUseDataSharing()
         }
     }
 }
@@ -305,5 +305,5 @@ enum PremiumSetting {
     case locationReminders
     case unlimitedNotifications
     case budgetTracking
-    case exportImport
+    case dataSharing
 } 

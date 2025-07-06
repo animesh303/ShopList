@@ -1,7 +1,7 @@
 import XCTest
 @testable import ShopList
 
-final class ExportImportRestrictionTests: XCTestCase {
+final class DataSharingRestrictionTests: XCTestCase {
     
     var subscriptionManager: SubscriptionManager!
     var viewModel: ShoppingListViewModel!
@@ -19,38 +19,38 @@ final class ExportImportRestrictionTests: XCTestCase {
         subscriptionManager.clearPersistedSubscriptionData()
     }
     
-    func testFreeUsersCannotUseExportImport() throws {
+    func testFreeUsersCannotUseDataSharing() throws {
         // Given: User is on free tier
         subscriptionManager.clearPersistedSubscriptionData()
         
-        // When: Checking export/import permission
-        let canUseExportImport = subscriptionManager.canUseExportImport()
+        // When: Checking data sharing permission
+        let canUseDataSharing = subscriptionManager.canUseDataSharing()
         
         // Then: Should be false for free users
-        XCTAssertFalse(canUseExportImport, "Free users should not be able to use export/import")
+        XCTAssertFalse(canUseDataSharing, "Free users should not be able to use data sharing")
     }
     
-    func testPremiumUsersCanUseExportImport() throws {
+    func testPremiumUsersCanUseDataSharing() throws {
         // Given: User is on premium tier
         subscriptionManager.clearPersistedSubscriptionData()
         subscriptionManager.setPremiumStatus(true)
         
-        // When: Checking export/import permission
-        let canUseExportImport = subscriptionManager.canUseExportImport()
+        // When: Checking data sharing permission
+        let canUseDataSharing = subscriptionManager.canUseDataSharing()
         
         // Then: Should be true for premium users
-        XCTAssertTrue(canUseExportImport, "Premium users should be able to use export/import")
+        XCTAssertTrue(canUseDataSharing, "Premium users should be able to use data sharing")
     }
     
-    func testExportImportUpgradePrompt() throws {
+    func testDataSharingUpgradePrompt() throws {
         // Given: User is on free tier
         subscriptionManager.clearPersistedSubscriptionData()
         
-        // When: Getting upgrade prompt for export/import
-        let upgradePrompt = subscriptionManager.getUpgradePrompt(for: .exportImport)
+        // When: Getting upgrade prompt for data sharing
+        let upgradePrompt = subscriptionManager.getUpgradePrompt(for: .dataSharing)
         
         // Then: Should return appropriate upgrade message
-        XCTAssertTrue(upgradePrompt.contains("Export/Import"), "Upgrade prompt should mention Export/Import feature")
+        XCTAssertTrue(upgradePrompt.contains("Data Sharing"), "Upgrade prompt should mention Data Sharing feature")
         XCTAssertTrue(upgradePrompt.contains("Upgrade to Premium"), "Upgrade prompt should mention Premium upgrade")
     }
     
@@ -70,26 +70,26 @@ final class ExportImportRestrictionTests: XCTestCase {
         // This test verifies that the method itself doesn't block sharing, as that's handled by the UI
     }
     
-    func testExportImportFeatureDefinition() throws {
-        // Given: Export/Import feature
-        let feature = PremiumFeature.exportImport
+    func testDataSharingFeatureDefinition() throws {
+        // Given: Data Sharing feature
+        let feature = PremiumFeature.dataSharing
         
         // When: Getting feature description
         let description = feature.description
         
         // Then: Should have correct description
-        XCTAssertEqual(description, "Export/Import", "Export/Import feature should have correct description")
+        XCTAssertEqual(description, "Data Sharing", "Data Sharing feature should have correct description")
     }
     
-    func testExportImportUpgradeMessage() throws {
-        // Given: Export/Import feature
-        let feature = PremiumFeature.exportImport
+    func testDataSharingUpgradeMessage() throws {
+        // Given: Data Sharing feature
+        let feature = PremiumFeature.dataSharing
         
         // When: Getting upgrade message
         let upgradeMessage = subscriptionManager.getUpgradePrompt(for: feature)
         
         // Then: Should contain appropriate message
-        XCTAssertTrue(upgradeMessage.contains("Export/Import"), "Upgrade message should mention Export/Import")
+        XCTAssertTrue(upgradeMessage.contains("Data Sharing"), "Upgrade message should mention Data Sharing")
         XCTAssertTrue(upgradeMessage.contains("Upgrade to Premium"), "Upgrade message should mention Premium upgrade")
     }
 } 

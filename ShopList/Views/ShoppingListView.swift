@@ -66,7 +66,7 @@ struct ShoppingListView: View {
                         ListRow(list: list)
                     }
                     .swipeActions(edge: .trailing) {
-                        if subscriptionManager.canUseExportImport() {
+                        if subscriptionManager.canUseDataSharing() {
                             Button {
                                 listToShare = list
                                 showingShareSheet = true
@@ -76,7 +76,7 @@ struct ShoppingListView: View {
                             .tint(.blue)
                         } else {
                             Button {
-                                upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .exportImport)
+                                upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
                                 showingUpgradePrompt = true
                             } label: {
                                 Label("Upgrade to Share", systemImage: "crown.fill")

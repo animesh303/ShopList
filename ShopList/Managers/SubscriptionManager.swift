@@ -290,7 +290,7 @@ class SubscriptionManager: NSObject, ObservableObject {
         return isPremium
     }
     
-    func canUseExportImport() -> Bool {
+    func canUseDataSharing() -> Bool {
         return isPremium
     }
     
@@ -337,8 +337,8 @@ class SubscriptionManager: NSObject, ObservableObject {
             return "Upgrade to Premium to track budgets"
         case .itemImages:
             return "Upgrade to Premium to add photos to items"
-        case .exportImport:
-            return "Upgrade to Premium to export/import data"
+        case .dataSharing:
+            return "Upgrade to Premium to share and export shopping lists"
         }
     }
     
@@ -409,8 +409,8 @@ class SubscriptionManager: NSObject, ObservableObject {
         return canUseItemImages()
     }
     
-    func checkExportAccess() -> Bool {
-        return canUseExportImport()
+    func checkDataSharingAccess() -> Bool {
+        return canUseDataSharing()
     }
     
     // MARK: - Mock Subscription for Testing

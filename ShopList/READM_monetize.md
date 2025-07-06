@@ -40,7 +40,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - **Unit Management** - Various measurement units
 - **Grid/List Views** - Multiple display options
 - **Sorting Options** - Multiple sort criteria
-- **Export/Import** - Data portability
+- **Data Sharing** - Data portability
 
 ## **Monetization Strategies for Apple App Store**
 
@@ -57,7 +57,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - No templates
 - No budget tracking
 - No item images
-- No export/import
+- No data sharing
 
 **Premium Tier ($2.99/month or $19.99/year):**
 
@@ -69,7 +69,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - List templates
 - Budget tracking with analytics
 - Item images
-- Export/import functionality
+- Data sharing functionality
 
 ### **2. One-Time Purchase Model**
 
@@ -84,7 +84,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 - **Budget Tracking:** $0.99
 - **Voice Commands:** $0.99
 - **Templates:** $0.99
-- **Export/Import:** $0.99
+- **Data Sharing:** $0.99
 - **Premium Themes:** $0.99 each
 
 ### **4. Subscription Tiers**
@@ -106,7 +106,7 @@ Based on my analysis of your ShopList application codebase, I can see you have a
 
 - Everything in Standard
 - Templates
-- Export/import
+- Data sharing
 
 ### **5. Additional Revenue Streams**
 

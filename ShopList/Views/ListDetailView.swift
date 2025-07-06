@@ -530,10 +530,10 @@ struct ListDetailView: View {
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                 generator.impactOccurred()
                                 
-                                if subscriptionManager.canUseExportImport() {
+                                if subscriptionManager.canUseDataSharing() {
                                     viewModel.shareList(list)
                                 } else {
-                                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .exportImport)
+                                    upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
                                     showingUpgradePrompt = true
                                 }
                                 
@@ -542,17 +542,17 @@ struct ListDetailView: View {
                                 }
                                 stopFabTimer()
                             } label: {
-                                Image(systemName: subscriptionManager.canUseExportImport() ? "square.and.arrow.up" : "crown.fill")
+                                Image(systemName: subscriptionManager.canUseDataSharing() ? "square.and.arrow.up" : "crown.fill")
                                     .font(.title2)
                                     .fontWeight(.semibold)
                                     .foregroundColor(.white)
                                     .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                     .background(
-                                        subscriptionManager.canUseExportImport() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
+                                        subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
                                     )
                                     .clipShape(Circle())
                                     .shadow(
-                                        color: subscriptionManager.canUseExportImport() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
+                                        color: subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
                                         radius: 8,
                                         x: 0,
                                         y: 4

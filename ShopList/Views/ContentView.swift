@@ -335,7 +335,7 @@ struct ContentView: View {
                                     let generator = UIImpactFeedbackGenerator(style: .medium)
                                     generator.impactOccurred()
                                     
-                                    if subscriptionManager.canUseExportImport() {
+                                    if subscriptionManager.canUseDataSharing() {
                                         // Create a combined list for sharing
                                         let combinedContent = createCombinedShareContent()
                                         let shareItems: [Any] = [combinedContent]
@@ -348,7 +348,7 @@ struct ContentView: View {
                                             window.rootViewController?.present(activityVC, animated: true)
                                         }
                                     } else {
-                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .exportImport)
+                                        upgradePromptMessage = subscriptionManager.getUpgradePrompt(for: .dataSharing)
                                         showingUpgradePrompt = true
                                     }
                                     
@@ -357,17 +357,17 @@ struct ContentView: View {
                                     }
                                     stopFabTimer()
                                 } label: {
-                                    Image(systemName: subscriptionManager.canUseExportImport() ? "square.and.arrow.up" : "crown.fill")
+                                    Image(systemName: subscriptionManager.canUseDataSharing() ? "square.and.arrow.up" : "crown.fill")
                                         .font(.title2)
                                         .fontWeight(.semibold)
                                         .foregroundColor(.white)
                                         .frame(width: DesignSystem.Layout.minimumTouchTarget, height: DesignSystem.Layout.minimumTouchTarget)
                                         .background(
-                                            subscriptionManager.canUseExportImport() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
+                                            subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.8) : DesignSystem.Colors.premium.opacity(0.8)
                                         )
                                         .clipShape(Circle())
                                         .shadow(
-                                            color: subscriptionManager.canUseExportImport() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
+                                            color: subscriptionManager.canUseDataSharing() ? DesignSystem.Colors.success.opacity(0.4) : DesignSystem.Colors.premium.opacity(0.4),
                                             radius: 8,
                                             x: 0,
                                             y: 4

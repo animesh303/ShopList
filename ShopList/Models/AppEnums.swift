@@ -376,7 +376,7 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
     case unlimitedNotifications = "Unlimited Notifications"
     case budgetTracking = "Budget Tracking"
     case itemImages = "Item Images"
-    case exportImport = "Export/Import"
+    case dataSharing = "Data Sharing"
     
     var id: String { rawValue }
     
@@ -394,8 +394,8 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             return "Track spending with budgets"
         case .itemImages:
             return "Add photos to items"
-        case .exportImport:
-            return "Backup and restore data"
+        case .dataSharing:
+            return "Share and export shopping lists"
         }
     }
     
@@ -407,7 +407,7 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .unlimitedNotifications: return "bell.fill"
         case .budgetTracking: return "chart.line.uptrend.xyaxis"
         case .itemImages: return "photo.fill"
-        case .exportImport: return "square.and.arrow.up"
+        case .dataSharing: return "square.and.arrow.up"
         }
     }
     
@@ -419,7 +419,7 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .unlimitedNotifications: return false
         case .budgetTracking: return false
         case .itemImages: return false
-        case .exportImport: return false
+        case .dataSharing: return false
         }
     }
 } 
