@@ -1,6 +1,8 @@
 import XCTest
 @testable import ShopList
+import SwiftData
 
+@MainActor
 final class ShareSheetDismissalTests: XCTestCase {
     
     var subscriptionManager: SubscriptionManager!
@@ -8,7 +10,13 @@ final class ShareSheetDismissalTests: XCTestCase {
     
     override func setUpWithError() throws {
         subscriptionManager = SubscriptionManager.shared
-        viewModel = ShoppingListViewModel(modelContext: try ModelContainer(for: ShoppingList.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)).mainContext)
+        
+        // Create ModelContainer and ModelContext on main thread
+                    let container = try ModelContainer(for: ShoppingList.self, Item.self, ItemHistory.self, Location.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let modelContext = container.mainContext
+        
+        // Ensure ViewModel is created on main thread using the test helper
+        viewModel = ShoppingListViewModel.createForTesting(modelContext: modelContext)
         
         // Clear any existing subscription data
         subscriptionManager.clearPersistedSubscriptionData()
@@ -22,7 +30,7 @@ final class ShareSheetDismissalTests: XCTestCase {
     func testShareSheetHasDismissHandler() throws {
         // Given: A shopping list and premium user
         let list = ShoppingList(name: "Test List", category: .groceries)
-        subscriptionManager.setPremiumStatus(true)
+        subscriptionManager.mockSubscribe()
         
         // When: Creating a ShareSheet
         let shareSheet = ShareSheet(
@@ -41,7 +49,7 @@ final class ShareSheetDismissalTests: XCTestCase {
     func testShareListMethodSetsUpSharing() throws {
         // Given: A shopping list and premium user
         let list = ShoppingList(name: "Test List", category: .groceries)
-        subscriptionManager.setPremiumStatus(true)
+        subscriptionManager.mockSubscribe()
         
         // When: Calling shareList method
         viewModel.shareList(list)
@@ -54,7 +62,7 @@ final class ShareSheetDismissalTests: XCTestCase {
     func testShareSheetDismissalClearsState() throws {
         // Given: A shopping list and premium user with sharing state set up
         let list = ShoppingList(name: "Test List", category: .groceries)
-        subscriptionManager.setPremiumStatus(true)
+        subscriptionManager.mockSubscribe()
         viewModel.shareList(list)
         
         // Verify initial state
@@ -97,7 +105,7 @@ final class ShareSheetDismissalTests: XCTestCase {
     func testShareSheetCompletionHandlerIsCalled() throws {
         // Given: A shopping list and premium user
         let list = ShoppingList(name: "Test List", category: .groceries)
-        subscriptionManager.setPremiumStatus(true)
+        subscriptionManager.mockSubscribe()
         
         var dismissHandlerCalled = false
         
@@ -115,5 +123,6 @@ final class ShareSheetDismissalTests: XCTestCase {
         // Note: In a real scenario, the dismiss handler would be called by the UIActivityViewController
         // when the user completes or cancels the sharing action. We can't simulate this in unit tests,
         // but we can verify the ShareSheet is set up correctly.
+        // The dismissHandlerCalled variable is intentionally unused as we can't simulate the actual dismissal
     }
 } 

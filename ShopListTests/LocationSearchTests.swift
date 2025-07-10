@@ -2,6 +2,7 @@ import XCTest
 import CoreLocation
 @testable import ShopList
 
+@MainActor
 final class LocationSearchTests: XCTestCase {
     
     var locationManager: LocationManager!
@@ -10,6 +11,14 @@ final class LocationSearchTests: XCTestCase {
     override func setUpWithError() throws {
         locationManager = LocationManager.shared
         settingsManager = UserSettingsManager.shared
+        
+        // Reset all relevant settings to known state
+        settingsManager.restrictSearchToLocality = false
+        settingsManager.useCurrentLocationForSearch = true
+        settingsManager.searchRadius = 5000
+        settingsManager.savedSearchLocation = nil
+        
+        print("LocationSearchTests setUp: restrictSearchToLocality=\(settingsManager.restrictSearchToLocality), useCurrentLocationForSearch=\(settingsManager.useCurrentLocationForSearch), searchRadius=\(settingsManager.searchRadius)")
     }
     
     override func tearDownWithError() throws {
@@ -18,6 +27,8 @@ final class LocationSearchTests: XCTestCase {
         settingsManager.useCurrentLocationForSearch = true
         settingsManager.searchRadius = 5000
         settingsManager.savedSearchLocation = nil
+        
+        print("LocationSearchTests tearDown: Settings reset")
     }
     
     func testLocationSearchRestrictionDisabled() throws {
@@ -39,12 +50,17 @@ final class LocationSearchTests: XCTestCase {
         settingsManager.savedSearchLocation = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
         settingsManager.searchRadius = 1000 // 1km radius
         
+        print("testLocationSearchRestrictionEnabled: restrictSearchToLocality=\(settingsManager.restrictSearchToLocality), useCurrentLocationForSearch=\(settingsManager.useCurrentLocationForSearch), savedSearchLocation=\(String(describing: settingsManager.savedSearchLocation)), searchRadius=\(settingsManager.searchRadius)")
+        
         // When: Checking locations within and outside the radius
-        let nearbyLocation = CLLocationCoordinate2D(latitude: 37.7849, longitude: -122.4194) // ~1km away
+        // Using coordinates that are definitely within 1km (approximately 0.5km away)
+        let nearbyLocation = CLLocationCoordinate2D(latitude: 37.7799, longitude: -122.4194) // ~0.55km away
         let farLocation = CLLocationCoordinate2D(latitude: 37.8749, longitude: -122.4194) // ~11km away
         
         let isNearbyWithinRadius = locationManager.isLocationWithinSearchRadius(nearbyLocation)
         let isFarWithinRadius = locationManager.isLocationWithinSearchRadius(farLocation)
+        
+        print("testLocationSearchRestrictionEnabled: isNearbyWithinRadius=\(isNearbyWithinRadius), isFarWithinRadius=\(isFarWithinRadius)")
         
         // Then: Only nearby location should be within radius
         XCTAssertTrue(isNearbyWithinRadius, "Nearby location should be within 1km radius")
@@ -63,8 +79,10 @@ final class LocationSearchTests: XCTestCase {
         
         // Then: Should return a valid region
         XCTAssertNotNil(searchRegion, "Search region should not be nil when restrictions are enabled")
-        XCTAssertEqual(searchRegion?.center.latitude, 37.7749, accuracy: 0.0001)
-        XCTAssertEqual(searchRegion?.center.longitude, -122.4194, accuracy: 0.0001)
+        if let region = searchRegion {
+            XCTAssertEqual(region.center.latitude, 37.7749, accuracy: 0.0001)
+            XCTAssertEqual(region.center.longitude, -122.4194, accuracy: 0.0001)
+        }
     }
     
     func testSearchRegionDisabled() throws {

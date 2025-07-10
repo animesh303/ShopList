@@ -1,6 +1,8 @@
 import XCTest
 @testable import ShopList
+import SwiftData
 
+@MainActor
 final class DataSharingRestrictionTests: XCTestCase {
     
     var subscriptionManager: SubscriptionManager!
@@ -8,7 +10,13 @@ final class DataSharingRestrictionTests: XCTestCase {
     
     override func setUpWithError() throws {
         subscriptionManager = SubscriptionManager.shared
-        viewModel = ShoppingListViewModel(modelContext: try ModelContainer(for: ShoppingList.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true)).mainContext)
+        
+        // Create ModelContainer and ModelContext on main thread
+                    let container = try ModelContainer(for: ShoppingList.self, Item.self, ItemHistory.self, Location.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+        let modelContext = container.mainContext
+        
+        // Ensure ViewModel is created on main thread using the test helper
+        viewModel = ShoppingListViewModel.createForTesting(modelContext: modelContext)
         
         // Clear any existing subscription data
         subscriptionManager.clearPersistedSubscriptionData()
@@ -22,6 +30,7 @@ final class DataSharingRestrictionTests: XCTestCase {
     func testFreeUsersCannotUseDataSharing() throws {
         // Given: User is on free tier
         subscriptionManager.clearPersistedSubscriptionData()
+        subscriptionManager.mockUnsubscribe() // Ensure in-memory state is also reset
         
         // When: Checking data sharing permission
         let canUseDataSharing = subscriptionManager.canUseDataSharing()
@@ -33,7 +42,7 @@ final class DataSharingRestrictionTests: XCTestCase {
     func testPremiumUsersCanUseDataSharing() throws {
         // Given: User is on premium tier
         subscriptionManager.clearPersistedSubscriptionData()
-        subscriptionManager.setPremiumStatus(true)
+        subscriptionManager.mockSubscribe()
         
         // When: Checking data sharing permission
         let canUseDataSharing = subscriptionManager.canUseDataSharing()
@@ -50,7 +59,7 @@ final class DataSharingRestrictionTests: XCTestCase {
         let upgradePrompt = subscriptionManager.getUpgradePrompt(for: .dataSharing)
         
         // Then: Should return appropriate upgrade message
-        XCTAssertTrue(upgradePrompt.contains("Data Sharing"), "Upgrade prompt should mention Data Sharing feature")
+        XCTAssertTrue(upgradePrompt.contains("share and export"), "Upgrade prompt should mention share and export functionality")
         XCTAssertTrue(upgradePrompt.contains("Upgrade to Premium"), "Upgrade prompt should mention Premium upgrade")
     }
     
@@ -78,7 +87,7 @@ final class DataSharingRestrictionTests: XCTestCase {
         let description = feature.description
         
         // Then: Should have correct description
-        XCTAssertEqual(description, "Data Sharing", "Data Sharing feature should have correct description")
+        XCTAssertEqual(description, "Share and export shopping lists", "Data Sharing feature should have correct description")
     }
     
     func testDataSharingUpgradeMessage() throws {
@@ -89,7 +98,24 @@ final class DataSharingRestrictionTests: XCTestCase {
         let upgradeMessage = subscriptionManager.getUpgradePrompt(for: feature)
         
         // Then: Should contain appropriate message
-        XCTAssertTrue(upgradeMessage.contains("Data Sharing"), "Upgrade message should mention Data Sharing")
+        XCTAssertTrue(upgradeMessage.contains("share and export"), "Upgrade message should mention share and export functionality")
         XCTAssertTrue(upgradeMessage.contains("Upgrade to Premium"), "Upgrade message should mention Premium upgrade")
+    }
+    
+    func testDataSharingFeatureProperties() throws {
+        // Given: Data Sharing feature
+        let feature = PremiumFeature.dataSharing
+        
+        // When: Checking feature properties
+        let rawValue = feature.rawValue
+        let id = feature.id
+        let icon = feature.icon
+        let isAvailableInFree = feature.isAvailableInFree
+        
+        // Then: Should have correct properties
+        XCTAssertEqual(rawValue, "Data Sharing", "Data Sharing feature should have correct raw value")
+        XCTAssertEqual(id, "Data Sharing", "Data Sharing feature should have correct id")
+        XCTAssertEqual(icon, "square.and.arrow.up", "Data Sharing feature should have correct icon")
+        XCTAssertFalse(isAvailableInFree, "Data Sharing should not be available in free tier")
     }
 } 

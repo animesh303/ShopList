@@ -2,6 +2,7 @@ import XCTest
 import CoreLocation
 @testable import ShopList
 
+@MainActor
 final class LocationReminderRestrictionTests: XCTestCase {
     
     var subscriptionManager: SubscriptionManager!
@@ -13,6 +14,14 @@ final class LocationReminderRestrictionTests: XCTestCase {
         
         // Clear any existing subscription data
         subscriptionManager.clearPersistedSubscriptionData()
+        
+        // Reset notification count for testing
+        subscriptionManager.resetNotificationCount()
+        
+        // Reset notification authorization for testing
+        notificationManager.isAuthorized = false
+        
+        print("LocationReminderRestrictionTests setUp: isAuthorized=\(notificationManager.isAuthorized), canUseLocationReminders=\(subscriptionManager.canUseLocationReminders()), canSendNotification=\(subscriptionManager.canSendNotification())")
     }
     
     override func tearDownWithError() throws {
@@ -65,6 +74,12 @@ final class LocationReminderRestrictionTests: XCTestCase {
         // Given: User is on premium tier
         subscriptionManager.mockSubscribe()
         
+        // Ensure notification authorization is granted for the test
+        notificationManager.isAuthorized = true
+        
+        print("testLocationReminderSchedulingSucceedsForPremiumUsers: isAuthorized=\(notificationManager.isAuthorized), canUseLocationReminders=\(subscriptionManager.canUseLocationReminders()), canSendNotification=\(subscriptionManager.canSendNotification())")
+        
+        // Mock the notification center to avoid actual scheduling in tests
         let testList = ShoppingList(name: "Test List", category: .groceries)
         let testLocation = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
         
@@ -76,9 +91,9 @@ final class LocationReminderRestrictionTests: XCTestCase {
             message: "Test reminder"
         )
         
-        // Then: Should succeed (assuming notification permissions are granted)
-        // Note: This test might fail if notification permissions are not granted
-        // In a real test environment, you'd need to mock the notification center
+        print("testLocationReminderSchedulingSucceedsForPremiumUsers: result=\(result)")
+        
+        // Then: Should succeed for premium users with proper authorization
         XCTAssertTrue(result, "Location reminder scheduling should succeed for premium users")
     }
     
