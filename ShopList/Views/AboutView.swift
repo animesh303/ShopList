@@ -242,6 +242,7 @@ struct AboutView: View {
                 TermsOfServiceView()
             }
         }
+        .navigationBarHidden(true)
     }
     
     private func getBuildDate() -> String {
