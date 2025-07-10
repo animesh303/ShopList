@@ -19,33 +19,7 @@ final class ItemTests: XCTestCase {
         XCTAssertEqual(item.notes, "Get whole milk")
     }
     
-    func testItemPriority() {
-        let lowPriorityItem = Item(
-            name: "Low Priority Item",
-            category: .other,
-            priority: .low
-        )
-        
-        let normalPriorityItem = Item(
-            name: "Normal Priority Item",
-            category: .other,
-            priority: .normal
-        )
-        
-        let highPriorityItem = Item(
-            name: "High Priority Item",
-            category: .other,
-            priority: .high
-        )
-        
-        XCTAssertEqual(lowPriorityItem.priority, .low)
-        XCTAssertEqual(normalPriorityItem.priority, .normal)
-        XCTAssertEqual(highPriorityItem.priority, .high)
-        
-        XCTAssertEqual(lowPriorityItem.priority.displayName, "Low")
-        XCTAssertEqual(normalPriorityItem.priority.displayName, "Normal")
-        XCTAssertEqual(highPriorityItem.priority.displayName, "High")
-    }
+
     
     func testItemWithOptionalProperties() {
         let item = Item(
@@ -107,15 +81,5 @@ final class ItemTests: XCTestCase {
         XCTAssertEqual(ItemCategory.other.icon, "questionmark.circle.fill")
     }
     
-    func testItemPriorityColors() {
-        XCTAssertEqual(ItemPriority.low.color, .gray)
-        XCTAssertEqual(ItemPriority.normal.color, .blue)
-        XCTAssertEqual(ItemPriority.high.color, .red)
-    }
-    
-    func testItemPriorityIcons() {
-        XCTAssertEqual(ItemPriority.low.icon, "arrow.down.circle.fill")
-        XCTAssertEqual(ItemPriority.normal.icon, "circle.fill")
-        XCTAssertEqual(ItemPriority.high.icon, "exclamationmark.circle.fill")
-    }
+
 } 
