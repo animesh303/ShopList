@@ -144,6 +144,12 @@ class UserSettingsManager: ObservableObject {
         }
     }
     
+    @Published var notificationBannerStyle: NotificationBannerStyle {
+        didSet {
+            UserDefaults.standard.set(notificationBannerStyle.rawValue, forKey: "notificationBannerStyle")
+        }
+    }
+    
     @Published var restrictSearchToLocality: Bool {
         didSet {
             UserDefaults.standard.set(restrictSearchToLocality, forKey: "restrictSearchToLocality")
@@ -251,6 +257,9 @@ class UserSettingsManager: ObservableObject {
         
         let savedNotificationSound = UserDefaults.standard.string(forKey: "notificationSound") ?? NotificationSound.defaultSound.rawValue
         self.notificationSound = NotificationSound(rawValue: savedNotificationSound) ?? .defaultSound
+        
+        let savedNotificationBannerStyle = UserDefaults.standard.string(forKey: "notificationBannerStyle") ?? NotificationBannerStyle.banner.rawValue
+        self.notificationBannerStyle = NotificationBannerStyle(rawValue: savedNotificationBannerStyle) ?? .banner
         
         // Location-based search settings
         self.restrictSearchToLocality = UserDefaults.standard.bool(forKey: "restrictSearchToLocality")

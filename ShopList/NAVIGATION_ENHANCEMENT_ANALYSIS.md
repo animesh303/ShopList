@@ -282,22 +282,104 @@ var defaultGradient: LinearGradient {
 - **Dynamic Banners**: Context-aware banner content
 - **Interactive Elements**: Subtle interaction feedback
 - **Custom Animations**: Optional animation support
-- **Accessibility Enhancements**: VoiceOver optimizations
 
-### 2. Scalability
+## Notification Banner Style Persistence
 
-- **Theme System**: Support for multiple app themes
-- **Custom Gradients**: User-defined gradient options
-- **Banner Templates**: Predefined banner layouts
+### Overview
 
-## Conclusion
+The notification banner style persistence feature allows users to customize how notifications are displayed when the app is in the foreground. This provides a more personalized notification experience.
 
-The navigation enhancement successfully transforms the app's visual identity by:
+### Implementation Details
 
-1. **Improving Visual Appeal**: Rich, colorful banners replace plain text titles
-2. **Enhancing Brand Consistency**: Unified design language across all screens
-3. **Providing Better Context**: Icons and subtitles improve user understanding
-4. **Maintaining Performance**: No animations ensure smooth operation
-5. **Supporting Accessibility**: High contrast and clear visual hierarchy
+#### 1. NotificationBannerStyle Enum
 
-The implementation follows iOS design guidelines while adding distinctive visual character that makes the app more engaging and professional.
+**Location**: `ShopList/Models/AppEnums.swift`
+
+**Options**:
+
+- **Banner**: Shows as a banner at the top of the screen (default)
+- **Alert**: Shows as a modal alert dialog
+- **None**: No visual notification (sound and badge still work)
+
+**Features**:
+
+- Icons for each style option
+- Color coding for visual distinction
+- Descriptive text for each option
+
+#### 2. UserSettingsManager Integration
+
+**Location**: `ShopList/Managers/UserSettingsManager.swift`
+
+**Properties**:
+
+```swift
+@Published var notificationBannerStyle: NotificationBannerStyle {
+    didSet {
+        UserDefaults.standard.set(notificationBannerStyle.rawValue, forKey: "notificationBannerStyle")
+    }
+}
+```
+
+**Initialization**:
+
+- Defaults to `.banner` style
+- Persists user preference across app launches
+- Integrates with existing notification settings
+
+#### 3. NotificationManager Updates
+
+**Location**: `ShopList/Managers/NotificationManager.swift`
+
+**Changes**:
+
+- Replaced hardcoded banner presentation with user preference
+- Dynamic presentation options based on selected style
+- Maintains sound and badge functionality regardless of visual style
+
+**Implementation**:
+
+```swift
+switch userBannerStyle {
+case .banner:
+    presentationOptions = [.banner, .sound, .badge]
+case .alert:
+    presentationOptions = [.alert, .sound, .badge]
+case .none:
+    presentationOptions = [.sound, .badge] // No visual, but sound and badge
+}
+```
+
+#### 4. UI Integration
+
+**SettingsView**: Added notification style picker in the notifications section
+**NotificationSettingsView**: Added dedicated notification preferences section
+
+**Features**:
+
+- Visual icons for each style option
+- Descriptive text explaining each option
+- Consistent design with existing settings
+- Real-time preview of changes
+
+### User Experience Benefits
+
+1. **Personalization**: Users can choose their preferred notification style
+2. **Accessibility**: Different styles accommodate different user needs
+3. **Environment Awareness**: Users can choose appropriate styles for different contexts
+4. **Consistency**: Setting persists across app sessions
+5. **Flexibility**: Multiple options for different use cases
+
+### Technical Benefits
+
+1. **Persistent Storage**: User preferences saved to UserDefaults
+2. **Type Safety**: Enum-based implementation prevents invalid values
+3. **Extensible**: Easy to add new notification styles in the future
+4. **Performance**: No impact on notification delivery performance
+5. **Integration**: Seamlessly integrates with existing notification system
+
+### Usage Examples
+
+- **Banner Style**: Best for quick, non-intrusive notifications
+- **Alert Style**: Best for important notifications requiring user attention
+- **None Style**: Best for quiet environments or when visual notifications are distracting
