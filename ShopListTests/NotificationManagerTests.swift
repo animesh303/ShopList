@@ -144,7 +144,7 @@ final class NotificationManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Schedule location reminder with premium")
         
         Task {
-            let result = await notificationManager.scheduleLocationReminder(for: list, at: location, radius: 100, message: "Test message")
+            _ = await notificationManager.scheduleLocationReminder(for: list, at: location, radius: 100, message: "Test message")
             // This might still fail due to authorization, but it should pass the premium check
             // The actual result depends on notification authorization status
             expectation.fulfill()

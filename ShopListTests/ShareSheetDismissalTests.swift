@@ -107,13 +107,12 @@ final class ShareSheetDismissalTests: XCTestCase {
         let list = ShoppingList(name: "Test List", category: .groceries)
         subscriptionManager.mockSubscribe()
         
-        var dismissHandlerCalled = false
-        
         // When: Creating ShareSheet with dismiss handler
         let shareSheet = ShareSheet(
             activityItems: viewModel.getShareableItems(for: list, currency: .USD),
             onDismiss: {
-                dismissHandlerCalled = true
+                // This would be called when sharing completes or is cancelled
+                // We can't simulate this in unit tests, but we can verify the ShareSheet is set up correctly
             }
         )
         
@@ -123,6 +122,5 @@ final class ShareSheetDismissalTests: XCTestCase {
         // Note: In a real scenario, the dismiss handler would be called by the UIActivityViewController
         // when the user completes or cancels the sharing action. We can't simulate this in unit tests,
         // but we can verify the ShareSheet is set up correctly.
-        // The dismissHandlerCalled variable is intentionally unused as we can't simulate the actual dismissal
     }
 } 

@@ -42,11 +42,17 @@ final class SubscriptionManagerTests: XCTestCase {
     func testInitialState() {
         let expectation = XCTestExpectation(description: "Wait for loading to finish")
         let manager = subscriptionManager!
+        
+        // Capture the values we need to avoid sendable issues
+        let isLoading = { manager.isLoading }
+        
         func check() {
-            if !manager.isLoading {
+            if !isLoading() {
                 expectation.fulfill()
             } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: check)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    check()
+                }
             }
         }
         check()
