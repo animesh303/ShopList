@@ -11,9 +11,17 @@ final class ShoppingListViewModel: ObservableObject {
         if let instance = sharedInstance {
             return instance
         }
+        // Ensure we're on the main actor when creating the shared instance
+        assert(Thread.isMainThread, "Shared instance must be created on main thread")
         let instance = ShoppingListViewModel()
         sharedInstance = instance
         return instance
+    }
+    
+    /// Creates a test instance with a specific ModelContext for testing purposes
+    static func createForTesting(modelContext: ModelContext) -> ShoppingListViewModel {
+        assert(Thread.isMainThread, "Test instance must be created on main thread")
+        return ShoppingListViewModel(modelContext: modelContext, skipInitialLoad: true)
     }
     
     @Published var shoppingLists: [ShoppingList] = []
@@ -34,13 +42,29 @@ final class ShoppingListViewModel: ObservableObject {
     
     private let modelContext: ModelContext
     
-    init(modelContext: ModelContext? = nil) {
+    // MARK: - Testing Support
+    
+    /// Access to modelContext for testing purposes
+    var testModelContext: ModelContext {
+        return modelContext
+    }
+    
+    // MARK: - Initialization
+    
+    init(modelContext: ModelContext? = nil, skipInitialLoad: Bool = false) {
+        // Ensure we're on the main actor when initializing
+        assert(Thread.isMainThread, "ShoppingListViewModel must be initialized on main thread")
+        
         if let modelContext = modelContext {
+            // Ensure we're on the main actor when setting the context
+            assert(Thread.isMainThread, "ModelContext must be set on main thread")
             self.modelContext = modelContext
         } else {
             do {
                 let config = ModelConfiguration(isStoredInMemoryOnly: false)
-                let container = try ModelContainer(for: ShoppingList.self, Item.self, ItemHistory.self, configurations: config)
+                let container = try ModelContainer(for: ShoppingList.self, Item.self, ItemHistory.self, Location.self, configurations: config)
+                // Ensure we're on the main actor when creating the context
+                assert(Thread.isMainThread, "ModelContext must be created on main thread")
                 self.modelContext = container.mainContext
             } catch {
                 fatalError("Failed to initialize ModelContainer: \(error)")
@@ -50,13 +74,31 @@ final class ShoppingListViewModel: ObservableObject {
         // Initialize with empty state
         self.shoppingLists = []
         
-        // Load data asynchronously
-        Task {
-            await loadShoppingLists()
+        // Only load data if not skipping initial load (for tests)
+        if !skipInitialLoad {
+            loadShoppingListsSync()
         }
     }
     
-
+    private func loadShoppingListsSync() {
+        print("Loading shopping lists from SwiftData...")
+        let descriptor = FetchDescriptor<ShoppingList>()
+        
+        do {
+            // Ensure we're on the main actor
+            assert(Thread.isMainThread, "loadShoppingListsSync must be called on main thread")
+            
+            // ModelContext is non-optional, so no need to check for nil
+            // The guard statement was redundant since modelContext is a non-optional property
+            
+            let lists = try modelContext.fetch(descriptor)
+            print("Successfully loaded \(lists.count) shopping lists")
+            self.shoppingLists = lists
+        } catch {
+            print("Error loading shopping lists: \(error.localizedDescription)")
+            handleError(error)
+        }
+    }
     
     private func loadShoppingLists() async {
         print("Loading shopping lists from SwiftData...")
@@ -72,7 +114,7 @@ final class ShoppingListViewModel: ObservableObject {
         }
     }
     
-    func getSuggestions(for query: String) -> [Item] {
+    func getSuggestions(for query: String) async -> [Item] {
         guard !query.isEmpty else {
             print("Query is empty, returning no suggestions")
             return []
@@ -110,7 +152,7 @@ final class ShoppingListViewModel: ObservableObject {
         }
     }
     
-    func addOrUpdateSuggestion(_ item: Item) {
+    func addOrUpdateSuggestion(_ item: Item) async {
         let name = item.name.trimmingCharacters(in: .whitespacesAndNewlines)
         let lowercaseName = name.lowercased()
         guard !name.isEmpty else { return }
@@ -161,7 +203,7 @@ final class ShoppingListViewModel: ObservableObject {
     func deleteShoppingList(_ list: ShoppingList) async throws {
         // Update history for all items before deleting the list
         for item in list.items {
-            addOrUpdateSuggestion(item)
+            await addOrUpdateSuggestion(item)
         }
         
         modelContext.delete(list)
@@ -172,7 +214,7 @@ final class ShoppingListViewModel: ObservableObject {
     func addItem(_ item: Item, to list: ShoppingList) async throws {
         list.addItem(item)
         try modelContext.save()
-        addOrUpdateSuggestion(item)
+        await addOrUpdateSuggestion(item)
     }
     
     func updateItem(_ item: Item, in list: ShoppingList) async throws {
@@ -216,7 +258,7 @@ final class ShoppingListViewModel: ObservableObject {
         }
         list.addItem(item)
         try modelContext.save()
-        addOrUpdateSuggestion(item)
+        await addOrUpdateSuggestion(item)
     }
     
     private func handleError(_ error: Error) {

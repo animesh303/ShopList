@@ -203,6 +203,7 @@ struct AddItemView: View {
     @State private var showingPremiumUpgrade = false
     @State private var isUnitSheetPresented = false
     @State private var unitSearchText = ""
+    @State private var suggestions: [(name: String, category: ItemCategory)] = []
     
     @FocusState private var focusedField: Field?
     
@@ -454,9 +455,9 @@ struct AddItemView: View {
             .sheet(isPresented: $showingCamera) {
                 CameraView(image: $itemImage, imageData: $imageData)
             }
-            .onChange(of: selectedImage) { _, newValue in
+            .onChange(of: selectedImage) {
                 Task {
-                    if let data = try? await newValue?.loadTransferable(type: Data.self) {
+                    if let data = try? await selectedImage?.loadTransferable(type: Data.self) {
                         imageData = data
                         if let uiImage = UIImage(data: data) {
                             itemImage = Image(uiImage: uiImage)
@@ -521,21 +522,22 @@ struct AddItemView: View {
                         .fontWeight(.medium)
                         .foregroundColor(DesignSystem.Colors.primaryText)
                     
-                    TextField("Enter item name", text: $name)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .textContentType(.name)
-                        .onChange(of: name) { _, newValue in
-                            if !newValue.isEmpty {
-                                showingSuggestions = true
-                            } else {
-                                showingSuggestions = false
+                    TextField("Item name", text: $name)
+                        .onChange(of: name) {
+                            Task {
+                                let newSuggestions = await getSuggestions(for: name)
+                                await MainActor.run {
+                                    suggestions = newSuggestions
+                                }
                             }
                         }
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .textContentType(.name)
                 }
                 
                 if showingSuggestions {
                     SuggestionsListView(
-                        suggestions: getSuggestions(for: name),
+                        suggestions: suggestions,
                         onSelect: { suggestion in
                             onSuggestionSelected(suggestion)
                         }
@@ -902,7 +904,7 @@ struct AddItemView: View {
         }
     }
     
-    private func getSuggestions(for query: String) -> [(name: String, category: ItemCategory)] {
+    private func getSuggestions(for query: String) async -> [(name: String, category: ItemCategory)] {
         print("Getting suggestions for query: \(query)")
         
         // Compute lowercase query before creating predicate

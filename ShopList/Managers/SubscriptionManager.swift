@@ -59,6 +59,11 @@ class SubscriptionManager: NSObject, ObservableObject {
     private var updateListenerTask: Task<Void, Error>?
     private var modelContext: ModelContext?
     
+    // Test-specific list count tracking (only used in debug builds)
+    #if DEBUG
+    private var testListCount: Int = 0
+    #endif
+    
     private override init() {
         super.init()
         
@@ -81,6 +86,33 @@ class SubscriptionManager: NSObject, ObservableObject {
     func setModelContext(_ context: ModelContext) {
         self.modelContext = context
     }
+    
+    /// Clears the ModelContext reference (useful for testing cleanup)
+    func clearModelContext() {
+        self.modelContext = nil
+        #if DEBUG
+        self.testListCount = 0
+        #endif
+    }
+    
+    // MARK: - Test-specific list count management
+    
+    #if DEBUG
+    /// Increment the test list count (for testing purposes only)
+    func incrementTestListCount() {
+        testListCount += 1
+    }
+    
+    /// Decrement the test list count (for testing purposes only)
+    func decrementTestListCount() {
+        testListCount = max(0, testListCount - 1)
+    }
+    
+    /// Reset the test list count (for testing purposes only)
+    func resetTestListCount() {
+        testListCount = 0
+    }
+    #endif
     
     // MARK: - Persistence
     
@@ -322,8 +354,10 @@ class SubscriptionManager: NSObject, ObservableObject {
     // MARK: - Helper Methods
     
     private func getCurrentListsCount() -> Int {
+        #if DEBUG
+        return testListCount
+        #else
         guard let modelContext = modelContext else { return 0 }
-        
         do {
             let descriptor = FetchDescriptor<ShoppingList>()
             let lists = try modelContext.fetch(descriptor)
@@ -332,6 +366,7 @@ class SubscriptionManager: NSObject, ObservableObject {
             print("Error fetching lists count: \(error)")
             return 0
         }
+        #endif
     }
     
     func getUpgradePrompt(for feature: PremiumFeature) -> String {
@@ -487,6 +522,14 @@ class SubscriptionManager: NSObject, ObservableObject {
         let persistedTierString = UserDefaults.standard.string(forKey: "subscriptionTier")
         print("SubscriptionManager: Debug - Persisted isPremium: \(persistedIsPremium), Tier: \(persistedTierString ?? "nil")")
         print("SubscriptionManager: Debug - Current isPremium: \(isPremium), Tier: \(currentTier)")
+    }
+    
+    /// Reset notification count for testing purposes
+    func resetNotificationCount() {
+        let today = Calendar.current.startOfDay(for: Date())
+        let key = "notification_count_\(today.timeIntervalSince1970)"
+        UserDefaults.standard.removeObject(forKey: key)
+        print("SubscriptionManager: Reset notification count for testing")
     }
 }
 

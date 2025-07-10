@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "CD278E89-009D-473C-A26C-D90830ACBD07",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:ShopList.xcodeproj",
+        "identifier" : "3122A11D2DFCA51500E14FA4",
+        "name" : "ShopListTests"
+      }
+    }
+  ],
+  "version" : 1
+}

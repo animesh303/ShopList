@@ -30,7 +30,10 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:UITestPlan.xctestplan"
+            reference = "container:UITestPlan.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:ShopList-UnitTestPlan.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
@@ -54,6 +57,16 @@
                BlueprintIdentifier = "3122A12A2DFCA52800E14FA4"
                BuildableName = "ShopListUITests.xctest"
                BlueprintName = "ShopListUITests"
+               ReferencedContainer = "container:ShopList.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3122A11D2DFCA51500E14FA4"
+               BuildableName = "ShopListTests.xctest"
+               BlueprintName = "ShopListTests"
                ReferencedContainer = "container:ShopList.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3122A1192DFCA4CC00E14FA4 /* UITestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 3122A1182DFCA4CC00E14FA4 /* UITestPlan.xctestplan */; };
+		31DF98712E1B05D7000A4926 /* ShopList-UnitTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 31DF98702E1B05D7000A4926 /* ShopList-UnitTestPlan.xctestplan */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +33,7 @@
 		3122A1182DFCA4CC00E14FA4 /* UITestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestPlan.xctestplan; sourceTree = "<group>"; };
 		3122A11E2DFCA51500E14FA4 /* ShopListTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShopListTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3122A12B2DFCA52800E14FA4 /* ShopListUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShopListUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		31DF98702E1B05D7000A4926 /* ShopList-UnitTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ShopList-UnitTestPlan.xctestplan"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,6 +82,7 @@
 		3122A0D92DFC9E4D00E14FA4 = {
 			isa = PBXGroup;
 			children = (
+				31DF98702E1B05D7000A4926 /* ShopList-UnitTestPlan.xctestplan */,
 				3122A1182DFCA4CC00E14FA4 /* UITestPlan.xctestplan */,
 				3122A0E42DFC9E4E00E14FA4 /* ShopList */,
 				3122A11F2DFCA51500E14FA4 /* ShopListTests */,
@@ -219,6 +222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3122A1192DFCA4CC00E14FA4 /* UITestPlan.xctestplan in Resources */,
+				31DF98712E1B05D7000A4926 /* ShopList-UnitTestPlan.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -114,6 +114,7 @@ final class ShoppingList {
         }
     }
     
+    /// Updates an item in the list by matching its id. If not found, does nothing.
     func updateItem(_ item: Item) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index] = item
@@ -121,6 +122,8 @@ final class ShoppingList {
         }
     }
     
+    /// Reorders items in the list using Swift's move(fromOffsets:toOffset:).
+    /// This is the correct way to reorder items for SwiftUI drag-and-drop.
     func reorderItems(from source: IndexSet, to destination: Int) {
         items.move(fromOffsets: source, toOffset: destination)
         lastModified = Date()
