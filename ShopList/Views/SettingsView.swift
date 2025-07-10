@@ -482,6 +482,28 @@ struct SettingsView: View {
                             }
                             .pickerStyle(MenuPickerStyle())
                             
+                            Picker("Notification Style", selection: $settingsManager.notificationBannerStyle) {
+                                ForEach(NotificationBannerStyle.allCases) { style in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: style.icon)
+                                            .renderingMode(.template)
+                                            .foregroundColor(DesignSystem.Colors.accent1)
+                                            .font(.title3)
+                                            .frame(width: 20)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(style.rawValue)
+                                                .font(DesignSystem.Typography.body)
+                                                .foregroundColor(DesignSystem.Colors.accent1)
+                                            Text(style.description)
+                                                .font(DesignSystem.Typography.caption2)
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                    }
+                                    .tag(style)
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                            
                             NavigationLink("Manage Notifications") {
                                 NotificationSettingsView()
                             }

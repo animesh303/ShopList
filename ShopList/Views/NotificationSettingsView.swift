@@ -152,6 +152,79 @@ struct NotificationSettingsView: View {
                         )
                     )
                     
+                    // Notification Preferences Section - Info Blue Gradient
+                    Section {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "speaker.wave.2")
+                                    .font(.title3)
+                                    .foregroundColor(DesignSystem.Colors.info)
+                                Text("Notification Sound")
+                                    .headlineStyle()
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                Spacer()
+                            }
+                            
+                            Picker("Sound", selection: $settingsManager.notificationSound) {
+                                ForEach(NotificationSound.allCases) { sound in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: sound.icon)
+                                            .foregroundColor(sound.color)
+                                            .font(.title3)
+                                        Text(sound.rawValue)
+                                            .font(DesignSystem.Typography.body)
+                                    }
+                                    .tag(sound)
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "rectangle.topthird.inset")
+                                    .font(.title3)
+                                    .foregroundColor(DesignSystem.Colors.info)
+                                Text("Notification Style")
+                                    .headlineStyle()
+                                    .foregroundColor(DesignSystem.Colors.primaryText)
+                                Spacer()
+                            }
+                            
+                            Picker("Style", selection: $settingsManager.notificationBannerStyle) {
+                                ForEach(NotificationBannerStyle.allCases) { style in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: style.icon)
+                                            .foregroundColor(style.color)
+                                            .font(.title3)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(style.rawValue)
+                                                .font(DesignSystem.Typography.body)
+                                            Text(style.description)
+                                                .font(DesignSystem.Typography.caption2)
+                                                .foregroundColor(DesignSystem.Colors.secondaryText)
+                                        }
+                                    }
+                                    .tag(style)
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                        }
+                    } header: {
+                        Text("Notification Preferences")
+                            .foregroundColor(DesignSystem.Colors.primaryText)
+                    }
+                    .listRowBackground(
+                        LinearGradient(
+                            colors: [
+                                DesignSystem.Colors.info.opacity(0.1),
+                                DesignSystem.Colors.info.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    
                     // Actions Section - Warning Orange Gradient
                     Section {
                         Button(action: {

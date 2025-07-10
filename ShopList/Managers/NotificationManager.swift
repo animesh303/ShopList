@@ -394,8 +394,22 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        // Show notification even when app is in foreground
-        completionHandler([.banner, .sound, .badge])
+        // Get the user's preferred banner style
+        let bannerStyle = UserDefaults.standard.string(forKey: "notificationBannerStyle") ?? NotificationBannerStyle.banner.rawValue
+        let userBannerStyle = NotificationBannerStyle(rawValue: bannerStyle) ?? .banner
+        
+        var presentationOptions: UNNotificationPresentationOptions = []
+        
+        switch userBannerStyle {
+        case .banner:
+            presentationOptions = [.banner, .sound, .badge]
+        case .alert:
+            presentationOptions = [.alert, .sound, .badge]
+        case .none:
+            presentationOptions = [.sound, .badge] // Still show sound and badge but no visual
+        }
+        
+        completionHandler(presentationOptions)
     }
     
     nonisolated func userNotificationCenter(

@@ -221,6 +221,38 @@ enum NotificationSound: String, CaseIterable, Identifiable {
     }
 }
 
+enum NotificationBannerStyle: String, CaseIterable, Identifiable {
+    case banner = "Banner"
+    case alert = "Alert"
+    case none = "None"
+    
+    var id: String { rawValue }
+    
+    var icon: String {
+        switch self {
+        case .banner: return "rectangle.topthird.inset"
+        case .alert: return "exclamationmark.triangle"
+        case .none: return "rectangle.slash"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .banner: return .blue
+        case .alert: return .orange
+        case .none: return .gray
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .banner: return "Shows as a banner at the top"
+        case .alert: return "Shows as a modal alert"
+        case .none: return "No visual notification"
+        }
+    }
+}
+
 enum Unit: String, CaseIterable, Identifiable {
     case none = ""
     case kilogram = "kg"
