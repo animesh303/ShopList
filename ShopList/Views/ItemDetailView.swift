@@ -27,6 +27,7 @@ struct ItemDetailView: View {
     @State private var showingImageOptions = false
     @State private var showingCamera = false
     @State private var itemImage: Image?
+    @State private var imageData: Data?
     
     init(item: Item) {
         self.item = item
@@ -158,6 +159,7 @@ struct ItemDetailView: View {
         .onChange(of: selectedImage) { _, newValue in
             Task {
                 if let data = try? await newValue?.loadTransferable(type: Data.self) {
+                    imageData = data
                     if let uiImage = UIImage(data: data) {
                         itemImage = Image(uiImage: uiImage)
                     }
@@ -233,7 +235,7 @@ struct ItemDetailView: View {
             }
             .photosPicker(isPresented: $showingImagePicker, selection: $selectedImage, matching: .images)
             .sheet(isPresented: $showingCamera) {
-                CameraView(image: $itemImage, imageData: .constant(nil))
+                CameraView(image: $itemImage, imageData: $imageData)
             }
             
             // Centered footer text
@@ -637,34 +639,45 @@ struct ItemDetailView: View {
     }
     
     private func saveChanges() {
-        do {
-            item.name = name
-            item.brand = brand.isEmpty ? nil : brand
-            item.quantity = Decimal(quantity)
-            item.unit = unit == .none ? nil : unit.rawValue
-            item.category = category
-            item.priority = priority
-            item.pricePerUnit = pricePerUnit.map { Decimal($0) }
-            item.notes = notes.isEmpty ? nil : notes
-            
-            if let selectedImage = selectedImage {
-                Task {
+        Task {
+            do {
+                item.name = name
+                item.brand = brand.isEmpty ? nil : brand
+                item.quantity = Decimal(quantity)
+                item.unit = unit == .none ? nil : unit.rawValue
+                item.category = category
+                item.priority = priority
+                item.pricePerUnit = pricePerUnit.map { Decimal($0) }
+                item.notes = notes.isEmpty ? nil : notes
+                
+                // Handle image saving
+                if let selectedImage = selectedImage {
                     do {
                         if let data = try await selectedImage.loadTransferable(type: Data.self) {
                             item.imageData = data
                         }
                     } catch {
-                        errorMessage = "Failed to load image: \(error.localizedDescription)"
-                        showingError = true
+                        await MainActor.run {
+                            errorMessage = "Failed to load image: \(error.localizedDescription)"
+                            showingError = true
+                        }
+                        return
                     }
+                } else if let imageData = imageData {
+                    // Handle camera image data
+                    item.imageData = imageData
+                }
+                
+                try modelContext.save()
+                await MainActor.run {
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    showingError = true
                 }
             }
-            
-            try modelContext.save()
-            dismiss()
-        } catch {
-            errorMessage = error.localizedDescription
-            showingError = true
         }
     }
 }
