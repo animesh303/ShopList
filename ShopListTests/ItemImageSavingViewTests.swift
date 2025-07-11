@@ -302,26 +302,21 @@ final class ItemImageSavingViewTests: BaseTestCase {
         
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             Task {
+                // Simulate a failed image loading scenario
+                let mockItem = MockPhotosPickerItem(imageData: nil, shouldFail: true)
+                
                 do {
-                    // Simulate a failed image loading scenario
-                    let mockItem = MockPhotosPickerItem(imageData: nil, shouldFail: true)
-                    
-                    do {
-                        if let data = try await mockItem.loadTransferable(type: Data.self) {
-                            // This should not happen since the mock is set to fail
-                            XCTFail("Expected error to be thrown")
-                        }
-                    } catch {
-                        // This is the expected error handling path
-                        errorMessage = "Failed to load image: \(error.localizedDescription)"
-                        showingError = true
+                    if let data = try await mockItem.loadTransferable(type: Data.self) {
+                        // This should not happen since the mock is set to fail
+                        XCTFail("Expected error to be thrown")
                     }
-                    
-                    continuation.resume()
                 } catch {
-                    XCTFail("Unexpected error: \(error)")
-                    continuation.resume()
+                    // This is the expected error handling path
+                    errorMessage = "Failed to load image: \(error.localizedDescription)"
+                    showingError = true
                 }
+                
+                continuation.resume()
             }
         }
         
