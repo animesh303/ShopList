@@ -455,9 +455,9 @@ struct AddItemView: View {
             .sheet(isPresented: $showingCamera) {
                 CameraView(image: $itemImage, imageData: $imageData)
             }
-            .onChange(of: selectedImage) {
+            .onChange(of: selectedImage) { _, newValue in
                 Task {
-                    if let data = try? await selectedImage?.loadTransferable(type: Data.self) {
+                    if let data = try? await newValue?.loadTransferable(type: Data.self) {
                         imageData = data
                         if let uiImage = UIImage(data: data) {
                             itemImage = Image(uiImage: uiImage)
