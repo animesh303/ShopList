@@ -118,14 +118,14 @@ final class ItemImageSavingViewTests: BaseTestCase {
         item.imageData = sampleImageData
         
         // Simulate ItemDetailView initialization
-        var name = item.name
-        var brand = item.brand ?? ""
-        var quantity = Double(truncating: item.quantity as NSDecimalNumber)
-        var unit = Unit(rawValue: item.unit ?? "") ?? .none
-        var category = item.category
-        var priority = item.priority
-        var pricePerUnit = item.pricePerUnit.map { Double(truncating: $0 as NSDecimalNumber) }
-        var notes = item.notes ?? ""
+        let name = item.name
+        let brand = item.brand ?? ""
+        let quantity = Double(truncating: item.quantity as NSDecimalNumber)
+        let unit = Unit(rawValue: item.unit ?? "") ?? .none
+        let category = item.category
+        let priority = item.priority
+        let pricePerUnit = item.pricePerUnit.map { Double(truncating: $0 as NSDecimalNumber) }
+        let notes = item.notes ?? ""
         var itemImage: Image? = nil
         var imageData: Data? = nil
         
@@ -134,6 +134,16 @@ final class ItemImageSavingViewTests: BaseTestCase {
             itemImage = Image(uiImage: uiImage)
             imageData = existingImageData
         }
+        
+        // Verify the initialization worked correctly
+        XCTAssertEqual(name, "Test Item")
+        XCTAssertEqual(brand, "")
+        XCTAssertEqual(quantity, 1.0) // Default quantity
+        XCTAssertEqual(unit, .none)
+        XCTAssertEqual(category, .groceries)
+        XCTAssertEqual(priority, .normal) // Default priority
+        XCTAssertNil(pricePerUnit)
+        XCTAssertEqual(notes, "")
         
         XCTAssertNotNil(itemImage)
         XCTAssertNotNil(imageData)
@@ -306,7 +316,7 @@ final class ItemImageSavingViewTests: BaseTestCase {
                 let mockItem = MockPhotosPickerItem(imageData: nil, shouldFail: true)
                 
                 do {
-                    if let data = try await mockItem.loadTransferable(type: Data.self) {
+                    if try await mockItem.loadTransferable(type: Data.self) != nil {
                         // This should not happen since the mock is set to fail
                         XCTFail("Expected error to be thrown")
                     }

@@ -404,7 +404,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         case .banner:
             presentationOptions = [.banner, .sound, .badge]
         case .alert:
-            presentationOptions = [.alert, .sound, .badge]
+            presentationOptions = [.banner, .sound, .badge]
         case .none:
             presentationOptions = [.sound, .badge] // Still show sound and badge but no visual
         }
